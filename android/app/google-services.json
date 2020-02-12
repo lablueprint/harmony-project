@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "454632594128",
+    "firebase_url": "https://la-blueprint-harmony-project.firebaseio.com",
+    "project_id": "la-blueprint-harmony-project",
+    "storage_bucket": "la-blueprint-harmony-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:454632594128:android:e79785e6d105b81aea1cd5",
+        "android_client_info": {
+          "package_name": "com.lablueprint.harmonyproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "454632594128-5p6s28blpsvh6t37pohuds6pcqbvge23.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsFX1BuCtZbhOl8Pvb3Q7y9TZ_DpAmEd8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "454632594128-5p6s28blpsvh6t37pohuds6pcqbvge23.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
