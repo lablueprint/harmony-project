@@ -1,4 +1,4 @@
-package com.harmonyproject;
+package com.lablueprint.harmonyproject;
 
 import com.facebook.react.ReactActivity;
 
