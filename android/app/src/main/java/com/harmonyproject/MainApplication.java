@@ -1,4 +1,4 @@
-package com.harmonyproject;
+package com.lablueprint.harmonyproject;
 
 import android.app.Application;
 import android.content.Context;
