@@ -484,7 +484,7 @@ PODS:
     - React-cxxreact (= 0.61.5)
     - React-jsi (= 0.61.5)
     - ReactCommon/jscallinvoker (= 0.61.5)
-  - RNFBApp (6.3.2):
+  - RNFBApp (6.3.3):
     - Firebase/Core (~> 6.13.0)
     - React
   - RNFirebase (5.6.0):
@@ -663,7 +663,7 @@ SPEC CHECKSUMS:
   React-RCTText: 9ccc88273e9a3aacff5094d2175a605efa854dbe
   React-RCTVibration: a49a1f42bf8f5acf1c3e297097517c6b3af377ad
   ReactCommon: 198c7c8d3591f975e5431bec1b0b3b581aa1c5dd
-  RNFBApp: fc62d1e8adbc871fc7c27314c8e0842aebb44514
+  RNFBApp: 887ccc5840f93abad3202ff23eb0faf7bee4ac12
   RNFirebase: 37daa9a346d070f9f6ee1f3b4aaf4c8e3b1d5d1c
   RNGestureHandler: 911d3b110a7a233a34c4f800e7188a84b75319c6
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
