@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Button, View, Text } from 'react-native';
 
-export default function Home({ navigation }) {
+export default function Register({ navigation }) {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Home</Text>
+      <Text>Register</Text>
     </View>
   );
 }
 
-Home.navigationOptions = ({ navigation }) => ({
-  title: 'Home',
+Register.navigationOptions = ({ navigation }) => ({
+  title: 'Register',
+  headerShown: false,
 });
