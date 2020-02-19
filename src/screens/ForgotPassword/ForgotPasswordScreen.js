@@ -35,19 +35,15 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function SignUpScreen({ navigation }) {
+export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showLoading, setShowLoading] = useState(false);
 
-  const signup = async () => {
+  const forgotpassword = async () => {
     setShowLoading(true);
     try {
-      const doSignUp = await auth().createUserWithEmailAndPassword(email, password);
+      await auth().sendPasswordResetEmail(email);
       setShowLoading(false);
-      if (doSignUp.user) {
-        navigation.navigate('Home');
-      }
     } catch (e) {
       setShowLoading(false);
       Alert.alert(
@@ -55,12 +51,11 @@ export default function SignUpScreen({ navigation }) {
       );
     }
   };
-
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontSize: 28, height: 50 }}>Sign Up Here!</Text>
+          <Text style={{ fontSize: 28, height: 50 }}>Reset Password!</Text>
         </View>
         <View style={styles.subContainer}>
           <Input
@@ -77,18 +72,17 @@ export default function SignUpScreen({ navigation }) {
           />
         </View>
         <View style={styles.subContainer}>
-          <Input
+          <Button
             style={styles.textInput}
-            placeholder="Your Password"
-            leftIcon={(
+            icon={(
               <Icon
-                name="lock"
-                size={24}
+                name="input"
+                size={15}
+                color="white"
               />
                       )}
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
+            title="Forgot Password"
+            onPress={() => forgotpassword()}
           />
         </View>
         <View style={styles.subContainer}>
@@ -101,24 +95,7 @@ export default function SignUpScreen({ navigation }) {
                 color="white"
               />
                       )}
-            title="Sign Up"
-            onPress={() => signup()}
-          />
-        </View>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text>Already a user?</Text>
-        </View>
-        <View style={styles.subContainer}>
-          <Button
-            style={styles.textInput}
-            icon={(
-              <Icon
-                name="input"
-                size={15}
-                color="white"
-              />
-                      )}
-            title="Login"
+            title="Back to Login"
             onPress={() => {
               navigation.navigate('SignIn');
             }}
@@ -135,7 +112,7 @@ export default function SignUpScreen({ navigation }) {
   );
 }
 
-SignUpScreen.navigationOptions = ({ navigation }) => ({
-  title: 'Sign Up',
+ForgotPasswordScreen.navigationOptions = ({ navigation }) => ({
+  title: 'Forgot Password',
   headerShown: false,
 });
