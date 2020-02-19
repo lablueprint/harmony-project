@@ -53,5 +53,21 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>
+     $(PRODUCT_NAME) would like access to your photo gallery to let   you upload your pictures to the feed.
+    </string>
+    <key>NSCameraUsageDescription</key>
+    <string>
+     $(PRODUCT_NAME) would like to use your camera to take picture and share them on your feed.
+    </string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>
+     $(PRODUCT_NAME) would like to save photos to your photo gallery to upload pictures to your feed.
+    </string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>
+     $(PRODUCT_NAME) would like to use your microphone for videos sharing on your feed.
+    </string>
 </dict>
 </plist>
