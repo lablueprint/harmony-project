@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
   },
   subContainer: {
     marginBottom: 20,
-    padding: 5,
+    padding: 10,
   },
   activity: {
     position: 'absolute',
@@ -62,7 +62,7 @@ export default function SignInScreen({ navigation }) {
         <View style={styles.subContainer}>
           <Input
             style={styles.textInput}
-            placeholder="Your Email"
+            placeholder="Email"
             leftIcon={(
               <Icon
                 name="mail"
@@ -76,7 +76,7 @@ export default function SignInScreen({ navigation }) {
         <View style={styles.subContainer}>
           <Input
             style={styles.textInput}
-            placeholder="Your Password"
+            placeholder="Password"
             leftIcon={(
               <Icon
                 name="lock"
@@ -115,7 +115,7 @@ export default function SignInScreen({ navigation }) {
                 color="white"
               />
                       )}
-            title="Forgot Password?"
+            title="Reset Password"
             onPress={() => {
               navigation.navigate('ForgotPassword');
             }}

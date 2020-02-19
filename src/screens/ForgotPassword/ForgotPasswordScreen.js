@@ -55,12 +55,12 @@ export default function ForgotPasswordScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.formContainer}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontSize: 28, height: 50 }}>Reset Password!</Text>
+          <Text style={{ fontSize: 28, height: 50 }}>Forgot Your Password?</Text>
         </View>
         <View style={styles.subContainer}>
           <Input
             style={styles.textInput}
-            placeholder="Your Email"
+            placeholder="Email"
             leftIcon={(
               <Icon
                 name="mail"
@@ -81,7 +81,7 @@ export default function ForgotPasswordScreen({ navigation }) {
                 color="white"
               />
                       )}
-            title="Forgot Password"
+            title="Reset Password"
             onPress={() => forgotpassword()}
           />
         </View>

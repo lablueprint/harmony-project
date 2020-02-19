@@ -65,7 +65,7 @@ export default function SignUpScreen({ navigation }) {
         <View style={styles.subContainer}>
           <Input
             style={styles.textInput}
-            placeholder="Your Email"
+            placeholder="Email"
             leftIcon={(
               <Icon
                 name="mail"
@@ -79,7 +79,7 @@ export default function SignUpScreen({ navigation }) {
         <View style={styles.subContainer}>
           <Input
             style={styles.textInput}
-            placeholder="Your Password"
+            placeholder="Password"
             leftIcon={(
               <Icon
                 name="lock"
