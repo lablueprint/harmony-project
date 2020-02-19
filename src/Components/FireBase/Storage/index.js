@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Alert, Text, View } from 'react-native';
 
-import { FireBaseStorage } from '../Utils/FireBaseStorage'
+import { FireBaseStorage } from './FireBaseStorage'
 
 const TestFireBase = () => {
 
