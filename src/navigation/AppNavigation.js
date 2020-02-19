@@ -3,7 +3,7 @@ import HomeScreen from '../screens/Home';
 
 const AppNavigation = createStackNavigator(
   {
-    Home: { screen: HomeScreen },
+    Home: HomeScreen,
   },
   {
     initialRouteName: 'Home',

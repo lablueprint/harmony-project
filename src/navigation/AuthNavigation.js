@@ -4,11 +4,11 @@ import SignUpScreen from '../screens/SignUp';
 
 const AuthNavigation = createStackNavigator(
   {
-    SignInScreen,
-    SignUpScreen,
+    SignIn: SignInScreen,
+    SignUp: SignUpScreen,
   },
   {
-    initialRouteName: 'SignInScreen',
+    initialRouteName: 'SignIn',
     headerMode: 'none',
   },
 );
