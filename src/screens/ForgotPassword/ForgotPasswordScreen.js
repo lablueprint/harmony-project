@@ -102,11 +102,11 @@ export default function ForgotPasswordScreen({ navigation }) {
           />
         </View>
         {showLoading
-                && (
-                <View style={styles.activity}>
-                  <ActivityIndicator size="large" color="#0000ff" />
-                </View>
-                )}
+          && (
+          <View style={styles.activity}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+          )}
       </View>
     </View>
   );

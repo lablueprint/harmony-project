@@ -82,7 +82,7 @@ export default function SignInScreen({ navigation }) {
                 name="lock"
                 size={24}
               />
-                      )}
+            )}
             secureTextEntry
             value={password}
             onChangeText={setPassword}
@@ -141,11 +141,11 @@ export default function SignInScreen({ navigation }) {
           />
         </View>
         {showLoading
-                && (
-                <View style={styles.activity}>
-                  <ActivityIndicator size="large" color="#0000ff" />
-                </View>
-                )}
+          && (
+          <View style={styles.activity}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+          )}
       </View>
     </View>
   );
