@@ -5,11 +5,13 @@ import { createStackNavigator } from '@react-navigation/stack';
 import {
   Text, View, SafeAreaView, ScrollView, StyleSheet, Button, TextInput,
 } from 'react-native';
+import Post from './Post';
+
 
 const styles = StyleSheet.create({
 
   headingTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '600',
   },
   sectionContainer: {
@@ -31,7 +33,22 @@ const styles = StyleSheet.create({
   },
 });
 
-export function ClassroomHome({ navigation }) {
+/* const post1 = {
+  author: 'Timmy Turner',
+  text: "I wish that my code doesn't break I really want some pie
+  right now I wonder how people are gopnna see what im typing pls
+  bro just i want to eat i rlly want food bro pls",
+  time: '10:16 PM',
+};
+
+const cl = {
+  classroom: {
+    title: 'CL1',
+    posts: [post1],
+  },
+}; */
+
+function ClassroomHome({ navigation }) {
   return (
     <SafeAreaView>
       <ScrollView>
@@ -43,12 +60,14 @@ export function ClassroomHome({ navigation }) {
           </Text>
           <Button title="Make a Post!" onPress={() => navigation.navigate('Make a New Post')} />
         </View>
+        <Post title="Idk What's Going on In Any Class" author="Cody Do" text="pls help me, I have 3 midterms next week" />
+        <Post title="Will pay someone to take my midterm" author="Cody Do" text="i don't have much but i have lots of love to give c: will pay in hugs" />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-export function MakePost() {
+function MakePost() {
   return (
     <View style={{ backgroundColor: '#ffffff' }}>
       <TextInput
@@ -75,7 +94,7 @@ export function MakePost() {
 
 const Stack = createStackNavigator();
 
-export default function ClassNav() {
+export default function Classroom() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
