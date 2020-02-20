@@ -3,7 +3,7 @@ import {
   StyleSheet, ActivityIndicator, View, Text, Alert,
 } from 'react-native';
 import { Button, Input, Icon } from 'react-native-elements';
-import auth from '@react-native-firebase/auth';
+import Auth from '@react-native-firebase/auth';
 
 const styles = StyleSheet.create({
   container: {
@@ -43,7 +43,7 @@ export default function SignUpScreen({ navigation }) {
   const signup = async () => {
     setShowLoading(true);
     try {
-      const doSignUp = await auth().createUserWithEmailAndPassword(email, password);
+      const doSignUp = await Auth().createUserWithEmailAndPassword(email, password);
       setShowLoading(false);
       if (doSignUp.user) {
         navigation.navigate('Home');
@@ -71,7 +71,7 @@ export default function SignUpScreen({ navigation }) {
                 name="mail"
                 size={24}
               />
-                      )}
+            )}
             value={email}
             onChangeText={setEmail}
           />
@@ -85,7 +85,7 @@ export default function SignUpScreen({ navigation }) {
                 name="lock"
                 size={24}
               />
-                      )}
+            )}
             secureTextEntry
             value={password}
             onChangeText={setPassword}
@@ -100,7 +100,7 @@ export default function SignUpScreen({ navigation }) {
                 size={15}
                 color="white"
               />
-                      )}
+            )}
             title="Sign Up"
             onPress={() => signup()}
           />
@@ -117,7 +117,7 @@ export default function SignUpScreen({ navigation }) {
                 size={15}
                 color="white"
               />
-                      )}
+            )}
             title="Login"
             onPress={() => {
               navigation.navigate('SignIn');

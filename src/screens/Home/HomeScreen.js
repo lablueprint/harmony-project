@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
-import auth from '@react-native-firebase/auth';
+import Auth from '@react-native-firebase/auth';
 
 export default function HomeScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
@@ -16,7 +16,7 @@ export default function HomeScreen({ navigation }) {
   }
 
   useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    const subscriber = Auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; // unsubscribe on unmount
   }, [onAuthStateChanged]);
 
@@ -46,8 +46,8 @@ HomeScreen.navigationOptions = ({ navigation }) => ({
           size={28}
           color="white"
         />
-            )}
-      onPress={() => { auth().signOut(); }}
+      )}
+      onPress={() => { Auth().signOut(); }}
     />
   ),
 });

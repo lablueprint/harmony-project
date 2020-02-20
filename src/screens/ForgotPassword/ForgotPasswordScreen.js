@@ -3,7 +3,7 @@ import {
   StyleSheet, ActivityIndicator, View, Text, Alert,
 } from 'react-native';
 import { Button, Input, Icon } from 'react-native-elements';
-import auth from '@react-native-firebase/auth';
+import Auth from '@react-native-firebase/auth';
 
 const styles = StyleSheet.create({
   container: {
@@ -42,7 +42,7 @@ export default function ForgotPasswordScreen({ navigation }) {
   const forgotpassword = async () => {
     setShowLoading(true);
     try {
-      await auth().sendPasswordResetEmail(email);
+      await Auth().sendPasswordResetEmail(email);
       setShowLoading(false);
     } catch (e) {
       setShowLoading(false);
@@ -66,7 +66,7 @@ export default function ForgotPasswordScreen({ navigation }) {
                 name="mail"
                 size={24}
               />
-                      )}
+            )}
             value={email}
             onChangeText={setEmail}
           />
@@ -80,7 +80,7 @@ export default function ForgotPasswordScreen({ navigation }) {
                 size={15}
                 color="white"
               />
-                      )}
+            )}
             title="Reset Password"
             onPress={() => forgotpassword()}
           />
@@ -94,7 +94,7 @@ export default function ForgotPasswordScreen({ navigation }) {
                 size={15}
                 color="white"
               />
-                      )}
+            )}
             title="Back to Login"
             onPress={() => {
               navigation.navigate('SignIn');
