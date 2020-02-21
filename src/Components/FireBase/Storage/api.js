@@ -1,3 +1,5 @@
 import { firebase } from '@react-native-firebase/storage';
 
-export const FireBaseStorage = firebase.storage();
+const FireBaseStorage = firebase.storage();
+
+export default FireBaseStorage;

@@ -1,1 +1,3 @@
-export { default as UploadFile } from './UploadFile';
+import UploadFile from './UploadFile';
+
+export default UploadFile;
