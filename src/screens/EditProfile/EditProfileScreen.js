@@ -3,7 +3,7 @@ import {
   StyleSheet, ActivityIndicator, View, Text, Alert,
 } from 'react-native';
 import { Button, Input, Icon } from 'react-native-elements';
-import Auth from '@react-native-firebase/auth';
+import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
@@ -36,15 +36,21 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function ForgotPasswordScreen({ navigation }) {
+export default function EditProfileScreen({ navigation }) {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [address, setAddress] = useState('');
   const [showLoading, setShowLoading] = useState(false);
+  const ref = Firestore().collection('users');
 
-
-  const forgotpassword = async () => {
+  const submitProfile = async () => {
     setShowLoading(true);
     try {
-      await Auth().sendPasswordResetEmail(email);
+      await ref.add({
+        address,
+        email,
+        name,
+      });
       setShowLoading(false);
     } catch (e) {
       setShowLoading(false);
@@ -53,11 +59,26 @@ export default function ForgotPasswordScreen({ navigation }) {
       );
     }
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontSize: 28, height: 50 }}>Forgot Your Password?</Text>
+          <Text style={{ fontSize: 28, height: 50 }}>Edit Your Profile</Text>
+        </View>
+        <View style={styles.subContainer}>
+          <Input
+            style={styles.textInput}
+            placeholder="Name"
+            leftIcon={(
+              <Icon
+                name="profile"
+                size={24}
+              />
+            )}
+            value={name}
+            onChangeText={setName}
+          />
         </View>
         <View style={styles.subContainer}>
           <Input
@@ -74,6 +95,20 @@ export default function ForgotPasswordScreen({ navigation }) {
           />
         </View>
         <View style={styles.subContainer}>
+          <Input
+            style={styles.textInput}
+            placeholder="Address"
+            leftIcon={(
+              <Icon
+                name="house"
+                size={24}
+              />
+            )}
+            value={address}
+            onChangeText={setAddress}
+          />
+        </View>
+        <View style={styles.subContainer}>
           <Button
             style={styles.textInput}
             icon={(
@@ -83,8 +118,8 @@ export default function ForgotPasswordScreen({ navigation }) {
                 color="white"
               />
             )}
-            title="Reset Password"
-            onPress={() => forgotpassword()}
+            title="Change Profile"
+            onPress={() => submitProfile()}
           />
         </View>
         <View style={styles.subContainer}>
@@ -97,9 +132,9 @@ export default function ForgotPasswordScreen({ navigation }) {
                 color="white"
               />
             )}
-            title="Back to Login"
+            title="Back to Home"
             onPress={() => {
-              navigation.navigate('SignIn');
+              navigation.navigate('Home');
             }}
           />
         </View>
@@ -115,11 +150,11 @@ export default function ForgotPasswordScreen({ navigation }) {
 }
 
 // eslint-disable-next-line no-unused-vars
-ForgotPasswordScreen.navigationOptions = ({ navigation }) => ({
-  title: 'Forgot Password',
+EditProfileScreen.navigationOptions = ({ navigation }) => ({
+  title: 'Edit Profile',
   headerShown: false,
 });
 
-ForgotPasswordScreen.propTypes = {
+EditProfileScreen.propTypes = {
   navigation: PropTypes.elementType.isRequired,
 };
