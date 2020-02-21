@@ -3,7 +3,7 @@ import {
   SafeAreaView, ScrollView, Text, View,
 } from 'react-native';
 
-import UploadFile from '../../Components/ImagePicker';
+import UploadFile from '../../components/ImagePicker';
 
 export default function HomeScreen() {
   return (
