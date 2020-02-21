@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { Button, Input, Icon } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
+import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
   container: {
@@ -151,7 +152,12 @@ export default function SignInScreen({ navigation }) {
   );
 }
 
+// eslint-disable-next-line no-unused-vars
 SignInScreen.navigationOptions = ({ navigation }) => ({
   title: 'Sign In',
   headerShown: false,
 });
+
+SignInScreen.propTypes = {
+  navigation: PropTypes.elementType.isRequired,
+};

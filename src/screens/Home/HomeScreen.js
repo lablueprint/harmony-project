@@ -4,14 +4,15 @@ import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
+import PropTypes from 'prop-types';
 
 export default function HomeScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  function onAuthStateChanged(user) {
-    setUser(user);
+  function onAuthStateChanged(authUser) {
+    setUser(authUser);
     if (initializing) setInitializing(false);
   }
 
@@ -35,6 +36,7 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
+// eslint-disable-next-line no-unused-vars
 HomeScreen.navigationOptions = ({ navigation }) => ({
   title: 'Home',
   headerRight: () => (
@@ -51,3 +53,7 @@ HomeScreen.navigationOptions = ({ navigation }) => ({
     />
   ),
 });
+
+HomeScreen.propTypes = {
+  navigation: PropTypes.elementType.isRequired,
+};
