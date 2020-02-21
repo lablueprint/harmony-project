@@ -9,13 +9,12 @@ const getFileLocalPath = response => {
 
 const createStorageReferenceToFile = response => {
   const { fileName } = response;
-  // TODO: Create random strings for filenames
 
+  // TODO: Move this to somewhere else
   const id = Math.random()
     .toString(36)
     .slice(3);
-  // const id = generateRandomString();
-  // return FireBaseStorage.ref(`images/${id}-${fileName}`);
+
   return FireBaseStorage.ref(`images/${id}-${fileName}`);
 };
 
