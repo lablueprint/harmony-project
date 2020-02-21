@@ -12,7 +12,6 @@ export default function HomeScreen() {
   		<ScrollView>
 		    <View>
 		      <Text>Hello World!</Text>
-		      <UploadFile />
 		    </View>
 		</ScrollView>
     </SafeAreaView>
