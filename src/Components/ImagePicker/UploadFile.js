@@ -8,6 +8,7 @@ import { uploadFileToFireBase } from '../FireBase/Storage'
 // Added to prevent Base64 data from being added to media files
 // Greatly increases uploading speed
 const imagePickerOptions = {
+  mediaType: 'mixed',
   noData: true,
 };
 
