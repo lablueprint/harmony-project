@@ -1,8 +1,8 @@
 import React from 'react';
-import Home from './screens/Home';
+import AppContainer from './navigation';
 
 export default function App() {
   return (
-    <Home />
+    <AppContainer />
   );
 }
