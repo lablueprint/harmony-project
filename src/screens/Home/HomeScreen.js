@@ -26,7 +26,6 @@ export default function HomeScreen({ navigation }) {
 
   function onAuthStateChanged(authUser) {
     setUser(authUser);
-    if (!uid) setUid(user.uid);
     if (initializing) setInitializing(false);
   }
 
@@ -34,6 +33,10 @@ export default function HomeScreen({ navigation }) {
     const subscriber = Auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; // unsubscribe on unmount
   }, []);
+
+  useEffect(() => {
+    if (user && !uid) setUid(user.uid);
+  }, [user]);
 
   if (initializing) return null;
 

@@ -56,10 +56,23 @@ export default function EditProfileScreen({ navigation }) {
       if (!uid) navigation.navigate('Home');
       const doc = await ref.doc(uid).get();
       const data = doc.data();
-      // TODO: handle behavior for nonexistent user entries in Firestore
-      setName(data.name);
-      setEmail(data.email);
-      setAddress(data.address);
+      // Handler for case with nonexistent user entries in Firestore
+      if (!data) {
+        await ref.doc(uid).set({
+          address,
+          associatedId: '',
+          email,
+          isAdmin: false,
+          name,
+          portfolio: '',
+          role: '',
+          updatedAt: Firestore.FieldValue.serverTimestamp(),
+        });
+      } else {
+        setName(data.name);
+        setEmail(data.email);
+        setAddress(data.address);
+      }
       if (initializing) setInitializing(false);
     } catch (e) {
       setInitializing(false);
@@ -76,10 +89,11 @@ export default function EditProfileScreen({ navigation }) {
   const submitProfile = async () => {
     setShowLoading(true);
     try {
-      await ref.doc(uid).set({
+      await ref.doc(uid).update({
         address,
         email,
         name,
+        updatedAt: Firestore.FieldValue.serverTimestamp(),
       });
       setShowLoading(false);
     } catch (e) {

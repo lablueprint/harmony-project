@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { Button, Input, Icon } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
+import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
@@ -45,9 +46,20 @@ export default function SignUpScreen({ navigation }) {
     setShowLoading(true);
     try {
       const doSignUp = await Auth().createUserWithEmailAndPassword(email, password);
+      const { user } = doSignUp;
       setShowLoading(false);
-      if (doSignUp.user) {
-        navigation.navigate('Home');
+      if (user) {
+        Firestore().collection('users').doc(user.uid).set({
+          address: '',
+          associatedId: '',
+          email: user.email,
+          isAdmin: false,
+          name: (user.displayName) ? user.displayName : '',
+          portfolio: '',
+          role: '',
+          updatedAt: Firestore.FieldValue.serverTimestamp(),
+        });
+        navigation.navigate('Home', { uid: user.uid });
       }
     } catch (e) {
       setShowLoading(false);
