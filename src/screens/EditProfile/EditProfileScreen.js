@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet, ActivityIndicator, View, Text, Alert,
 } from 'react-native';
@@ -37,16 +38,45 @@ const styles = StyleSheet.create({
 });
 
 export default function EditProfileScreen({ navigation }) {
+  const [initializing, setInitializing] = useState(true);
+  const [uid, setUid] = useState(navigation.getParam('uid', null));
+  const ref = Firestore().collection('users');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
+  // const [associatedId, setAssociatedId] = useState('');
+  // const [isAdmin, setIsAdmin] = useState(false);
+  // const [portfolio, setPortfolio] = useState('');
+  // const [role, setRole] = useState('');
   const [showLoading, setShowLoading] = useState(false);
-  const ref = Firestore().collection('users');
+
+  async function getUserData() {
+    try {
+      // If we somehow get to this screen with no uid passed, go back to homescreen
+      if (!uid) navigation.navigate('Home');
+      const doc = await ref.doc(uid).get();
+      const data = doc.data();
+      // TODO: handle behavior for nonexistent user entries in Firestore
+      setName(data.name);
+      setEmail(data.email);
+      setAddress(data.address);
+      if (initializing) setInitializing(false);
+    } catch (e) {
+      setInitializing(false);
+      Alert.alert(
+        e.message,
+      );
+    }
+  }
+
+  useEffect(() => {
+    getUserData();
+  }, []);
 
   const submitProfile = async () => {
     setShowLoading(true);
     try {
-      await ref.add({
+      await ref.doc(uid).set({
         address,
         email,
         name,
@@ -59,6 +89,8 @@ export default function EditProfileScreen({ navigation }) {
       );
     }
   };
+
+  if (initializing) return null;
 
   return (
     <View style={styles.container}>

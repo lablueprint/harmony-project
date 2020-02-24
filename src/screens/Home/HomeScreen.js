@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
@@ -21,17 +22,18 @@ const styles = StyleSheet.create({
 export default function HomeScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
+  const [uid, setUid] = useState(navigation.getParam('uid', null));
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   function onAuthStateChanged(authUser) {
     setUser(authUser);
+    if (!uid) setUid(user.uid);
     if (initializing) setInitializing(false);
   }
 
   useEffect(() => {
     const subscriber = Auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; // unsubscribe on unmount
-  }, [onAuthStateChanged]);
+  }, []);
 
   if (initializing) return null;
 
@@ -56,7 +58,7 @@ export default function HomeScreen({ navigation }) {
             )}
           title="Edit Profile"
           onPress={() => {
-            navigation.navigate('EditProfile');
+            navigation.navigate('EditProfile', { uid });
           }}
         />
       </View>
