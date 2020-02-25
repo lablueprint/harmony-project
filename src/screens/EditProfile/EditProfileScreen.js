@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet, ActivityIndicator, View, Text, Alert,
 } from 'react-native';
 import { Button, Input, Icon } from 'react-native-elements';
-import Auth from '@react-native-firebase/auth';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
 
@@ -37,30 +37,65 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function SignUpScreen({ navigation }) {
+export default function EditProfileScreen({ navigation }) {
+  const [initializing, setInitializing] = useState(true);
+  const [uid, setUid] = useState(navigation.getParam('uid', null));
+  const ref = Firestore().collection('users');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [address, setAddress] = useState('');
+  // const [associatedId, setAssociatedId] = useState('');
+  // const [isAdmin, setIsAdmin] = useState(false);
+  // const [portfolio, setPortfolio] = useState('');
+  // const [role, setRole] = useState('');
   const [showLoading, setShowLoading] = useState(false);
 
-  const signup = async () => {
-    setShowLoading(true);
+  async function getUserData() {
     try {
-      const doSignUp = await Auth().createUserWithEmailAndPassword(email, password);
-      const { user } = doSignUp;
-      setShowLoading(false);
-      if (user) {
-        Firestore().collection('users').doc(user.uid).set({
-          address: '',
+      // If we somehow get to this screen with no uid passed, go back to homescreen
+      if (!uid) navigation.navigate('Home');
+      const doc = await ref.doc(uid).get();
+      const data = doc.data();
+      // Handler for case with nonexistent user entries in Firestore
+      if (!data) {
+        await ref.doc(uid).set({
+          address,
           associatedId: '',
-          email: user.email,
+          email,
           isAdmin: false,
-          name: (user.displayName) ? user.displayName : '',
+          name,
           portfolio: '',
           role: '',
           updatedAt: Firestore.FieldValue.serverTimestamp(),
         });
-        navigation.navigate('Home', { uid: user.uid });
+      } else {
+        setName(data.name);
+        setEmail(data.email);
+        setAddress(data.address);
       }
+      if (initializing) setInitializing(false);
+    } catch (e) {
+      setInitializing(false);
+      Alert.alert(
+        e.message,
+      );
+    }
+  }
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+
+  const submitProfile = async () => {
+    setShowLoading(true);
+    try {
+      await ref.doc(uid).update({
+        address,
+        email,
+        name,
+        updatedAt: Firestore.FieldValue.serverTimestamp(),
+      });
+      setShowLoading(false);
     } catch (e) {
       setShowLoading(false);
       Alert.alert(
@@ -69,11 +104,27 @@ export default function SignUpScreen({ navigation }) {
     }
   };
 
+  if (initializing) return null;
+
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontSize: 28, height: 50 }}>Sign Up Here!</Text>
+          <Text style={{ fontSize: 28, height: 50 }}>Edit Your Profile</Text>
+        </View>
+        <View style={styles.subContainer}>
+          <Input
+            style={styles.textInput}
+            placeholder="Name"
+            leftIcon={(
+              <Icon
+                name="profile"
+                size={24}
+              />
+            )}
+            value={name}
+            onChangeText={setName}
+          />
         </View>
         <View style={styles.subContainer}>
           <Input
@@ -92,16 +143,29 @@ export default function SignUpScreen({ navigation }) {
         <View style={styles.subContainer}>
           <Input
             style={styles.textInput}
-            placeholder="Password"
+            placeholder="Address"
             leftIcon={(
               <Icon
-                name="lock"
+                name="house"
                 size={24}
               />
             )}
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
+            value={address}
+            onChangeText={setAddress}
+          />
+        </View>
+        <View style={styles.subContainer}>
+          <Button
+            style={styles.textInput}
+            icon={(
+              <Icon
+                name="input"
+                size={15}
+                color="white"
+              />
+            )}
+            title="Change Profile"
+            onPress={() => submitProfile()}
           />
         </View>
         <View style={styles.subContainer}>
@@ -114,26 +178,9 @@ export default function SignUpScreen({ navigation }) {
                 color="white"
               />
             )}
-            title="Sign Up"
-            onPress={() => signup()}
-          />
-        </View>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text>Already a user?</Text>
-        </View>
-        <View style={styles.subContainer}>
-          <Button
-            style={styles.textInput}
-            icon={(
-              <Icon
-                name="input"
-                size={15}
-                color="white"
-              />
-            )}
-            title="Login"
+            title="Back to Home"
             onPress={() => {
-              navigation.navigate('SignIn');
+              navigation.navigate('Home');
             }}
           />
         </View>
@@ -149,11 +196,11 @@ export default function SignUpScreen({ navigation }) {
 }
 
 // eslint-disable-next-line no-unused-vars
-SignUpScreen.navigationOptions = ({ navigation }) => ({
-  title: 'Sign Up',
+EditProfileScreen.navigationOptions = ({ navigation }) => ({
+  title: 'Edit Profile',
   headerShown: false,
 });
 
-SignUpScreen.propTypes = {
+EditProfileScreen.propTypes = {
   navigation: PropTypes.elementType.isRequired,
 };

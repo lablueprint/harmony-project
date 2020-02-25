@@ -1,16 +1,29 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 
+const styles = StyleSheet.create({
+  subContainer: {
+    marginBottom: 20,
+    padding: 10,
+  },
+  textInput: {
+    fontSize: 18,
+    margin: 5,
+    width: 200,
+  },
+});
+
 export default function HomeScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
+  const [uid, setUid] = useState(navigation.getParam('uid', null));
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   function onAuthStateChanged(authUser) {
     setUser(authUser);
     if (initializing) setInitializing(false);
@@ -19,7 +32,11 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     const subscriber = Auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; // unsubscribe on unmount
-  }, [onAuthStateChanged]);
+  }, []);
+
+  useEffect(() => {
+    if (user && !uid) setUid(user.uid);
+  }, [user]);
 
   if (initializing) return null;
 
@@ -32,6 +49,22 @@ export default function HomeScreen({ navigation }) {
       <Text>
         Welcome {user.email}
       </Text>
+      <View style={styles.subContainer}>
+        <Button
+          style={styles.textInput}
+          icon={(
+            <Icon
+              name="check-circle"
+              size={15}
+              color="white"
+            />
+            )}
+          title="Edit Profile"
+          onPress={() => {
+            navigation.navigate('EditProfile', { uid });
+          }}
+        />
+      </View>
     </View>
   );
 }

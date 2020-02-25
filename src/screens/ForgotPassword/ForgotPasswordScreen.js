@@ -40,6 +40,7 @@ export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [showLoading, setShowLoading] = useState(false);
 
+
   const forgotpassword = async () => {
     setShowLoading(true);
     try {
