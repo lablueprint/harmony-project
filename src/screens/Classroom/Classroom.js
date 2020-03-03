@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+// import { NavigationContainer } from '@react-navigation/native';
+// import { createStackNavigator } from '@react-navigation/stack';
 import {
   Text, View, SafeAreaView, ScrollView, StyleSheet, Button, TextInput,
 } from 'react-native';
@@ -48,15 +48,14 @@ const cl = {
   },
 }; */
 
+// eslint-disable-next-line no-unused-vars
 function ClassroomHome({ navigation }) {
   return (
     <SafeAreaView>
       <ScrollView>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Text style={styles.headingTitle}>
-            {'\n'}
             Welcome to Classroom One!
-            {'\n'}
           </Text>
           <Button title="Make a Post!" onPress={() => navigation.navigate('Make a New Post')} />
         </View>
@@ -67,6 +66,7 @@ function ClassroomHome({ navigation }) {
   );
 }
 
+// eslint-disable-next-line no-unused-vars
 function MakePost() {
   return (
     <View style={{ backgroundColor: '#ffffff' }}>
@@ -92,18 +92,18 @@ function MakePost() {
 }
 
 
-const Stack = createStackNavigator();
+// const Stack = createStackNavigator();
 
-export default function Classroom() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Classroom One" component={ClassroomHome} />
-        <Stack.Screen name="Make a New Post" component={MakePost} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-}
+// export default function Classroom() {
+//   return (
+//     <NavigationContainer>
+//       <Stack.Navigator>
+//         <Stack.Screen name="Classroom One" component={ClassroomHome} />
+//         <Stack.Screen name="Make a New Post" component={MakePost} />
+//       </Stack.Navigator>
+//     </NavigationContainer>
+//   );
+// }
 
 /* Classroom works in this manner: The Classroom View has multiple classrooms.
 Each classroom has students and teacher(s). Only teachers can make a post in the

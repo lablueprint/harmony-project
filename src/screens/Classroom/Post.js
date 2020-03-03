@@ -33,18 +33,14 @@ export default function Post({ title, author, text }) {
   return (
     <View style={{ flex: 1, marginLeft: 10 }}>
       <Text style={styles.sectionTitle}>
-        {'\n'}
         {title}
       </Text>
       <Text style={styles.sectionAuthor}>
         Written by:
-        {' '}
         {author}
-        {'\n'}
       </Text>
       <Text style={styles.sectionDescription}>
         {text}
-        {'\n'}
       </Text>
     </View>
   );
