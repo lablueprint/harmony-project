@@ -20,7 +20,6 @@ module.exports = {
   rules: {
     'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }], // we don't care that .js files contain JSX code
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
-    "react/prop-types": ["error", { "ignore": ["navigation"] }]
+    "react-hooks/exhaustive-deps": "warn"
   },
 };
