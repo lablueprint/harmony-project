@@ -15,7 +15,6 @@ const terms = {
   summer: 'SUMMER',
   winter: 'WINTER',
   default: 'FALL',
-
 };
 
 //////////////////////////////////////////////////////
