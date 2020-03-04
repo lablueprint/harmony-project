@@ -3,7 +3,7 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-import { Button, Icon } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 
@@ -52,13 +52,6 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.subContainer}>
         <Button
           style={styles.textInput}
-          icon={(
-            <Icon
-              name="check-circle"
-              size={15}
-              color="white"
-            />
-            )}
           title="Edit Profile"
           onPress={() => {
             navigation.navigate('EditProfile', { uid });
@@ -74,19 +67,16 @@ HomeScreen.navigationOptions = ({ navigation }) => ({
   title: 'Home',
   headerRight: () => (
     <Button
-      buttonStyle={{ padding: 0, marginRight: 20, backgroundColor: 'transparent' }}
-      icon={(
-        <Icon
-          name="cancel"
-          size={28}
-          color="white"
-        />
-      )}
+      title="Sign Out"
+      buttonStyle={{ padding: 5, marginRight: 20 }}
       onPress={() => { Auth().signOut(); }}
     />
   ),
 });
 
 HomeScreen.propTypes = {
-  navigation: PropTypes.elementType.isRequired,
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+    getParam: PropTypes.func.isRequired,
+  }).isRequired,
 };

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   StyleSheet, ActivityIndicator, View, Text, Alert,
 } from 'react-native';
-import { Button, Input, Icon } from 'react-native-elements';
+import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 
@@ -63,12 +63,6 @@ export default function ForgotPasswordScreen({ navigation }) {
           <Input
             style={styles.textInput}
             placeholder="Email"
-            leftIcon={(
-              <Icon
-                name="mail"
-                size={24}
-              />
-            )}
             value={email}
             onChangeText={setEmail}
           />
@@ -76,13 +70,6 @@ export default function ForgotPasswordScreen({ navigation }) {
         <View style={styles.subContainer}>
           <Button
             style={styles.textInput}
-            icon={(
-              <Icon
-                name="input"
-                size={15}
-                color="white"
-              />
-            )}
             title="Reset Password"
             onPress={() => forgotpassword()}
           />
@@ -90,13 +77,6 @@ export default function ForgotPasswordScreen({ navigation }) {
         <View style={styles.subContainer}>
           <Button
             style={styles.textInput}
-            icon={(
-              <Icon
-                name="check-circle"
-                size={15}
-                color="white"
-              />
-            )}
             title="Back to Login"
             onPress={() => {
               navigation.navigate('SignIn');
@@ -121,5 +101,7 @@ ForgotPasswordScreen.navigationOptions = ({ navigation }) => ({
 });
 
 ForgotPasswordScreen.propTypes = {
-  navigation: PropTypes.elementType.isRequired,
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
 };

@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import {
   StyleSheet, ActivityIndicator, View, Text, Alert,
 } from 'react-native';
-import { Button, Input, Icon } from 'react-native-elements';
+import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
+import { INITIAL_USER_STATE } from '../../components';
 
 const styles = StyleSheet.create({
   container: {
@@ -38,28 +39,23 @@ const styles = StyleSheet.create({
 });
 
 export default function SignUpScreen({ navigation }) {
-  const [email, setEmail] = useState('');
+  const [userState, setUserState] = useState(INITIAL_USER_STATE);
   const [password, setPassword] = useState('');
   const [showLoading, setShowLoading] = useState(false);
 
   const signup = async () => {
     setShowLoading(true);
     try {
-      const doSignUp = await Auth().createUserWithEmailAndPassword(email, password);
+      const doSignUp = await Auth().createUserWithEmailAndPassword(userState.email, password);
       const { user } = doSignUp;
       setShowLoading(false);
       if (user) {
         Firestore().collection('users').doc(user.uid).set({
-          address: '',
-          associatedId: '',
-          email: user.email,
-          isAdmin: false,
-          name: (user.displayName) ? user.displayName : '',
-          portfolio: '',
-          role: '',
+          ...userState,
+          createdAt: Firestore.FieldValue.serverTimestamp(),
           updatedAt: Firestore.FieldValue.serverTimestamp(),
         });
-        navigation.navigate('Home', { uid: user.uid });
+        navigation.navigate('EditProfile', { uid: user.uid });
       }
     } catch (e) {
       setShowLoading(false);
@@ -79,26 +75,19 @@ export default function SignUpScreen({ navigation }) {
           <Input
             style={styles.textInput}
             placeholder="Email"
-            leftIcon={(
-              <Icon
-                name="mail"
-                size={24}
-              />
-            )}
-            value={email}
-            onChangeText={setEmail}
+            value={userState.email}
+            onChangeText={(text) => {
+              setUserState({
+                ...userState,
+                email: text,
+              });
+            }}
           />
         </View>
         <View style={styles.subContainer}>
           <Input
             style={styles.textInput}
             placeholder="Password"
-            leftIcon={(
-              <Icon
-                name="lock"
-                size={24}
-              />
-            )}
             secureTextEntry
             value={password}
             onChangeText={setPassword}
@@ -107,13 +96,6 @@ export default function SignUpScreen({ navigation }) {
         <View style={styles.subContainer}>
           <Button
             style={styles.textInput}
-            icon={(
-              <Icon
-                name="check-circle"
-                size={15}
-                color="white"
-              />
-            )}
             title="Sign Up"
             onPress={() => signup()}
           />
@@ -124,13 +106,6 @@ export default function SignUpScreen({ navigation }) {
         <View style={styles.subContainer}>
           <Button
             style={styles.textInput}
-            icon={(
-              <Icon
-                name="input"
-                size={15}
-                color="white"
-              />
-            )}
             title="Login"
             onPress={() => {
               navigation.navigate('SignIn');
@@ -155,5 +130,7 @@ SignUpScreen.navigationOptions = ({ navigation }) => ({
 });
 
 SignUpScreen.propTypes = {
-  navigation: PropTypes.elementType.isRequired,
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
 };
