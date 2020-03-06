@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   StyleSheet, ActivityIndicator, View, Text, Alert,
 } from 'react-native';
-import { Button, Input, Icon } from 'react-native-elements';
+import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 
@@ -64,12 +64,6 @@ export default function SignInScreen({ navigation }) {
           <Input
             style={styles.textInput}
             placeholder="Email"
-            leftIcon={(
-              <Icon
-                name="mail"
-                size={24}
-              />
-            )}
             value={email}
             onChangeText={setEmail}
           />
@@ -78,12 +72,6 @@ export default function SignInScreen({ navigation }) {
           <Input
             style={styles.textInput}
             placeholder="Password"
-            leftIcon={(
-              <Icon
-                name="lock"
-                size={24}
-              />
-            )}
             secureTextEntry
             value={password}
             onChangeText={setPassword}
@@ -92,13 +80,6 @@ export default function SignInScreen({ navigation }) {
         <View style={styles.subContainer}>
           <Button
             style={styles.textInput}
-            icon={(
-              <Icon
-                name="input"
-                size={15}
-                color="white"
-              />
-            )}
             title="Login"
             onPress={() => signin()}
           />
@@ -109,13 +90,6 @@ export default function SignInScreen({ navigation }) {
         <View style={styles.subContainer}>
           <Button
             style={styles.textInput}
-            icon={(
-              <Icon
-                name="refresh"
-                size={15}
-                color="white"
-              />
-            )}
             title="Reset Password"
             onPress={() => {
               navigation.navigate('ForgotPassword');
@@ -128,13 +102,6 @@ export default function SignInScreen({ navigation }) {
         <View style={styles.subContainer}>
           <Button
             style={styles.textInput}
-            icon={(
-              <Icon
-                name="check-circle"
-                size={15}
-                color="white"
-              />
-            )}
             title="Register"
             onPress={() => {
               navigation.navigate('SignUp');
@@ -159,5 +126,7 @@ SignInScreen.navigationOptions = ({ navigation }) => ({
 });
 
 SignInScreen.propTypes = {
-  navigation: PropTypes.elementType.isRequired,
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
 };

@@ -1,11 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Text, Alert,
+  StyleSheet, ActivityIndicator, View, Text, Alert, Picker,
 } from 'react-native';
-import { Button, Input, Icon } from 'react-native-elements';
+import { Button, Input } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
+import { INITIAL_USER_STATE, roles } from '../../components';
 
 const styles = StyleSheet.create({
   container: {
@@ -39,15 +40,10 @@ const styles = StyleSheet.create({
 
 export default function EditProfileScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
-  const [uid, setUid] = useState(navigation.getParam('uid', null));
+  const uid = navigation.getParam('uid', null);
   const ref = Firestore().collection('users');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  // const [associatedId, setAssociatedId] = useState('');
-  // const [isAdmin, setIsAdmin] = useState(false);
-  // const [portfolio, setPortfolio] = useState('');
-  // const [role, setRole] = useState('');
+  const [userState, setUserState] = useState(INITIAL_USER_STATE);
+
   const [showLoading, setShowLoading] = useState(false);
 
   async function getUserData() {
@@ -59,19 +55,12 @@ export default function EditProfileScreen({ navigation }) {
       // Handler for case with nonexistent user entries in Firestore
       if (!data) {
         await ref.doc(uid).set({
-          address,
-          associatedId: '',
-          email,
-          isAdmin: false,
-          name,
-          portfolio: '',
-          role: '',
+          ...userState,
+          createdAt: Firestore.FieldValue.serverTimestamp(),
           updatedAt: Firestore.FieldValue.serverTimestamp(),
         });
       } else {
-        setName(data.name);
-        setEmail(data.email);
-        setAddress(data.address);
+        setUserState(data);
       }
       if (initializing) setInitializing(false);
     } catch (e) {
@@ -90,9 +79,7 @@ export default function EditProfileScreen({ navigation }) {
     setShowLoading(true);
     try {
       await ref.doc(uid).update({
-        address,
-        email,
-        name,
+        ...userState,
         updatedAt: Firestore.FieldValue.serverTimestamp(),
       });
       setShowLoading(false);
@@ -116,68 +103,67 @@ export default function EditProfileScreen({ navigation }) {
           <Input
             style={styles.textInput}
             placeholder="Name"
-            leftIcon={(
-              <Icon
-                name="profile"
-                size={24}
-              />
-            )}
-            value={name}
-            onChangeText={setName}
+            value={userState.name}
+            onChangeText={(text) => {
+              setUserState({
+                ...userState,
+                name: text,
+              });
+            }}
           />
         </View>
         <View style={styles.subContainer}>
           <Input
             style={styles.textInput}
             placeholder="Email"
-            leftIcon={(
-              <Icon
-                name="mail"
-                size={24}
-              />
-            )}
-            value={email}
-            onChangeText={setEmail}
+            value={userState.email}
+            onChangeText={(text) => {
+              setUserState({
+                ...userState,
+                email: text,
+              });
+            }}
           />
         </View>
         <View style={styles.subContainer}>
           <Input
             style={styles.textInput}
             placeholder="Address"
-            leftIcon={(
-              <Icon
-                name="house"
-                size={24}
-              />
-            )}
-            value={address}
-            onChangeText={setAddress}
+            value={userState.address}
+            onChangeText={(text) => {
+              setUserState({
+                ...userState,
+                address: text,
+              });
+            }}
           />
+        </View>
+        <View style={styles.subContainer}>
+          <Picker
+            selectedValue={userState.role}
+            style={styles.textInput}
+            onValueChange={(value) => {
+              setUserState({
+                ...userState,
+                role: value,
+              });
+            }}
+          >
+            <Picker.Item label="Student" value={roles.student} />
+            <Picker.Item label="Parent" value={roles.parent} />
+            <Picker.Item label="Teacher" value={roles.teacher} />
+          </Picker>
         </View>
         <View style={styles.subContainer}>
           <Button
             style={styles.textInput}
-            icon={(
-              <Icon
-                name="input"
-                size={15}
-                color="white"
-              />
-            )}
-            title="Change Profile"
+            title="Save Profile"
             onPress={() => submitProfile()}
           />
         </View>
         <View style={styles.subContainer}>
           <Button
             style={styles.textInput}
-            icon={(
-              <Icon
-                name="check-circle"
-                size={15}
-                color="white"
-              />
-            )}
             title="Back to Home"
             onPress={() => {
               navigation.navigate('Home');
@@ -202,5 +188,8 @@ EditProfileScreen.navigationOptions = ({ navigation }) => ({
 });
 
 EditProfileScreen.propTypes = {
-  navigation: PropTypes.elementType.isRequired,
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+    getParam: PropTypes.func.isRequired,
+  }).isRequired,
 };
