@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-import FireBaseStorage from './api';
+import FirebaseStorage from './api';
 
 const getFileLocalPath = (response) => {
   const { path, uri } = response;
@@ -15,13 +15,13 @@ const createStorageReferenceToFile = (response) => {
     .toString(36)
     .slice(3);
 
-  return FireBaseStorage.ref(`images/${id}-${fileName}`);
+  return FirebaseStorage.ref(`images/${id}-${fileName}`);
 };
 
-const uploadFileToFireBase = (response) => {
+const UploadFileToFirebase = (response) => {
   const fileSource = getFileLocalPath(response);
   const storageRef = createStorageReferenceToFile(response);
   return storageRef.putFile(fileSource);
 };
 
-export default uploadFileToFireBase;
+export default UploadFileToFirebase;

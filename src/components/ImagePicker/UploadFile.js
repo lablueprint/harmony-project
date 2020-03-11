@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 
 import ImagePicker from 'react-native-image-picker';
-import uploadFileToFireBase from '../FireBase/Storage';
+import UploadFileToFirebase from '../Firebase/Storage';
 
 // TODO: Move this to somewhere else
 // Added to prevent Base64 data from being added to media files
@@ -27,7 +27,7 @@ const UploadFile = () => {
         alert('An error occurred: ', imagePickerResponse.error);
       } else {
         setImageURI({ uri: imagePickerResponse.uri });
-        Promise.resolve(uploadFileToFireBase(imagePickerResponse));
+        Promise.resolve(UploadFileToFirebase(imagePickerResponse));
       }
     });
   };
