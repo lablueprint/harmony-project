@@ -90,8 +90,8 @@ export default function PostsScreen({ navigation }) {
       const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
       setPostsList(posts.sort((a, b) => {
         // May need to change "time" to "createdAt" and compare with that
-        const aMillis = a.time.toMillis();
-        const bMillis = b.time.toMillis();
+        const aMillis = a.createdAt.toMillis();
+        const bMillis = b.createdAt.toMillis();
         if (aMillis > bMillis) {
           return -1;
         }
@@ -100,16 +100,16 @@ export default function PostsScreen({ navigation }) {
         }
         return 0;
       }).map((post) => {
-        const date = post.time.toDate();
+        const date = post.createdAt.toDate();
         return (
           <Post
             key={post.id}
             name={post.username}
-            topic={post.topic}
-            time={date.toTimeString()}
+            title={post.title}
+            createdAt={date.toTimeString()}
             date={date.toDateString()}
           >
-            {post.post}
+            {post.body}
           </Post>
         );
       }));

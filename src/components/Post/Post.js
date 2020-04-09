@@ -27,17 +27,17 @@ const styles = StyleSheet.create({
 
 
 export default function Post({
-  topic, time, date, children,
+  title, createdAt, date, children,
 }) {
   return (
     <View style={styles.container}>
       <View>
         <View>
           <Text style={styles.topicText}>
-            {topic}
+            {title}
           </Text>
           <Text style={styles.timeText}>
-            {time}
+            {createdAt}
           </Text>
           <Text style={styles.timeText}>
             {date}
@@ -54,8 +54,8 @@ export default function Post({
 }
 
 Post.propTypes = {
-  topic: PropTypes.string.isRequired,
-  time: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  createdAt: PropTypes.string.isRequired,
   date: PropTypes.string.isRequired,
   children: PropTypes.string.isRequired,
 };

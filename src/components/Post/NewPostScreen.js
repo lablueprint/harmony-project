@@ -48,6 +48,7 @@ import {
 import { TextInput } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
 import firestore from '@react-native-firebase/firestore';
+import firebase from '@react-native-firebase/app';
 
 const styles = StyleSheet.create({
   container: {
@@ -59,17 +60,24 @@ const styles = StyleSheet.create({
 });
 
 export default function NewPostScreen({ navigation }) {
-  const [topic, setTopic] = useState('');
-  const [post, setPost] = useState('');
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = () => {
     setLoading(true);
     const postRecord = {
-      topic,
-      post,
-      time: firestore.Timestamp.now(),
+      title,
+      body,
+      createdAt: firestore.Timestamp.now(),
+      updatedAt: firestore.Timestamp.now(),
+      classroomID: null,
+      isSubmission: false,
+      isPublic: true,
+      dueDate: null,
+      attachments: null,
+      author: firebase.auth().currentUser.uid,
     };
     firestore().collection('posts')
       .doc()
@@ -90,15 +98,15 @@ export default function NewPostScreen({ navigation }) {
         <TextInput
           placeholder="Topic"
           fontSize={24}
-          onChangeText={setTopic}
-          value={topic}
+          onChangeText={setTitle}
+          value={title}
         />
         <TextInput
           autoFocus
           placeholder="What's on your mind?"
           multiline
-          value={post}
-          onChangeText={(content) => setPost(content)}
+          value={body}
+          onChangeText={(content) => setBody(content)}
         />
       </View>
       {loading && <ActivityIndicator />}
