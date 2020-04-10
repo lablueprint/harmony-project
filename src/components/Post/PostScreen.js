@@ -89,7 +89,6 @@ export default function PostsScreen({ navigation }) {
     .then((snapshot) => {
       const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
       setPostsList(posts.sort((a, b) => {
-        // May need to change "time" to "createdAt" and compare with that
         const aMillis = a.createdAt.toMillis();
         const bMillis = b.createdAt.toMillis();
         if (aMillis > bMillis) {
@@ -121,11 +120,17 @@ export default function PostsScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <ScrollView>
-        <Text style={styles.welcomeMessage}>Posts!</Text>
+        <Text style={styles.welcomeMessage}>Posts</Text>
         <Button
           title="Make a Post"
           onPress={() => {
             navigation.navigate('NewPost');
+          }}
+        />
+        <Button
+          title="Make a Comment"
+          onPress={() => {
+            navigation.navigate('NewComment');
           }}
         />
         {errorMessage && <Text>{errorMessage}</Text>}

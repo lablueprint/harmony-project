@@ -1,4 +1,5 @@
 import PostScreen from './PostScreen';
 import NewPostScreen from './NewPostScreen';
+import NewCommentScreen from './NewCommentScreen';
 
-export { PostScreen, NewPostScreen };
+export { PostScreen, NewPostScreen, NewCommentScreen };

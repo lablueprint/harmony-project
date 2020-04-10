@@ -1,7 +1,7 @@
 import { createStackNavigator } from 'react-navigation-stack';
 import HomeScreen from '../screens/Home';
 import EditProfileScreen from '../screens/EditProfile';
-import { PostScreen, NewPostScreen } from '../components/Post';
+import { PostScreen, NewPostScreen, NewCommentScreen } from '../components/Post';
 
 const AppNavigation = createStackNavigator(
   {
@@ -9,6 +9,7 @@ const AppNavigation = createStackNavigator(
     EditProfile: EditProfileScreen,
     Post: PostScreen,
     NewPost: NewPostScreen,
+    NewComment: NewCommentScreen,
   },
   {
     initialRouteName: 'Home',
