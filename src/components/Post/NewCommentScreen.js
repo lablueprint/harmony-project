@@ -30,6 +30,7 @@ export default function NewCommentScreen({ navigation }) {
       createdAt: firestore.Timestamp.now(),
       updatedAt: firestore.Timestamp.now(),
       author: firebase.auth().currentUser.uid,
+      title: 'Comment',
     };
     firestore().collection('comments')
       .doc()
