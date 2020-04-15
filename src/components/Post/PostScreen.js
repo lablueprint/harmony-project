@@ -31,7 +31,7 @@ function CommentLoader({ postID }) {
     .then((snapshot) => {
       if (!snapshot.empty) {
         snapshot.forEach((anotherSnapshot) => {
-          const commentData = anotherSnapshot.data();
+          const commentData = ({ ...anotherSnapshot.data(), id: anotherSnapshot.id });
           if ((anotherSnapshot.get('postId') === postID) && !(commentsData.includes(commentData))) {
             commentsData = commentsData.concat(commentData);
           }
@@ -66,7 +66,6 @@ function CommentLoader({ postID }) {
     })
     .catch((error) => {
       setErrorMessage(error.message);
-      // throw error;
     });
   return (
     <View style={styles.container}>
@@ -116,7 +115,6 @@ export default function PostsScreen({ navigation }) {
     })
     .catch((error) => {
       setErrorMessage(error.message);
-      // throw error;
     });
 
   return (
