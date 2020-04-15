@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import {
+  StyleSheet, Alert, View, Text,
+} from 'react-native';
 import { Button, Input, Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
-import Post from './Post';
 import TimestampedFeedback from './TimestampedFeedback';
 import EvalVideo from './EvalVideo';
 
@@ -55,34 +56,10 @@ const styles = StyleSheet.create({
 });
 
 export default function EvaluationScreen({ navigation }) {
-  const [loading, setLoading] = useState(true);
-  const [teacherID, setTeacherID] = useState('');
-  const [studentID, setStudentID] = useState('');
-  const [evaluation, setEvaluation] = useState('');
-
-  const ref = Firestore().collection('evaluations');
-
-
-  useEffect(() => ref.onSnapshot((querySnapshot) => {
-    const list = [];
-    querySnapshot.forEach((doc) => {
-      const { test } = doc.data();
-      list.push({
-        id: doc.id,
-        test,
-      });
-    });
-
-    setEvaluation(list);
-
-    if (loading) {
-      setLoading(false);
-    }
-  }), [loading, ref]);
-
   return (
     <View style={styles.container}>
-      <EvalVideo style={styles.video} uri="https://firebasestorage.googleapis.com/v0/b/la-blueprint-harmony-project.appspot.com/o/images%2FVID_20200310_193940847.mp4?alt=media&token=9651b6e5-a82e-4578-91c3-0b261c609e52" />
+      <EvalVideo docId="bTzLmdl03mDOYwsZMyCP" style={styles.video} />
+
       <View style={styles.comment}>
         <TimestampedFeedback startTime="0:00" endTime="0:07" comment="pls work" />
         <TimestampedFeedback startTime="0:00" endTime="0:07" comment="pls work" />
