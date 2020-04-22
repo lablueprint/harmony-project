@@ -5,8 +5,12 @@ import {
 import { Button, Input, Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
-import TimestampedFeedback from './TimestampedFeedback';
 import EvalVideo from './EvalVideo';
+import TimestampedFeedbackList from './TimestampedFeedbackList';
+
+const {
+  vw, vh, vmin, vmax,
+} = require('react-native-viewport-units');
 
 const styles = StyleSheet.create({
   container: {
@@ -18,32 +22,7 @@ const styles = StyleSheet.create({
     height: 400,
     padding: 20,
   },
-  subContainer: {
-    marginBottom: 20,
-    padding: 5,
-  },
-  activity: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  textInput: {
-    fontSize: 18,
-    margin: 5,
-    width: 200,
-  },
-  post: {
-    position: 'relative',
-  },
-  video: {
-    backgroundColor: 'black',
-  },
   comment: {
-    top: '40%',
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-start',
@@ -56,16 +35,29 @@ const styles = StyleSheet.create({
 });
 
 export default function EvaluationScreen({ navigation }) {
+  const [evaluation, setEvaluation] = useState({});
+  const docId = 'bTzLmdl03mDOYwsZMyCP';
+
+  const doc = Firestore().collection('evaluations').doc(docId);
+  doc.get()
+    .then((document) => {
+      if (document.exists) {
+        setEvaluation(document.data());
+      }
+    });
+
   return (
     <View style={styles.container}>
-      <EvalVideo docId="bTzLmdl03mDOYwsZMyCP" style={styles.video} />
-
-      <View style={styles.comment}>
-        <TimestampedFeedback startTime="0:00" endTime="0:07" comment="pls work" />
-        <TimestampedFeedback startTime="0:00" endTime="0:07" comment="pls work" />
-        <TimestampedFeedback startTime="0:00" endTime="0:07" comment="pls work" />
+      <EvalVideo uri={evaluation.recording} style={styles.top} />
+      <View style={styles.bottom}>
+        <TimestampedFeedbackList evaluations={evaluation.evaluations} />
+        <Button
+          title="+"
+          onPress={() => {
+            navigation.navigate('CreateEvaluation', { doc });
+          }}
+        />
       </View>
-
     </View>
   );
 }

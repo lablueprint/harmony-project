@@ -3,7 +3,6 @@ import {
   StyleSheet, Alert, View, Text,
 } from 'react-native';
 import VideoPlayer from 'react-native-video-controls';
-import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
@@ -14,33 +13,14 @@ const styles = StyleSheet.create({
     right: 0,
     height: '40%',
   },
-  controlBar: {
-    position: 'relative',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 45,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
 });
 
-export default function EvalVideo({ docId }) {
-  const [evaluation, setEvaluation] = useState({});
-
-  Firestore().collection('evaluations').doc(docId).get()
-    .then((document) => {
-      if (document.exists) {
-        setEvaluation(document.data());
-      }
-    });
-
+export default function EvalVideo({ uri }) {
   return (
-    <VideoPlayer source={{ uri: evaluation.recording }} disableBack style={styles.video} />
+    <VideoPlayer source={{ uri }} disableBack style={styles.video} />
   );
 }
 
 EvalVideo.propTypes = {
-  docId: PropTypes.element.isRequired,
+  uri: PropTypes.element.isRequired,
 };
