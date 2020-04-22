@@ -99,15 +99,24 @@ export default function PostsScreen({ navigation }) {
         const date = post.createdAt.toDate();
         return (
           <>
-            <Post
-              key={post.id}
-              name={post.username}
-              title={post.title}
-              createdAt={date.toTimeString()}
-              date={date.toDateString()}
-            >
-              {post.body}
-            </Post>
+            <View style={styles.container}>
+              <Post
+                key={post.id}
+                name={post.username}
+                title={post.title}
+                createdAt={date.toTimeString()}
+                date={date.toDateString()}
+              >
+                {post.body}
+              </Post>
+            </View>
+            <Button
+              styles={styles.container}
+              title="Comment on Post"
+              onPress={() => {
+                navigation.navigate('NewComment', { ID: post.id });
+              }}
+            />
             <CommentLoader postID={post.id} />
           </>
         );
@@ -125,12 +134,6 @@ export default function PostsScreen({ navigation }) {
           title="Make a Post"
           onPress={() => {
             navigation.navigate('NewPost');
-          }}
-        />
-        <Button
-          title="Make a Comment"
-          onPress={() => {
-            navigation.navigate('NewComment');
           }}
         />
         {errorMessage && <Text>{errorMessage}</Text>}

@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
 });
 
 export default function NewCommentScreen({ navigation }) {
-  const [postId, setPostId] = useState('');
+  const postId = navigation.getParam('ID', 'Default: No ID Found');
   const [body, setBody] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -49,12 +49,8 @@ export default function NewCommentScreen({ navigation }) {
       {errorMessage && <Text>{errorMessage}</Text>}
       <View style={styles.tweetContainer}>
         <TextInput
-          placeholder="Post ID"
-          onChangeText={setPostId}
-          value={postId}
-        />
-        <TextInput
           autoFocus
+          fontSize={16}
           placeholder="Enter your comment..."
           multiline
           value={body}
