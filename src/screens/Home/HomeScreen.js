@@ -52,9 +52,9 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.subContainer}>
         <Button
           style={styles.textInput}
-          title="Edit Profile"
+          title="Profile"
           onPress={() => {
-            navigation.navigate('EditProfile', { uid });
+            navigation.navigate('Profile', { uid });
           }}
         />
       </View>
