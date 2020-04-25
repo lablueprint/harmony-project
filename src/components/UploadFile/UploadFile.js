@@ -9,6 +9,8 @@ import ImagePicker from 'react-native-image-picker';
 import Firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 
+import { UploadFileToFirebase } from '../../utils/FileManipulation'
+
 // TODO: Move this to somewhere else
 // Added to prevent Base64 data from being added to media files
 // Greatly increases uploading speed
@@ -27,23 +29,23 @@ const UploadFile = (props) => {
     return Platform.OS === 'android' ? path : uri;
   };
 
-  const createStorageReferenceToFile = (imagePickerResponse) => {
-    const { fileName } = imagePickerResponse;
+  // const createStorageReferenceToFile = (imagePickerResponse) => {
+  //   const { fileName } = imagePickerResponse;
 
-    // TODO: Move this to somewhere else
-    const id = Math.random()
-      .toString(36)
-      .slice(3);
+  //   // TODO: Move this to somewhere else
+  //   const id = Math.random()
+  //     .toString(36)
+  //     .slice(3);
 
-    return storage().ref(`${path}/${id}-${fileName}`);
-  };
+  //   return storage().ref(`${path}/${id}-${fileName}`);
+  // };
 
-  const uploadFileToFirebase = (imagePickerResponse) => {
-    const fileSource = getFileLocalPath(imagePickerResponse);
-    const storageRef = createStorageReferenceToFile(imagePickerResponse);
+  // const uploadFileToFirebase = (imagePickerResponse) => {
+  //   const fileSource = getFileLocalPath(imagePickerResponse);
+  //   const storageRef = createStorageReferenceToFile(imagePickerResponse);
 
-    return storageRef.putFile(fileSource);
-  };
+  //   return storageRef.putFile(fileSource);
+  // };
 
   const monitorUpload = (uploadTask) => {
     uploadTask.on('state_changed', (snapshot) => {
@@ -52,17 +54,7 @@ const UploadFile = (props) => {
           break;
         case 'success':
           snapshot.ref.getDownloadURL().then((downloadURL) => {
-            if (props.collection) {
-              const recording = {
-                userId: user.uid,
-                classroomId: classroom.id,
-                recording: downloadURL,
-                createdAt: Firestore.FieldValue.serverTimestamp(),
-              };
-
-              Firestore().collection(collection).add(recording);
-            }
-            Alert.alert('Upload succeeded!');
+            Alert.alert('Upload succeeded!' + downloadURL);
           });
           break;
         default:
@@ -80,7 +72,9 @@ const UploadFile = (props) => {
       } else if (error) {
         alert('An error occurred: ', imagePickerResponse.error);
       } else {
-        const uploadTask = uploadFileToFirebase(imagePickerResponse);
+        const localPath = getFileLocalPath(imagePickerResponse);
+
+        let uploadTask = UploadFileToFirebase(props.collection, props.user.uid, localPath);
         monitorUpload(uploadTask);
       }
     });
@@ -90,9 +84,7 @@ const UploadFile = (props) => {
     <View>
       <Button
         title="Upload File"
-        onPress={() => {
-          uploadFile();
-        }}
+        onPress={uploadFile}
         style={style}
       />
     </View>
