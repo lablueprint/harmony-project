@@ -65,6 +65,15 @@ export default function HomeScreen({ navigation }) {
           }}
         />
       </View>
+      <View style={styles.subContainer}>
+        <Button
+          style={styles.textInput}
+          title="View Evaluation"
+          onPress={() => {
+            navigation.navigate('Evaluation');
+          }}
+        />
+      </View>
     </View>
   );
 }
