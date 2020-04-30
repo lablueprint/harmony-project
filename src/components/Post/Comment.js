@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
 
 
 export default function Comment({
-  title, createdAt, date, children,
+  title, createdAt, date, body,
 }) {
   return (
     <View style={styles.container}>
@@ -46,7 +46,7 @@ export default function Comment({
       </View>
       <View style={styles.contentContainer}>
         <Text>
-          {children}
+          {body}
         </Text>
       </View>
     </View>
@@ -57,5 +57,5 @@ Comment.propTypes = {
   title: PropTypes.string.isRequired,
   createdAt: PropTypes.string.isRequired,
   date: PropTypes.string.isRequired,
-  children: PropTypes.string.isRequired,
+  body: PropTypes.string.isRequired,
 };

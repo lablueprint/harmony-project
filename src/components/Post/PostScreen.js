@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { ScrollView } from 'react-native-gesture-handler';
-import firestore from '@react-native-firebase/firestore';
+import Firestore from '@react-native-firebase/firestore';
 import Post from './Post';
 import Comment from './Comment';
 
@@ -26,7 +26,7 @@ function CommentLoader({ postID }) {
   const [commentList, setCommentList] = useState([]);
   let commentsData = [];
 
-  firestore().collection('comments')
+  Firestore().collection('comments')
     .get()
     .then((snapshot) => {
       if (!snapshot.empty) {
@@ -58,6 +58,7 @@ function CommentLoader({ postID }) {
             title={comment.title}
             createdAt={date.toTimeString()}
             date={date.toDateString()}
+            body={comment.body}
           >
             {comment.body}
           </Comment>
@@ -81,7 +82,7 @@ export default function PostsScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [postsList, setPostsList] = useState([]);
 
-  firestore().collection('posts')
+  Firestore().collection('posts')
     .get()
     .then((snapshot) => {
       const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
@@ -106,6 +107,8 @@ export default function PostsScreen({ navigation }) {
                 title={post.title}
                 createdAt={date.toTimeString()}
                 date={date.toDateString()}
+                attachment={post.attachment}
+                body={post.body}
               >
                 {post.body}
               </Post>

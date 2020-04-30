@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import {
+  View, Text, StyleSheet, Image,
+} from 'react-native';
 import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
@@ -27,8 +29,36 @@ const styles = StyleSheet.create({
 
 
 export default function Post({
-  title, createdAt, date, children,
+  title, createdAt, date, body, attachment,
 }) {
+  if (attachment !== '') {
+    return (
+      <View style={styles.container}>
+        <View>
+          <View>
+            <Text style={styles.topicText}>
+              {title}
+            </Text>
+            <Text style={styles.timeText}>
+              {createdAt}
+            </Text>
+            <Text style={styles.timeText}>
+              {date}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.contentContainer}>
+          <Text>
+            {body}
+          </Text>
+          <Image
+            style={{ width: '100%', height: 200, resizeMode: 'center' }}
+            source={{ uri: attachment }}
+          />
+        </View>
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       <View>
@@ -46,7 +76,7 @@ export default function Post({
       </View>
       <View style={styles.contentContainer}>
         <Text>
-          {children}
+          {body}
         </Text>
       </View>
     </View>
@@ -57,5 +87,6 @@ Post.propTypes = {
   title: PropTypes.string.isRequired,
   createdAt: PropTypes.string.isRequired,
   date: PropTypes.string.isRequired,
-  children: PropTypes.string.isRequired,
+  body: PropTypes.string.isRequired,
+  attachment: PropTypes.string.isRequired,
 };

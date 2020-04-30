@@ -4,8 +4,8 @@ import {
 } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
-import firestore from '@react-native-firebase/firestore';
-import firebase from '@react-native-firebase/app';
+import Firestore from '@react-native-firebase/firestore';
+import Firebase from '@react-native-firebase/app';
 
 const styles = StyleSheet.create({
   container: {
@@ -19,6 +19,7 @@ const styles = StyleSheet.create({
 export default function NewPostScreen({ navigation }) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+  const [attachment, setAttachment] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -27,16 +28,16 @@ export default function NewPostScreen({ navigation }) {
     const postRecord = {
       title,
       body,
-      createdAt: firestore.Timestamp.now(),
-      updatedAt: firestore.Timestamp.now(),
+      attachment,
+      createdAt: Firestore.Timestamp.now(),
+      updatedAt: Firestore.Timestamp.now(),
       classroomID: null,
       isSubmission: false,
       isPublic: true,
       dueDate: null,
-      attachments: null,
-      author: firebase.auth().currentUser.uid,
+      author: Firebase.auth().currentUser.uid,
     };
-    firestore().collection('posts')
+    Firestore().collection('posts')
       .doc()
       .set(postRecord)
       .then(() => {
@@ -57,6 +58,11 @@ export default function NewPostScreen({ navigation }) {
           fontSize={24}
           onChangeText={setTitle}
           value={title}
+        />
+        <TextInput
+          placeholder="Attachment URL"
+          value={attachment}
+          onChangeText={(content) => setAttachment(content)}
         />
         <TextInput
           autoFocus
