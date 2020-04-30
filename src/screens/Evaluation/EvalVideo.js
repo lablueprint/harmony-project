@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
-  StyleSheet, Alert, View, Text,
+  StyleSheet,
 } from 'react-native';
 import VideoPlayer from 'react-native-video-controls';
 import PropTypes from 'prop-types';

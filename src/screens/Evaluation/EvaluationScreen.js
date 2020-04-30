@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  StyleSheet, Alert, View, Text,
+  StyleSheet, View,
 } from 'react-native';
-import { Button, Input, Icon } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import EvalVideo from './EvalVideo';
