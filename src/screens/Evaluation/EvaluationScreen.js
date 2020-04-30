@@ -8,10 +8,6 @@ import Firestore from '@react-native-firebase/firestore';
 import EvalVideo from './EvalVideo';
 import TimestampedFeedbackList from './TimestampedFeedbackList';
 
-const {
-  vw, vh, vmin, vmax,
-} = require('react-native-viewport-units');
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
