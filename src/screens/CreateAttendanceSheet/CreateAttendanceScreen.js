@@ -30,7 +30,11 @@ export default function CreateAttendanceScreen({ navigation }) {
       }
     });
   if (teacher) {
-    console.log(teacher.classroomIds);
+    console.log(Firestore.FieldValue.serverTimestamp());
+    const newAttendance = {
+      classroomId: teacher.classroomIds[0].id,
+      createdAt: Firestore.FieldValue.serverTimestamp(),
+    };
   }
 
   const attendanceDoc = Firestore().collection('attendance').doc('test');

@@ -57,6 +57,7 @@ export default function CreateEvaluationScreen({ navigation }) {
             if (doc !== '') {
               doc.update({
                 evaluations: Firestore.FieldValue.arrayUnion(newEval),
+                updatedAt: Firestore.FieldValue.serverTimestamp(),
               });
             }
             navigation.navigate('Evaluation');
