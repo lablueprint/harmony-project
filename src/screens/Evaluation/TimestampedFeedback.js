@@ -4,13 +4,9 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 
-const {
-  vw, vh, vmin, vmax,
-} = require('react-native-viewport-units');
-
 const styles = StyleSheet.create({
   container: {
-    width: 95 * vw,
+    width: '95%',
     borderWidth: 2,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
