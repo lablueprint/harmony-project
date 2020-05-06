@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Text, Alert, Picker,
+  StyleSheet, ActivityIndicator, View, Alert, Picker,
 } from 'react-native';
-import { Button, Input } from 'react-native-elements';
+import { Button, Text } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
 import { INITIAL_USER_STATE, roles } from '../../components';
@@ -15,11 +15,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   formContainer: {
-    height: 400,
-    padding: 20,
+    height: 550,
+    padding: 50,
   },
-  subContainer: {
-    marginBottom: 20,
+  subContainerText: {
+    marginBottom: 5,
+    padding: 5,
+  },
+  subContainerButton: {
+    marginBottom: 15,
     padding: 5,
   },
   activity: {
@@ -31,14 +35,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  textInput: {
+  text: {
     fontSize: 18,
     margin: 5,
     width: 200,
   },
 });
 
-export default function EditProfileScreen({ navigation }) {
+export default function ProfileScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
   const uid = navigation.getParam('uid', null);
   const ref = Firestore().collection('users');
@@ -75,44 +79,58 @@ export default function EditProfileScreen({ navigation }) {
     getUserData();
   }, []);
 
-  const submitProfile = async () => {
-    setShowLoading(true);
-    try {
-      await ref.doc(uid).update({
-        ...userState,
-        updatedAt: Firestore.FieldValue.serverTimestamp(),
-      });
-      setShowLoading(false);
-    } catch (e) {
-      setShowLoading(false);
-      Alert.alert(
-        e.message,
-      );
-    }
-  };
+  // const submitProfile = async () => {
+  //   setShowLoading(true);
+  //   try {
+  //     await ref.doc(uid).update({
+  //       ...userState,
+  //       updatedAt: Firestore.FieldValue.serverTimestamp(),
+  //     });
+  //     setShowLoading(false);
+  //   } catch (e) {
+  //     setShowLoading(false);
+  //     Alert.alert(
+  //       e.message,
+  //     );
+  //   }
+  // };
 
   if (initializing) return null;
 
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontSize: 28, height: 50 }}>Edit Your Profile</Text>
+        <View style={styles.subContainerText}>
+          <Text h4>{userState.name}</Text>
         </View>
-        <View style={styles.subContainer}>
-          <Input
+        <View style={styles.subContainerButton}>
+          <Button
             style={styles.textInput}
-            placeholder="Name"
-            value={userState.name}
-            onChangeText={(text) => {
-              setUserState({
-                ...userState,
-                name: text,
-              });
+            title="Edit Profile"
+            onPress={() => {
+              navigation.navigate('EditProfile', { uid });
             }}
           />
         </View>
-        <View style={styles.subContainer}>
+        <View style={styles.subContainerButton}>
+          <Button
+            style={styles.textInput}
+            title="Settings"
+          />
+        </View>
+        <View style={styles.subContainerText}>
+          <Text h4>Current Classes</Text>
+          <Text style={styles.text}>blah blah</Text>
+        </View>
+        <View style={styles.subContainerText}>
+          <Text h4>Instrument Rentals</Text>
+          <Text style={styles.text}>blah blah</Text>
+        </View>
+        <View style={styles.subContainerText}>
+          <Text h4>Forms</Text>
+          <Text style={styles.text}>blah blah</Text>
+        </View>
+        {/* <View style={styles.subContainer}>
           <Input
             style={styles.textInput}
             placeholder="Email"
@@ -153,20 +171,13 @@ export default function EditProfileScreen({ navigation }) {
             <Picker.Item label="Parent" value={roles.parent} />
             <Picker.Item label="Teacher" value={roles.teacher} />
           </Picker>
-        </View>
-        <View style={styles.subContainer}>
+        </View> */}
+        <View style={styles.subContainerButton}>
           <Button
             style={styles.textInput}
-            title="Save Changes"
-            onPress={() => submitProfile()}
-          />
-        </View>
-        <View style={styles.subContainer}>
-          <Button
-            style={styles.textInput}
-            title="Back to Profile"
+            title="Back to Home"
             onPress={() => {
-              navigation.navigate('Profile', { uid });
+              navigation.navigate('Home');
             }}
           />
         </View>
@@ -182,12 +193,12 @@ export default function EditProfileScreen({ navigation }) {
 }
 
 // eslint-disable-next-line no-unused-vars
-EditProfileScreen.navigationOptions = ({ navigation }) => ({
-  title: 'Edit Profile',
+ProfileScreen.navigationOptions = ({ navigation }) => ({
+  title: 'Profile',
   headerShown: false,
 });
 
-EditProfileScreen.propTypes = {
+ProfileScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
     getParam: PropTypes.func.isRequired,
