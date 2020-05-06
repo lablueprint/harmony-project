@@ -39,7 +39,21 @@ const INITIAL_CLASSROOM_STATE = {
   createdAt: '',
 };
 
+const INITIAL_MESSAGE_STATE = {
+  senderId: '',
+  text: '',
+  sentAt: '',
+};
+
+const INITIAL_CHAT_STATE = {
+  users: [],
+  names: {},
+  createdAt: '',
+  updatedAt: '',
+};
 //////////////////////////////////////////////////////
 
 export { roles, terms };
-export { INITIAL_USER_STATE, INITIAL_CLASSROOM_STATE };
+export {
+  INITIAL_USER_STATE, INITIAL_CLASSROOM_STATE, INITIAL_MESSAGE_STATE, INITIAL_CHAT_STATE,
+};
