@@ -6,10 +6,8 @@ import {
 import PropTypes from 'prop-types';
 
 import ImagePicker from 'react-native-image-picker';
-import Firestore from '@react-native-firebase/firestore';
-import storage from '@react-native-firebase/storage';
 
-import { UploadFileToFirebase } from '../../utils/FileManipulation'
+import UploadFileToFirebase from '../../utils/FileManipulation'
 
 // TODO: Move this to somewhere else
 // Added to prevent Base64 data from being added to media files
@@ -21,31 +19,13 @@ const imagePickerOptions = {
 
 const UploadFile = (props) => {
   const {
-    user, classroom, path, collection, style,
+    user, collection,
   } = props;
 
   const getFileLocalPath = (imagePickerResponse) => {
     const { path, uri } = imagePickerResponse;
     return Platform.OS === 'android' ? path : uri;
   };
-
-  // const createStorageReferenceToFile = (imagePickerResponse) => {
-  //   const { fileName } = imagePickerResponse;
-
-  //   // TODO: Move this to somewhere else
-  //   const id = Math.random()
-  //     .toString(36)
-  //     .slice(3);
-
-  //   return storage().ref(`${path}/${id}-${fileName}`);
-  // };
-
-  // const uploadFileToFirebase = (imagePickerResponse) => {
-  //   const fileSource = getFileLocalPath(imagePickerResponse);
-  //   const storageRef = createStorageReferenceToFile(imagePickerResponse);
-
-  //   return storageRef.putFile(fileSource);
-  // };
 
   const monitorUpload = (uploadTask) => {
     uploadTask.on('state_changed', (snapshot) => {
@@ -74,7 +54,7 @@ const UploadFile = (props) => {
       } else {
         const localPath = getFileLocalPath(imagePickerResponse);
 
-        let uploadTask = UploadFileToFirebase(props.collection, props.user.uid, localPath);
+        let uploadTask = UploadFileToFirebase(collection, user.uid, localPath);
         monitorUpload(uploadTask);
       }
     });
@@ -85,7 +65,6 @@ const UploadFile = (props) => {
       <Button
         title="Upload File"
         onPress={uploadFile}
-        style={style}
       />
     </View>
   );
@@ -93,29 +72,17 @@ const UploadFile = (props) => {
 
 // props:
 // - user: Object - User object
-// - classroom: Object - with field id: int
-// - path: String - Path to media in storage
 // - collection: String, Optional - Collection to add to as a record of the upload
 UploadFile.propTypes = {
   user: PropTypes.shape({ uid: PropTypes.string }).isRequired,
-  classroom: PropTypes.shape({ id: PropTypes.string }).isRequired,
-  path: PropTypes.string.isRequired,
-  collection: PropTypes.string,
-  style: PropTypes.object,
-};
-
-UploadFile.defaultProps = {
-  collection: '',
+  collection: PropTypes.string.isRequired,
 };
 
 /*
 Usage:
   <UploadFile
     user={user}
-    classroom={{id: 'efiufbinw'}}
-    path='recordings'
     collection='recordings'
-    style={styles.textInput}
    />
 */
 

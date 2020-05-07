@@ -1,3 +1,3 @@
-import { UploadFileToFirebase } from './FileManipulation.js';
+import UploadFileToFirebase from './FileManipulation';
 
-export { UploadFileToFirebase };
+export default UploadFileToFirebase;
