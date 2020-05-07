@@ -74,10 +74,10 @@ export default function HomeScreen({ navigation }) {
             navigation.navigate('Evaluation');
           }}
         />
-        <UploadFile 
+        <UploadFile
           user={user}
-          collection='posts'
-         />
+          collection="posts"
+        />
       </View>
     </View>
   );

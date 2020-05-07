@@ -1,8 +1,7 @@
 import storage from '@react-native-firebase/storage';
 
 const UploadFileToFirebase = (collection, id, localPath) => {
-
-	const createStorageReferenceToFile = () => {
+  const createStorageReferenceToFile = () => {
     // TODO: Move this to somewhere else
     const imageId = Math.random()
       .toString(36)
@@ -17,8 +16,8 @@ const UploadFileToFirebase = (collection, id, localPath) => {
     return storageRef.putFile(localPath);
   };
 
-	const uploadTask = uploadFileToFirebase();
-	return uploadTask
-}
+  const uploadTask = uploadFileToFirebase();
+  return uploadTask;
+};
 
-export default UploadFileToFirebase 
+export default UploadFileToFirebase;
