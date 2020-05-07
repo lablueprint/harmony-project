@@ -57,13 +57,6 @@ export default function HomeScreen({ navigation }) {
             navigation.navigate('Profile', { uid });
           }}
         />
-        <Button
-          style={styles.textInput}
-          title="Messages"
-          onPress={() => {
-            navigation.navigate('Chatrooms', { uid });
-          }}
-        />
       </View>
       <View style={styles.subContainer}>
         <Button
@@ -71,6 +64,15 @@ export default function HomeScreen({ navigation }) {
           title="View Evaluation"
           onPress={() => {
             navigation.navigate('Evaluation');
+          }}
+        />
+      </View>
+      <View style={styles.subContainer}>
+        <Button
+          style={styles.textInput}
+          title="View Posts"
+          onPress={() => {
+            navigation.navigate('Post');
           }}
         />
       </View>

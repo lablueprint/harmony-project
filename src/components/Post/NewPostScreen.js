@@ -39,7 +39,7 @@ export default function NewPostScreen({ navigation }) {
     };
     Firestore().collection('posts')
       .doc()
-      .set(postRecord)
+      .add(postRecord)
       .then(() => {
         setLoading(false);
         navigation.navigate('Post');

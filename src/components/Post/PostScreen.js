@@ -24,32 +24,21 @@ const styles = StyleSheet.create({
 function CommentLoader({ postID }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [commentList, setCommentList] = useState([]);
-  let commentsData = [];
+  const commentsData = [];
 
   Firestore().collection('comments')
+    .where('postId', '==', postID)
+    .orderBy('createdAt', 'desc')
     .get()
     .then((snapshot) => {
       if (!snapshot.empty) {
         snapshot.forEach((anotherSnapshot) => {
-          const commentData = ({ ...anotherSnapshot.data(), id: anotherSnapshot.id });
-          if ((anotherSnapshot.get('postId') === postID) && !(commentsData.includes(commentData))) {
-            commentsData = commentsData.concat(commentData);
-          }
+          commentsData.push({ ...anotherSnapshot.data(), id: anotherSnapshot.id });
         });
       }
     })
     .then(() => {
-      setCommentList(commentsData.sort((a, b) => {
-        const aMillis = a.createdAt.toMillis();
-        const bMillis = b.createdAt.toMillis();
-        if (aMillis < bMillis) {
-          return -1;
-        }
-        if (aMillis > bMillis) {
-          return 1;
-        }
-        return 0;
-      }).map((comment) => {
+      setCommentList(commentsData.map((comment) => {
         const date = comment.createdAt.toDate();
         return (
           <Comment
@@ -83,20 +72,11 @@ export default function PostsScreen({ navigation }) {
   const [postsList, setPostsList] = useState([]);
 
   Firestore().collection('posts')
+    .orderBy('createdAt', 'desc')
     .get()
     .then((snapshot) => {
       const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-      setPostsList(posts.sort((a, b) => {
-        const aMillis = a.createdAt.toMillis();
-        const bMillis = b.createdAt.toMillis();
-        if (aMillis > bMillis) {
-          return -1;
-        }
-        if (aMillis < bMillis) {
-          return 1;
-        }
-        return 0;
-      }).map((post) => {
+      setPostsList(posts.map((post) => {
         const date = post.createdAt.toDate();
         return (
           <>
