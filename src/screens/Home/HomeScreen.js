@@ -75,7 +75,7 @@ export default function HomeScreen({ navigation }) {
           }}
         />
         <UploadFile
-          user={user}
+          docId="example"
           collection="posts"
         />
       </View>
