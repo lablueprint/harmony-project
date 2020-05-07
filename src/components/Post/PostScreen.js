@@ -79,20 +79,18 @@ export default function PostsScreen({ navigation }) {
       setPostsList(posts.map((post) => {
         const date = post.createdAt.toDate();
         return (
-          <>
-            <View style={styles.container}>
-              <Post
-                key={post.id}
-                name={post.username}
-                title={post.title}
-                createdAt={date.toTimeString()}
-                date={date.toDateString()}
-                attachment={post.attachment}
-                body={post.body}
-              >
-                {post.body}
-              </Post>
-            </View>
+          <View style={styles.container} key={post.id}>
+            <Post
+              key={post.id}
+              name={post.username}
+              title={post.title}
+              createdAt={date.toTimeString()}
+              date={date.toDateString()}
+              attachment={post.attachment}
+              body={post.body}
+            >
+              {post.body}
+            </Post>
             <Button
               styles={styles.container}
               title="Comment on Post"
@@ -101,7 +99,7 @@ export default function PostsScreen({ navigation }) {
               }}
             />
             <CommentLoader postID={post.id} />
-          </>
+          </View>
         );
       }));
     })

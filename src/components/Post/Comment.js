@@ -31,19 +31,15 @@ export default function Comment({
 }) {
   return (
     <View style={styles.container}>
-      <View>
-        <View>
-          <Text style={styles.topicText}>
-            {title}
-          </Text>
-          <Text style={styles.timeText}>
-            {createdAt}
-          </Text>
-          <Text style={styles.timeText}>
-            {date}
-          </Text>
-        </View>
-      </View>
+      <Text style={styles.topicText}>
+        {title}
+      </Text>
+      <Text style={styles.timeText}>
+        {createdAt}
+      </Text>
+      <Text style={styles.timeText}>
+        {date}
+      </Text>
       <View style={styles.contentContainer}>
         <Text>
           {body}

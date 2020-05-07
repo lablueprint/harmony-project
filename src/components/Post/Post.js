@@ -31,53 +31,27 @@ const styles = StyleSheet.create({
 export default function Post({
   title, createdAt, date, body, attachment,
 }) {
-  if (attachment !== '') {
-    return (
-      <View style={styles.container}>
-        <View>
-          <View>
-            <Text style={styles.topicText}>
-              {title}
-            </Text>
-            <Text style={styles.timeText}>
-              {createdAt}
-            </Text>
-            <Text style={styles.timeText}>
-              {date}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.contentContainer}>
-          <Text>
-            {body}
-          </Text>
-          <Image
-            style={{ width: '100%', height: 200, resizeMode: 'center' }}
-            source={{ uri: attachment }}
-          />
-        </View>
-      </View>
-    );
-  }
   return (
     <View style={styles.container}>
-      <View>
-        <View>
-          <Text style={styles.topicText}>
-            {title}
-          </Text>
-          <Text style={styles.timeText}>
-            {createdAt}
-          </Text>
-          <Text style={styles.timeText}>
-            {date}
-          </Text>
-        </View>
-      </View>
+      <Text style={styles.topicText}>
+        {title}
+      </Text>
+      <Text style={styles.timeText}>
+        {createdAt}
+      </Text>
+      <Text style={styles.timeText}>
+        {date}
+      </Text>
       <View style={styles.contentContainer}>
         <Text>
           {body}
         </Text>
+        {attachment ? (
+          <Image
+            style={{ width: '100%', height: 200, resizeMode: 'center' }}
+            source={{ uri: attachment }}
+          />
+        ) : null}
       </View>
     </View>
   );
