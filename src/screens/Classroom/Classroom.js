@@ -5,6 +5,7 @@ import React from 'react';
 import {
   Text, View, SafeAreaView, ScrollView, StyleSheet, Button, TextInput,
 } from 'react-native';
+import PropTypes from 'prop-types';
 import Post from './Post';
 
 
@@ -91,6 +92,12 @@ function MakePost() {
   );
 }
 
+ClassroomHome.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+    getParam: PropTypes.func.isRequired,
+  }).isRequired,
+};
 
 // const Stack = createStackNavigator();
 
