@@ -6,6 +6,7 @@ import MessageScreen from '../screens/Messaging/Messages';
 import ProfileScreen from '../screens/Profile';
 import EvaluationScreen from '../screens/Evaluation';
 import CreateEvaluationScreen from '../screens/CreateEvaluation';
+import GenericFormDemoScreen from '../screens/GenericFormDemo';
 
 const AppNavigation = createStackNavigator(
   {
@@ -16,6 +17,7 @@ const AppNavigation = createStackNavigator(
     Profile: ProfileScreen,
     Evaluation: EvaluationScreen,
     CreateEvaluation: CreateEvaluationScreen,
+    GenericFormDemo: GenericFormDemoScreen,
   },
   {
     initialRouteName: 'Home',

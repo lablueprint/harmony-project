@@ -64,6 +64,13 @@ export default function HomeScreen({ navigation }) {
             navigation.navigate('Chatrooms', { uid });
           }}
         />
+        <Button
+          style={styles.textInput}
+          title="GenericForm"
+          onPress={() => {
+            navigation.navigate('GenericFormDemo', { });
+          }}
+        />
       </View>
       <View style={styles.subContainer}>
         <Button
