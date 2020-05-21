@@ -1,12 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Text, TextInput, Alert, Picker,
+  StyleSheet, View, Text, TextInput, Alert,
 } from 'react-native';
-import { Button, Input } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
-import { INITIAL_USER_STATE, roles } from '../../components';
 
 const styles = StyleSheet.create({
   container: {

@@ -70,9 +70,18 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.subContainer}>
         <Button
           style={styles.textInput}
-          title="Create Attendance Sheet"
+          title="Create Attendance Sheets"
           onPress={() => {
             navigation.navigate('CreateAttendance', { uid });
+          }}
+        />
+      </View>
+      <View style={styles.subContainer}>
+        <Button
+          style={styles.textInput}
+          title="View Attendance Sheets"
+          onPress={() => {
+            navigation.navigate('AttendanceSheet', { uid });
           }}
         />
       </View>
