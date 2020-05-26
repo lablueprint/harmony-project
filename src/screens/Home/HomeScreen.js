@@ -6,6 +6,7 @@ import { StyleSheet, View, Text } from 'react-native';
 import { Button } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
+import UploadFile from '../../components/UploadFile';
 
 const styles = StyleSheet.create({
   subContainer: {
@@ -65,6 +66,26 @@ export default function HomeScreen({ navigation }) {
           onPress={() => {
             navigation.navigate('Evaluation');
           }}
+        />
+        <Button
+          style={styles.textInput}
+          title="GenericForm"
+          onPress={() => {
+            navigation.navigate('GenericFormDemo', { });
+          }}
+        />
+      </View>
+      <View style={styles.subContainer}>
+        <Button
+          style={styles.textInput}
+          title="View Posts"
+          onPress={() => {
+            navigation.navigate('Post');
+          }}
+        />
+        <UploadFile
+          docId="example"
+          collection="posts"
         />
       </View>
     </View>
