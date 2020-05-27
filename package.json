@@ -17,6 +17,7 @@
     "@react-native-firebase/firestore": "^6.7.1",
     "@react-native-firebase/storage": "^6.7.1",
     "moment": "^2.26.0",
+    "formik": "^2.1.4",
     "prop-types": "^15.7.2",
     "react": "16.9.0",
     "react-native": "^0.62.2",

@@ -9,6 +9,7 @@ import EvaluationScreen from '../screens/Evaluation';
 import CreateEvaluationScreen from '../screens/CreateEvaluation';
 import CreateAttendanceScreen from '../screens/CreateAttendanceSheet';
 import AttendanceSheetScreen from '../screens/AttendanceSheet';
+import GenericFormDemoScreen from '../screens/GenericFormDemo';
 
 const AppNavigation = createStackNavigator(
   {
@@ -24,6 +25,7 @@ const AppNavigation = createStackNavigator(
     CreateEvaluation: CreateEvaluationScreen,
     CreateAttendance: CreateAttendanceScreen,
     AttendanceSheet: AttendanceSheetScreen,
+    GenericFormDemo: GenericFormDemoScreen,
   },
   {
     initialRouteName: 'Home',
