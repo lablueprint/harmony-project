@@ -1,41 +1,44 @@
 import React from 'react';
 import {
-  View, StyleSheet, Text,
+  View, StyleSheet,
 } from 'react-native';
 import PropTypes from 'prop-types';
+import Post from '../../components/Post/Post';
 
 const styles = StyleSheet.create({
   container: {
-    width: '95%',
-    borderWidth: 2,
-    borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8,
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
-    paddingTop: 2,
-    paddingRight: 2,
-    paddingBottom: 2,
-    paddingLeft: 2,
-    margin: 2,
+    flex: 1,
+  },
+  welcomeMessage: {
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    height: 50,
+    fontSize: 20,
   },
 });
 
-export default function TimestampedFeedback({ startTime, endTime, comment }) {
+
+export default function TimestampedFeedback({
+  // navigation, title, startTime, endTime, comment,
+  title, comment,
+}) {
   return (
     <View style={styles.container}>
-      <Text>
-        {startTime}
-        {' '}
-        {endTime}
-        {' '}
-        {comment}
-      </Text>
+      <Post
+        title={title}
+        body={comment}
+      />
+
+
     </View>
+
   );
 }
 
 TimestampedFeedback.propTypes = {
-  startTime: PropTypes.elementType.isRequired,
-  endTime: PropTypes.elementType.isRequired,
+  // navigation: PropTypes.elementType.isRequired,
+  title: PropTypes.elementType.isRequired,
+  // startTime: PropTypes.elementType.isRequired,
+  // endTime: PropTypes.elementType.isRequired,
   comment: PropTypes.elementType.isRequired,
 };

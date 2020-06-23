@@ -1,8 +1,8 @@
 import React from 'react';
+import Video from 'react-native-video';
 import {
   StyleSheet,
 } from 'react-native';
-import VideoPlayer from 'react-native-video-controls';
 import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
@@ -10,14 +10,19 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
+    bottom: 0,
     right: 0,
-    height: '40%',
   },
 });
 
 export default function EvalVideo({ uri }) {
+  console.log(uri);
   return (
-    <VideoPlayer source={{ uri }} disableBack style={styles.video} />
+    <Video
+      source={{ uri }}
+      controls
+      style={styles.video}
+    />
   );
 }
 
