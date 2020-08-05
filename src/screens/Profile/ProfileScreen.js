@@ -1,11 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import {
+  // eslint-disable-next-line no-unused-vars
   StyleSheet, ActivityIndicator, View, Alert, Picker,
 } from 'react-native';
 import { Button, Text } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line no-unused-vars
 import { INITIAL_USER_STATE, roles } from '../../components';
 
 const styles = StyleSheet.create({
@@ -48,6 +50,7 @@ export default function ProfileScreen({ navigation }) {
   const ref = Firestore().collection('users');
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
 
+  // eslint-disable-next-line no-unused-vars
   const [showLoading, setShowLoading] = useState(false);
 
   async function getUserData() {
