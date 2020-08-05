@@ -1,33 +1,19 @@
-import React, { useState } from 'react';
-import {
-  StyleSheet, View,
-} from 'react-native';
-import { Button } from 'react-native-elements';
+import React, { useState, useEffect } from 'react';
+import { View } from 'react-native';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
-
-const styles = StyleSheet.create({
-  hidden: {
-    display: 'none',
-  },
-});
-
 export default function CreateAttendanceScreen({ navigation }) {
-  const currentDate = new Date();
-  currentDate.setHours(0, 0, 0, 0);
-  const [date, setDate] = useState(currentDate);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [date, setDate] = useState();
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(true);
   const [teacher, setTeacher] = useState({});
   const [studentStatus, setStudentStatus] = useState({});
   const [attendanceDocID, setAttendanceDocID] = useState('');
-  const [createOrEdit, setCreateOrEdit] = useState('Create');
-  const [hasExistingEntry, setHasExistingEntry] = useState(false);
 
   const uid = navigation.getParam('uid', null);
 
-  function loadData() {
+  useEffect(() => {
     Firestore().collection('users').doc(uid).get()
       .then((document) => {
         if (document.exists) {
@@ -35,10 +21,12 @@ export default function CreateAttendanceScreen({ navigation }) {
         }
       })
       .catch((e) => {
-        console.log('Problem with finding TEACHER in users.');
+        console.log('Problem finding TEACHER in users.');
         throw e;
       });
+  }, [uid]);
 
+  useEffect(() => {
     if (Object.keys(teacher).length !== 0) {
       const obj = {};
       const classroomRef = Firestore().collection('classrooms').doc(teacher.classroomIds[0].id);
@@ -53,52 +41,56 @@ export default function CreateAttendanceScreen({ navigation }) {
           setStudentStatus(obj);
         })
         .catch((e) => {
-          console.log('Problem with finding STUDENT(s) in classroom.');
+          console.log('Problem finding STUDENT(s) in classroom.');
           throw e;
         });
     }
-
-    Firestore().collection('attendance')
-      .where('date', '==', Firestore.Timestamp.fromDate(date))
-      .get()
-      .then((snapshot) => {
-        if (!snapshot.empty) {
-          setHasExistingEntry(true);
-        }
-        snapshot.forEach((doc) => {
-          setAttendanceDocID(doc.id);
-        });
-      });
-  }
+  }, [teacher]);
 
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
   };
 
   const handleConfirm = (d) => {
+    d.setHours(0, 0, 0, 0);
     setDate(d);
-    console.log(d);
-    console.log(date);
-    if (hasExistingEntry && attendanceDocID) {
+  };
+
+  useEffect(() => {
+    if (date !== undefined) {
+      Firestore().collection('attendance')
+        .where('date', '==', Firestore.Timestamp.fromDate(date))
+        .get()
+        .then((snapshot) => {
+          if (snapshot.empty) {
+            Firestore().collection('attendance').add({
+              createdAt: Firestore.FieldValue.serverTimestamp(),
+              date,
+              studentStatus,
+              updatedAt: Firestore.FieldValue.serverTimestamp(),
+            });
+          } else {
+            snapshot.forEach((doc) => {
+              setAttendanceDocID(doc.id);
+            });
+          }
+        });
+    }
+  }, [date, studentStatus]);
+
+  useEffect(() => {
+    if (attendanceDocID) {
       Firestore().collection('attendance').doc(attendanceDocID).update({
-        updatedAt: Firestore.FieldValue.serverTimestamp(),
         studentStatus,
-      });
-    } else {
-      Firestore().collection('attendance').add({
-        createdAt: Firestore.FieldValue.serverTimestamp(),
         updatedAt: Firestore.FieldValue.serverTimestamp(),
-        date: Firestore.Timestamp.fromDate(date),
-        studentStatus,
-        teacherId: Firestore().collection('users').doc(uid),
       });
     }
-  };
+  });
 
   return (
     <View>
       <DateTimePickerModal
-        isVisible
+        isVisible={isDatePickerVisible}
         mode="default"
         onCancel={hideDatePicker}
         onConfirm={handleConfirm}
