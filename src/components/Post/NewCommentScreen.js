@@ -34,7 +34,7 @@ export default function NewCommentScreen({ navigation }) {
     };
     Firestore().collection('comments')
       .doc()
-      .add(commentRecord)
+      .set(commentRecord)
       .then(() => {
         setLoading(false);
         navigation.navigate('Post');

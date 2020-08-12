@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState }from 'react';
 import {
   View, Text, StyleSheet, Image,
 } from 'react-native';
+import Firestore from '@react-native-firebase/firestore';
+import { ScrollView } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
+import Comment from './Comment';
 
 const styles = StyleSheet.create({
   container: {
@@ -27,9 +30,54 @@ const styles = StyleSheet.create({
   },
 });
 
+function CommentLoader({ postID }) {
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [commentList, setCommentList] = useState([]);
+  const commentsData = [];
+
+  Firestore().collection('comments')
+    .where('postId', '==', postID)
+    .orderBy('createdAt', 'desc')
+    .get()
+    .then((snapshot) => {
+      if (!snapshot.empty) {
+        snapshot.forEach((anotherSnapshot) => {
+          commentsData.push({ ...anotherSnapshot.data(), id: anotherSnapshot.id });
+        });
+      }
+    })
+    .then(() => {
+      setCommentList(commentsData.map((comment) => {
+        const date = comment.createdAt.toDate();
+        return (
+          <Comment
+            key={comment.id}
+            name={comment.username}
+            title={comment.title}
+            createdAt={date.toTimeString()}
+            date={date.toDateString()}
+            body={comment.body}
+          >
+            {comment.body}
+          </Comment>
+        );
+      }));
+    })
+    .catch((error) => {
+      setErrorMessage(error.message);
+    });
+  return (
+    <View style={styles.container}>
+      <ScrollView>
+        {errorMessage && <Text>{errorMessage}</Text>}
+        {commentList}
+      </ScrollView>
+    </View>
+  );
+}
 
 export default function Post({
-  title, createdAt, date, body, attachment,
+  title, createdAt, date, body, attachment, id
 }) {
   return (
     <View style={styles.container}>
@@ -53,6 +101,7 @@ export default function Post({
           />
         ) : null}
       </View>
+      <CommentLoader postID={id} />
     </View>
   );
 }
@@ -63,4 +112,8 @@ Post.propTypes = {
   date: PropTypes.string.isRequired,
   body: PropTypes.string.isRequired,
   attachment: PropTypes.string.isRequired,
+};
+
+CommentLoader.propTypes = {
+  postID: PropTypes.string.isRequired,
 };
