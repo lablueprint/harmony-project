@@ -56,6 +56,12 @@ export default function HomeScreen({ navigation }) {
           title="Profile"
           onPress={() => {
             navigation.navigate('Profile', { uid });
+          }}/>
+        <Button
+          style={styles.textInput}
+          title="Messages"
+          onPress={() => {
+            navigation.navigate('Chatrooms', { uid });
           }}
         />
       </View>
