@@ -87,7 +87,6 @@ export default function ChatroomsScreen({ navigation }) {
   console.log('Retrieved ', chats.length, 'chatrooms');
   return (
     <SafeAreaView>
-      </View>
       <View style={styles.messagesContainer}>
         <FlatList
           data={chats}
