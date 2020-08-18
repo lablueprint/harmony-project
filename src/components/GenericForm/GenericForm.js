@@ -41,7 +41,10 @@ const GenericForm = (props) => {
                 </View>
               ))}
             </View>
-            <Button title="Submit" onPress={handleSubmit} />
+            <Button title="Submit"
+                    onPress={handleSubmit}
+                    buttonStyle={{ marginTop: 20, marginBottom: 20 }}
+                    />
           </View>
         )}
       </Formik>

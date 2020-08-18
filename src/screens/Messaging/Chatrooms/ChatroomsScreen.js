@@ -87,6 +87,7 @@ export default function ChatroomsScreen({ navigation }) {
   console.log('Retrieved ', chats.length, 'chatrooms');
   return (
     <SafeAreaView>
+      </View>
       <View style={styles.messagesContainer}>
         <FlatList
           data={chats}
@@ -120,8 +121,8 @@ ChatroomsScreen.navigationOptions = ({ navigation }) => ({
   title: 'Messages',
   headerRight: () => (
     <Button
-      title=" + "
-      buttonStyle={{ padding: 5, marginRight: 20 }}
+      title="New Chatroom"
+      buttonStyle={{ paddingLeft: 10, paddingRight: 10, marginRight: 10 }}
       // TODO: new chat -> enter recipient
       //       -> load existing chatroom if exists, else start new chatroom
       // onPress={() => {
@@ -132,7 +133,7 @@ ChatroomsScreen.navigationOptions = ({ navigation }) => ({
       //     messageCollection: item.messages,
       //   });
       // }}
-      onPress={() => { Alert.alert('WIP - New chat not implemented'); }}
+      onPress={() => { navigation.navigate('AddChatroom'); }}
     />
   ),
 });

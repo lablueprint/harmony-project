@@ -7,6 +7,7 @@ const colors = {
   GREY: '#B4B4B4',
 };
 
+//TODO: CLEAN UP STYLES
 const styles = StyleSheet.create({
   title: {
     fontSize: 20,
@@ -23,7 +24,6 @@ const styles = StyleSheet.create({
   textContainer: {
     width: 160,
     backgroundColor: colors.GREY,
-
     borderRadius: 40,
     paddingHorizontal: 15,
     paddingVertical: 12,
@@ -44,6 +44,27 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 12,
+  },
+  rootContainer: {
+    flex: 1,
+  },
+  closeButtonContainer: {
+    position: 'absolute',
+    top: 30,
+    right: 0,
+    zIndex: 1,
+  },
+  innerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 10,
+  },
+  buttonLabel: {
+    fontSize: 22,
   },
 });
 

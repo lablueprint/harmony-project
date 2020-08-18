@@ -3,6 +3,7 @@ import HomeScreen from '../screens/Home';
 import EditProfileScreen from '../screens/EditProfile';
 import { PostScreen, NewPostScreen, NewCommentScreen } from '../components/Post';
 import ChatroomsScreen from '../screens/Messaging/Chatrooms';
+import AddChatroomScreen from '../screens/Messaging/AddChatroom'
 import MessageScreen from '../screens/Messaging/Messages';
 import ProfileScreen from '../screens/Profile';
 import EvaluationScreen from '../screens/Evaluation';
@@ -17,6 +18,7 @@ const AppNavigation = createStackNavigator(
     NewPost: NewPostScreen,
     NewComment: NewCommentScreen,
     Chatrooms: ChatroomsScreen,
+    AddChatroom: AddChatroomScreen,
     Messages: MessageScreen,
     Profile: ProfileScreen,
     Evaluation: EvaluationScreen,
