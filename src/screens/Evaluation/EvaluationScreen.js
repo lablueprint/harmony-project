@@ -6,35 +6,26 @@ import {
 // import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import EvalVideo from './EvalVideo';
-// import TimestampedFeedbackList from './TimestampedFeedbackList';
+import TimestampedFeedbackList from './TimestampedFeedbackList';
 
 const styles = StyleSheet.create({
-  video: {
-    height: '40%',
-  },
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'center',
   },
-  formContainer: {
-    height: 400,
-    padding: 20,
+  bottomContainer: {
+    width: '100%',
+    height: '50%',
   },
-  comment: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignContent: 'flex-start',
-    marginTop: 5,
-    marginLeft: 3,
-    marginBottom: 5,
-    marginRight: 3,
+  timestampedFeedback: {
   },
 });
 
 export default function EvaluationScreen() {
-  const [evaluation, setEvaluation] = useState({});
+  const [evaluationDoc, setEvaluationDoc] = useState({});
+  const [evaluations, setEvaluations] = useState([]);
+  const [evaluationsLoaded, setEvaluationsLoaded] = useState(false);
   const [videoLinkLoaded, setVideoLinkLoaded] = useState(false);
   const [videoLink, setVideoLink] = useState();
 
@@ -45,13 +36,14 @@ export default function EvaluationScreen() {
     .get()
     .then((document) => {
       if (document.exists) {
-        setEvaluation(document.data());
+        setEvaluationDoc(document.data());
       }
     });
 
   useEffect(() => {
-    setVideoLink(evaluation.recording);
-  }, [evaluation]);
+    setVideoLink(evaluationDoc.recording);
+    setEvaluations(evaluationDoc.evaluations);
+  }, [evaluationDoc]);
 
   useEffect(() => {
     if (videoLink !== undefined) {
@@ -59,9 +51,24 @@ export default function EvaluationScreen() {
     }
   }, [videoLink]);
 
+  useEffect(() => {
+    // console.log(evaluations);
+    if (evaluations !== undefined && evaluations.length !== 0) {
+      setEvaluationsLoaded(true);
+    }
+  }, [evaluations]);
+
   return (
     <View style={styles.container}>
       {videoLinkLoaded && <EvalVideo videoLink={videoLink} style={styles.video} />}
+      <View style={styles.bottomContainer}>
+        {evaluationsLoaded && (
+        <TimestampedFeedbackList
+          evaluations={evaluations}
+          style={styles.timestampedFeedback}
+        />
+        )}
+      </View>
     </View>
   );
 }
