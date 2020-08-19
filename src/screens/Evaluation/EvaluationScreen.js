@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet, View,
 } from 'react-native';
@@ -35,7 +35,9 @@ const styles = StyleSheet.create({
 
 export default function EvaluationScreen() {
   const [evaluation, setEvaluation] = useState({});
-  const [video, setVideo] = useState();
+  const [videoLinkLoaded, setVideoLinkLoaded] = useState(false);
+  const [videoLink, setVideoLink] = useState();
+
   const docId = 'bTzLmdl03mDOYwsZMyCP';
 
   Firestore().collection('evaluations')
@@ -44,16 +46,22 @@ export default function EvaluationScreen() {
     .then((document) => {
       if (document.exists) {
         setEvaluation(document.data());
-        console.log(evaluation);
-        setVideo();
       }
-      return document.recording;
     });
 
+  useEffect(() => {
+    setVideoLink(evaluation.recording);
+  }, [evaluation]);
+
+  useEffect(() => {
+    if (videoLink !== undefined) {
+      setVideoLinkLoaded(true);
+    }
+  }, [videoLink]);
 
   return (
     <View style={styles.container}>
-      <EvalVideo uri={video} style={styles.video} />
+      {videoLinkLoaded && <EvalVideo videoLink={videoLink} style={styles.video} />}
     </View>
   );
 }
