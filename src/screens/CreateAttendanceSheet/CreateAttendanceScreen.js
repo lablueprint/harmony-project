@@ -1,17 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet, Picker } from 'react-native';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import {
+  Table, TableWrapper, Row, Rows, Col, Cols, Cell,
+} from 'react-native-table-component';
+
+const styles = StyleSheet.create({
+  head: {
+    height: 40,
+    backgroundColor: '#f1f8ff',
+  },
+  wrapper: {
+    flexDirection: 'row',
+  },
+  row: {
+    height: 35,
+  },
+});
 
 export default function CreateAttendanceScreen({ navigation }) {
   const [date, setDate] = useState();
   const [isDatePickerVisible, setDatePickerVisibility] = useState(true);
   const [teacher, setTeacher] = useState({});
   const [studentStatus, setStudentStatus] = useState({});
+  const [classroomId, setClassroomId] = useState('');
   const [attendanceDocID, setAttendanceDocID] = useState('');
 
   const uid = navigation.getParam('uid', null);
+
+  const tableHead = ['Student', 'Status'];
+  const testData = ['test', 'test'];
+  const [nameData, setNameData] = useState([]);
 
   useEffect(() => {
     Firestore().collection('users').doc(uid).get()
@@ -28,8 +49,14 @@ export default function CreateAttendanceScreen({ navigation }) {
 
   useEffect(() => {
     if (Object.keys(teacher).length !== 0) {
+      setClassroomId(teacher.classroomIds[0].id);
+    }
+  }, [teacher]);
+
+  useEffect(() => {
+    if (classroomId !== undefined) {
       const obj = {};
-      const classroomRef = Firestore().collection('classrooms').doc(teacher.classroomIds[0].id);
+      const classroomRef = Firestore().collection('classrooms').doc(classroomId);
       Firestore().collection('users')
         .where('role', '==', 'STUDENT')
         .where('classroomIds', 'array-contains', classroomRef)
@@ -45,7 +72,7 @@ export default function CreateAttendanceScreen({ navigation }) {
           throw e;
         });
     }
-  }, [teacher]);
+  }, [classroomId]);
 
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
@@ -54,6 +81,7 @@ export default function CreateAttendanceScreen({ navigation }) {
   const handleConfirm = (d) => {
     d.setHours(0, 0, 0, 0);
     setDate(d);
+    hideDatePicker();
   };
 
   useEffect(() => {
@@ -64,9 +92,11 @@ export default function CreateAttendanceScreen({ navigation }) {
         .then((snapshot) => {
           if (snapshot.empty) {
             Firestore().collection('attendance').add({
+              classroomId: Firestore().collection('classrooms').doc(classroomId),
               createdAt: Firestore.FieldValue.serverTimestamp(),
               date,
               studentStatus,
+              teacherId: Firestore().collection('user').doc(uid),
               updatedAt: Firestore.FieldValue.serverTimestamp(),
             });
           } else {
@@ -76,7 +106,7 @@ export default function CreateAttendanceScreen({ navigation }) {
           }
         });
     }
-  }, [date, studentStatus]);
+  }, [classroomId, date, studentStatus, uid]);
 
   useEffect(() => {
     if (attendanceDocID) {
@@ -87,14 +117,38 @@ export default function CreateAttendanceScreen({ navigation }) {
     }
   });
 
+  useEffect(() => {
+    const names = [];
+    Object.keys(studentStatus).forEach((element) => {
+      Firestore().collection('users').doc(element)
+        .get()
+        .then((snapshot) => {
+          names.push(snapshot.data().name);
+          // names.push(studentStatus[element]);
+        })
+        .then(() => {
+          setNameData(names);
+        });
+    });
+  }, [studentStatus]);
+
   return (
     <View>
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="default"
-        onCancel={hideDatePicker}
+        onCancel={() => {
+          navigation.goBack(null);
+        }}
         onConfirm={handleConfirm}
       />
+      <Table borderStyle={{ borderWidth: 2 }}>
+        <Row data={tableHead} style={styles.head} />
+        <TableWrapper style={styles.wrapper}>
+          <Col data={nameData} style={styles.row} />
+          <Col data={testData} style={styles.row} />
+        </TableWrapper>
+      </Table>
     </View>
   );
 }
@@ -102,7 +156,7 @@ export default function CreateAttendanceScreen({ navigation }) {
 
 // eslint-disable-next-line no-unused-vars
 CreateAttendanceScreen.navigationOptions = ({ navigation }) => ({
-  title: 'Select Date',
+  title: 'Create Attendance Sheet',
   headerShown: true,
 });
 
