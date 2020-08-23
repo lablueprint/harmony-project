@@ -1,4 +1,4 @@
-import React, { useState }from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, Image,
 } from 'react-native';
@@ -35,37 +35,44 @@ function CommentLoader({ postID }) {
   const [commentList, setCommentList] = useState([]);
   const commentsData = [];
 
-  Firestore().collection('comments')
-    .where('postId', '==', postID)
-    .orderBy('createdAt', 'desc')
-    .get()
-    .then((snapshot) => {
-      if (!snapshot.empty) {
-        snapshot.forEach((anotherSnapshot) => {
-          commentsData.push({ ...anotherSnapshot.data(), id: anotherSnapshot.id });
-        });
-      }
-    })
-    .then(() => {
-      setCommentList(commentsData.map((comment) => {
-        const date = comment.createdAt.toDate();
-        return (
-          <Comment
-            key={comment.id}
-            name={comment.username}
-            title={comment.title}
-            createdAt={date.toTimeString()}
-            date={date.toDateString()}
-            body={comment.body}
-          >
-            {comment.body}
-          </Comment>
-        );
-      }));
-    })
-    .catch((error) => {
-      setErrorMessage(error.message);
-    });
+  /* Will only update on mount (since it has no dependencies). Thus, the user
+  must refresh the page or go to the next page and back again for the comment
+  to show.
+  */
+  useEffect(() => {
+    Firestore().collection('comments')
+      .where('postId', '==', postID)
+      .orderBy('createdAt', 'desc')
+      .get()
+      .then((snapshot) => {
+        if (!snapshot.empty) {
+          snapshot.forEach((anotherSnapshot) => {
+            commentsData.push({ ...anotherSnapshot.data(), id: anotherSnapshot.id });
+          });
+        }
+      })
+      .then(() => {
+        setCommentList(commentsData.map((comment) => {
+          const date = comment.createdAt.toDate();
+          return (
+            <Comment
+              key={comment.id}
+              name={comment.username}
+              title={comment.title}
+              createdAt={date.toTimeString()}
+              date={date.toDateString()}
+              body={comment.body}
+            >
+              {comment.body}
+            </Comment>
+          );
+        }));
+      })
+      .catch((error) => {
+        setErrorMessage(error.message);
+      });
+  });
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -77,7 +84,7 @@ function CommentLoader({ postID }) {
 }
 
 export default function Post({
-  title, createdAt, date, body, attachment, id
+  title, createdAt, date, body, attachment, id,
 }) {
   return (
     <View style={styles.container}>
@@ -112,6 +119,7 @@ Post.propTypes = {
   date: PropTypes.string.isRequired,
   body: PropTypes.string.isRequired,
   attachment: PropTypes.string.isRequired,
+  id: PropTypes.string
 };
 
 CommentLoader.propTypes = {
