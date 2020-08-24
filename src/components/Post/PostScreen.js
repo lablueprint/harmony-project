@@ -24,16 +24,16 @@ pageSize + 2 document requests. The extra 2 document requests are used to
 check if the user is currently on the first or last post, disabling the
 previous and next buttons respectively.
 */
-const pageSize = 1;
+const pageSize = 2;
 
 function nextPage(last) {
   return (
     Firestore().collection('posts')
-    .orderBy('createdAt', 'desc')
-    // Since it's ordered by createdAt must use startAfter based off createdAt
-    .startAfter(last.createdAt) 
-    .limit(pageSize)
-    .get()
+      .orderBy('createdAt', 'desc')
+      // Since it's ordered by createdAt must use startAfter based off createdAt
+      .startAfter(last.createdAt)
+      .limit(pageSize)
+      .get()
   );
 }
 
@@ -42,40 +42,30 @@ function prevPage(first) {
     Firestore().collection('posts')
     // Firestore does NOT have limitToLast, only Firebase does. Thus instead of
     // using endBefore() and limitToLast, we reverse the order and use startAfter
-    .orderBy('createdAt', 'asc')
-    .startAfter(first.createdAt)
-    .limit(pageSize)
-    .get()
+      .orderBy('createdAt', 'asc')
+      .startAfter(first.createdAt)
+      .limit(pageSize)
+      .get()
   );
 }
 
 function getFirstPost() {
   return (
     Firestore().collection('posts')
-    .orderBy('createdAt', 'desc')
-    .limit(1)
-    .get()
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get()
   );
 }
 
 function getLastPost() {
   return (
     Firestore().collection('posts')
-    .orderBy('createdAt', 'asc')
-    .limit(1)
-    .get()
+      .orderBy('createdAt', 'asc')
+      .limit(1)
+      .get()
   );
 }
-
-/* TO-DO:
-[-] Condense postsList and displayData if possible. 
-[X] Make Previous button unavailable on the first page.
-[X] Make it so you can't go past the end of the available posts.
-[X] Remove the console logs.
-[X] Fix memory leak inside CommentLoader --> Use Hooks + useEffect!
-[ ] Make it so that new posts and comments will be displayed instantly
-    rather than requiring a refresh.
-*/
 
 export default function PostsScreen({ navigation }) {
   /* displayData is what is altered behind the scenes while postsList is the
@@ -90,66 +80,75 @@ export default function PostsScreen({ navigation }) {
   const [isFirstPage, setIsFirstPage] = useState(true);
   const [isLastPage, setIsLastPage] = useState(false);
 
- 
+
   // Used only on inital mounting and never again. Sets up first set of posts.
   useEffect(() => {
-  Firestore().collection('posts')
-        .orderBy('createdAt', 'desc')
-        .limit(pageSize)
-        .get()
-        .then((snapshot) => {
-          const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-          setDisplayData(posts);
-        })
-        .catch((error) => {
-          setErrorMessage(error.message);
-        });
-      }, [])
+    Firestore().collection('posts')
+      .orderBy('createdAt', 'desc')
+      .limit(pageSize)
+      .get()
+      .then((snapshot) => {
+        const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        setDisplayData(posts);
+      })
+      .catch((error) => {
+        setErrorMessage(error.message);
+      });
+  }, []);
 
-  // Runs whenever displayData changes (user hits next or previous) + on mount.
+  // Runs whenever displayData changes, component mounts, or navigation is
+  // triggered
   useEffect(() => {
-      // Check if user is on first page
-      getFirstPost()
+    // Check if user is on first page
+    getFirstPost()
       .then((snapshot) => {
         const firstPost = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        (firstPost[0].id == displayData[0].id) ? setIsFirstPage(true) : setIsFirstPage(false);
-      })
+        if (firstPost[0].id === displayData[0].id) {
+          setIsFirstPage(true);
+        } else {
+          setIsFirstPage(false);
+        }
+      });
 
-      // Check if user is on last page
-      getLastPost()
+    // Check if user is on last page
+    getLastPost()
       .then((snapshot) => {
         const lastPost = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        (lastPost[0].id == displayData[displayData.length - 1].id) ? setIsLastPage(true) : setIsLastPage(false);
-      })
+        if (lastPost[0].id === displayData[displayData.length - 1].id) {
+          setIsLastPage(true);
+        } else {
+          setIsLastPage(false);
+        }
+      });
 
-      // Handles setting up postsList to be rendered
-      setPostsList(displayData.map((post) => {
-        const date = post.createdAt.toDate();
-        return (
-          <View style={styles.container} key={post.id}>
-            <Post
-              id = {post.id}
-              name={post.username}
-              title={post.title}
-              createdAt={date.toTimeString()}
-              date={date.toDateString()}
-              attachment={post.attachment}
-              body={post.body}
-            >
-              {post.body}
-            </Post>
-            <Button
-              styles={styles.container}
-              title="Comment on Post"
-              onPress={() => {
-                navigation.navigate('NewComment', { id: post.id });
-              }}
-            />
-          </View>
-        );
-      }));
-    },[displayData]);
-  
+    // Handles setting up postsList to be rendered
+    setPostsList(displayData.map((post) => {
+      const date = post.createdAt.toDate();
+      return (
+        <View style={styles.container} key={post.id}>
+          <Post
+            id={post.id}
+            name={post.username}
+            title={post.title}
+            createdAt={date.toTimeString()}
+            date={date.toDateString()}
+            attachment={post.attachment}
+            body={post.body}
+          >
+            {post.body}
+          </Post>
+          <Button
+            styles={styles.container}
+            title="Comment on Post"
+            onPress={() => {
+              navigation.navigate('NewComment', { id: post.id });
+            }}
+          />
+        </View>
+      );
+    }));
+  }, [displayData, navigation]);
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -162,33 +161,33 @@ export default function PostsScreen({ navigation }) {
         />
         {errorMessage && <Text>{errorMessage}</Text>}
         {postsList}
-        <View style={{ flexDirection:"row", justifyContent:"center" }}>
-          { isFirstPage ? null :
-            (  <Button
-              title="Previous"
-              onPress={() => {
-                prevPage(displayData[0])
-                .then((snapshot) => {
-                  const prevPosts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-                  setDisplayData(prevPosts);
-                })
-              }} /> 
-            )
-          }
-          { isLastPage ? null :
-            ( <Button
-              title="Next"
-              onPress={() => {
-                nextPage(displayData[displayData.length - 1])
-                .then((snapshot) => {
-                  const nextPosts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-                  setDisplayData(nextPosts);
-                })
-              }}
-            />
-
-            )
-          }
+        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+          { isFirstPage ? null
+            : (
+              <Button
+                title="Previous"
+                onPress={() => {
+                  prevPage(displayData[0])
+                    .then((snapshot) => {
+                      const prevPosts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+                      setDisplayData(prevPosts);
+                    });
+                }}
+              />
+            )}
+          { isLastPage ? null
+            : (
+              <Button
+                title="Next"
+                onPress={() => {
+                  nextPage(displayData[displayData.length - 1])
+                    .then((snapshot) => {
+                      const nextPosts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+                      setDisplayData(nextPosts);
+                    });
+                }}
+              />
+            )}
         </View>
       </ScrollView>
     </View>

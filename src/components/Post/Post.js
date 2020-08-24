@@ -115,11 +115,17 @@ export default function Post({
 
 Post.propTypes = {
   title: PropTypes.string.isRequired,
-  createdAt: PropTypes.string.isRequired,
-  date: PropTypes.string.isRequired,
+  createdAt: PropTypes.string,
+  date: PropTypes.string,
   body: PropTypes.string.isRequired,
   attachment: PropTypes.string.isRequired,
-  id: PropTypes.string
+  id: PropTypes.string,
+};
+
+Post.defaultProps = {
+  createdAt: '',
+  date: '',
+  id: '',
 };
 
 CommentLoader.propTypes = {
