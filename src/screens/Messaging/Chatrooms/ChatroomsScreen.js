@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { Button } from 'react-native-elements';
 // import Auth from '@react-native-firebase/auth';
-import Firestore from '@react-native-firebase/firestore';
+import firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
 
@@ -19,7 +19,6 @@ export default function ChatroomsScreen({ navigation }) {
   const uid = navigation.getParam('uid', null);
   const [chats, setChats] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const chatRoomRef = Firestore().collection('chatrooms');
 
   useEffect(() => {
     // eslint-disable-next-line no-console
@@ -27,23 +26,31 @@ export default function ChatroomsScreen({ navigation }) {
     try {
       // build chats - list of tuples of chatrooms with (recipients, updatedAt, messages)
       // |- recipients is a map of userid: displayname
-      chatRoomRef.where('users', 'array-contains', uid).orderBy('updatedAt', 'desc')
-        .get()
-        .then((querySnapshot) => {
+      const unsubscribe = firestore()
+        .collection('chatrooms')
+        .where('users', 'array-contains', uid)
+        .orderBy('updatedAt', 'desc')
+        .onSnapshot((querySnapshot) => {
+          setChats([]); // clear chats
           querySnapshot.forEach((doc) => {
             const users = doc.data().names;
             delete users[uid]; // exclude own name
             // eslint-disable-next-line no-shadow
-            setChats((chats) => [...chats, {
-              recipients: users,
-              updatedAt: doc.data().updatedAt,
-              messages: doc.ref.collection('messages'),
-            }]);
+            setChats((chats) => [
+              ...chats,
+              // append next chatroom to chat state
+              {
+                recipients: users,
+                updatedAt: doc.data().updatedAt,
+                messages: doc.ref.collection('messages'),
+              },
+            ]);
           });
-        })
-        .then(() => {
-          setIsLoading(false);
+          if (isLoading) {
+            setIsLoading(false);
+          }
         });
+      return () => unsubscribe();
     } catch (e) {
       setIsLoading(false);
       Alert.alert(e.message);
@@ -53,8 +60,6 @@ export default function ChatroomsScreen({ navigation }) {
 
   // TODO: add search button
   // TODO: look into rare timestamp race condition   // https://medium.com/firebase-developers/the-secrets-of-firestore-fieldvalue-servertimestamp-revealed-29dd7a38a82b
-  // TODO: convert list to PureComponents (Flatlist of Buttons is very slow)
-  // TODO: convert query to scrolling window with live updates
   if (isLoading) {
     return (
       <SafeAreaView>
