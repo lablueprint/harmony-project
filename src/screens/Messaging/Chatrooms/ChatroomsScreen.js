@@ -23,15 +23,15 @@ export default function ChatroomsScreen({ navigation }) {
   useEffect(() => {
     // eslint-disable-next-line no-console
     console.log('Mounted. Subscribing to chatrooms...');
-    try {
-      // build chats - list of tuples of chatrooms with (recipients, updatedAt, messages)
-      // |- recipients is a map of userid: displayname
-      const unsubscribe = firestore()
-        .collection('chatrooms')
-        .where('users', 'array-contains', uid)
-        .orderBy('updatedAt', 'desc')
-        .onSnapshot((querySnapshot) => {
-          setChats([]); // clear chats
+    // build chats - list of tuples of chatrooms with (recipients, updatedAt, messages)
+    // |- recipients is a map of userid: displayname
+    const unsubscribe = firestore()
+      .collection('chatrooms')
+      .where('users', 'array-contains', uid)
+      .orderBy('updatedAt', 'desc')
+      .onSnapshot(
+        (querySnapshot) => {
+          setChats([]); // reset chats before updating
           querySnapshot.forEach((doc) => {
             const users = doc.data().names;
             delete users[uid]; // exclude own name
@@ -49,14 +49,15 @@ export default function ChatroomsScreen({ navigation }) {
           if (isLoading) {
             setIsLoading(false);
           }
-        });
-      return () => unsubscribe();
-    } catch (e) {
-      setIsLoading(false);
-      Alert.alert(e.message);
-    }
+          return () => unsubscribe();
+        },
+        (e) => {
+          setIsLoading(false);
+          Alert.alert(e.message);
+        },
+      );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // []: only run once on mount
+  }, []); // subscribe on mount
 
   // TODO: add search button
   // TODO: look into rare timestamp race condition   // https://medium.com/firebase-developers/the-secrets-of-firestore-fieldvalue-servertimestamp-revealed-29dd7a38a82b
@@ -69,8 +70,6 @@ export default function ChatroomsScreen({ navigation }) {
       </SafeAreaView>
     );
   }
-  // eslint-disable-next-line no-console
-  console.log('Retrieved ', chats.length, 'chatrooms');
   return (
     <SafeAreaView>
       <Button
