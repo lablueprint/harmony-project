@@ -32,5 +32,5 @@ const styles = StyleSheet.create({
 });
 
 export {
-  styles
+  styles, colors,
 };

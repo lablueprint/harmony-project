@@ -23,26 +23,7 @@ export default function ChatroomsScreen({ navigation }) {
 
   useEffect(() => {
     // eslint-disable-next-line no-console
-    console.log('Mounted. Retrieving chatrooms...');
-    setIsLoading(true);
-    setChats([]); // Reset for when react native auto remounts in emulator
-    // chatRoomRef.add({
-    //   users: [uid, '123'],
-    //   names: { uid: 'tester', 123: 'test123' },
-    //   createdAt: Firestore.FieldValue.serverTimestamp(),
-    //   updatedAt: Firestore.FieldValue.serverTimestamp(),
-    // }).then((newchatRef) => {
-    //   newchatRef.collection('messages').add({
-    //     senderId: uid,
-    //     text: 'test message',
-    //     sentAt: Firestore.FieldValue.serverTimestamp(),
-    //   });
-    //   newchatRef.collection('messages').add({
-    //     senderId: '123',
-    //     text: 'test received message',
-    //     sentAt: Firestore.FieldValue.serverTimestamp(),
-    //   });
-    // });
+    console.log('Mounted. Subscribing to chatrooms...');
     try {
       // build chats - list of tuples of chatrooms with (recipients, updatedAt, messages)
       // |- recipients is a map of userid: displayname
@@ -87,6 +68,18 @@ export default function ChatroomsScreen({ navigation }) {
   console.log('Retrieved ', chats.length, 'chatrooms');
   return (
     <SafeAreaView>
+      <Button
+        title="Create chatroom"
+        onPress={() => {
+          navigation.navigate('AddChatroom', { uid });
+        }}
+      />
+      <View
+        style={{
+          borderBottomColor: 'black',
+          borderBottomWidth: 1,
+        }}
+      />
       <View style={styles.messagesContainer}>
         <FlatList
           data={chats}
@@ -95,18 +88,20 @@ export default function ChatroomsScreen({ navigation }) {
             // TODO: Style chat select with Touch components
             const membernames = Object.values(item.recipients).join(', ');
             return (
-              <Button
-                title={`${index.toString()} ${membernames}`}
-                onPress={() => {
-                  navigation.navigate('Messages',
-                    {
-                      uid,
-                      members: item.recipients,
-                      membernames,
-                      messageCollection: item.messages,
-                    });
-                }}
-              />
+              <View>
+                <Button
+                  title={`${index.toString()} ${membernames}`}
+                  onPress={() => {
+                    navigation.navigate('Messages',
+                      {
+                        uid,
+                        members: item.recipients,
+                        membernames,
+                        messageCollection: item.messages,
+                      });
+                  }}
+                />
+              </View>
             );
           }}
         />
@@ -114,28 +109,6 @@ export default function ChatroomsScreen({ navigation }) {
     </SafeAreaView>
   );
 }
-
-// eslint-disable-next-line no-unused-vars
-ChatroomsScreen.navigationOptions = ({ navigation }) => ({
-  title: 'Messages',
-  headerRight: () => (
-    <Button
-      title="New Chatroom"
-      buttonStyle={{ paddingLeft: 10, paddingRight: 10, marginRight: 10 }}
-      // TODO: new chat -> enter recipient
-      //       -> load existing chatroom if exists, else start new chatroom
-      // onPress={() => {
-      //   navigation.navigate('Message', {
-      //     uid,
-      //     members: item.recipients,
-      //     membernames,
-      //     messageCollection: item.messages,
-      //   });
-      // }}
-      onPress={() => { navigation.navigate('AddChatroom'); }}
-    />
-  ),
-});
 
 ChatroomsScreen.propTypes = {
   navigation: PropTypes.shape({
