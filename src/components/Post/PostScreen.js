@@ -99,54 +99,58 @@ export default function PostsScreen({ navigation }) {
   // Runs whenever displayData changes, component mounts, or navigation is
   // triggered
   useEffect(() => {
+    // Ensures that this doesn't run if the first useEffect hasn't run yet OR
+    // if there are 0 posts
+    if (!(displayData.length === 0)) {
     // Check if user is on first page
-    getFirstPost()
-      .then((snapshot) => {
-        const firstPost = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        if (firstPost[0].id === displayData[0].id) {
-          setIsFirstPage(true);
-        } else {
-          setIsFirstPage(false);
-        }
-      });
+      getFirstPost()
+        .then((snapshot) => {
+          const firstPost = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+          if (firstPost[0].id === displayData[0].id) {
+            setIsFirstPage(true);
+          } else {
+            setIsFirstPage(false);
+          }
+        });
 
-    // Check if user is on last page
-    getLastPost()
-      .then((snapshot) => {
-        const lastPost = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        if (lastPost[0].id === displayData[displayData.length - 1].id) {
-          setIsLastPage(true);
-        } else {
-          setIsLastPage(false);
-        }
-      });
+      // Check if user is on last page
+      getLastPost()
+        .then((snapshot) => {
+          const lastPost = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+          if (lastPost[0].id === displayData[displayData.length - 1].id) {
+            setIsLastPage(true);
+          } else {
+            setIsLastPage(false);
+          }
+        });
 
-    // Handles setting up postsList to be rendered
-    setPostsList(displayData.map((post) => {
-      const date = post.createdAt.toDate();
-      return (
-        <View style={styles.container} key={post.id}>
-          <Post
-            id={post.id}
-            name={post.username}
-            title={post.title}
-            createdAt={date.toTimeString()}
-            date={date.toDateString()}
-            attachment={post.attachment}
-            body={post.body}
-          >
-            {post.body}
-          </Post>
-          <Button
-            styles={styles.container}
-            title="Comment on Post"
-            onPress={() => {
-              navigation.navigate('NewComment', { id: post.id });
-            }}
-          />
-        </View>
-      );
-    }));
+      // Handles setting up postsList to be rendered
+      setPostsList(displayData.map((post) => {
+        const date = post.createdAt.toDate();
+        return (
+          <View style={styles.container} key={post.id}>
+            <Post
+              id={post.id}
+              name={post.username}
+              title={post.title}
+              createdAt={date.toTimeString()}
+              date={date.toDateString()}
+              attachment={post.attachment}
+              body={post.body}
+            >
+              {post.body}
+            </Post>
+            <Button
+              styles={styles.container}
+              title="Comment on Post"
+              onPress={() => {
+                navigation.navigate('NewComment', { id: post.id });
+              }}
+            />
+          </View>
+        );
+      }));
+    }
   }, [displayData, navigation]);
 
   return (

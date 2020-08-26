@@ -38,8 +38,7 @@ export default function NewPostScreen({ navigation }) {
       author: Firebase.auth().currentUser.uid,
     };
     Firestore().collection('posts')
-      .doc()
-      .set(postRecord)
+      .add(postRecord)
       .then(() => {
         setLoading(false);
         navigation.navigate('Post');
