@@ -26,20 +26,18 @@ export default function MessagesScreen({ navigation }) { // { navigation, screen
     console.log('Mounted. Subscribing to messages');
     const unsubscribe = messagesRef.onSnapshot(
       (querySnapshot) => {
-        setMessages((prevMessages) => GiftedChat.append(
-          prevMessages,
-          querySnapshot.docChanges()
-            .filter((change) => change.type === 'added')
-            .map((change) => change.doc.data()),
-        ));
-        return () => unsubscribe();
+        const newMessages = querySnapshot.docChanges()
+          .filter((change) => change.type === 'added')
+          .map((change) => change.doc.data());
+        setMessages((prevMessages) => GiftedChat.append(prevMessages, newMessages));
       },
       (e) => {
         Alert.alert(e.message);
       },
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // subscribe on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => unsubscribe();
+  }, [messagesRef]); // subscribe on mount
 
   const handleSend = useCallback(
     (newMessage = []) => {

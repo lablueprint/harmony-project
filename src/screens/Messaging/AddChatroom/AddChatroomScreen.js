@@ -8,20 +8,6 @@ import { TextInput } from 'react-native-gesture-handler';
 import firestore from '@react-native-firebase/firestore';
 import { styles } from './styles';
 
-const formDefinition = {
-  fields: [
-    {
-      name: 'roomName',
-      label: 'Chatroom name',
-    },
-    {
-      name: 'users',
-      label: 'Users',
-    },
-  ],
-  submitClickCallback: (values) => { Alert.alert(JSON.stringify(values)); },
-};
-
 // TODO: Refactor this into a new modal screen. Will require new navigation stack.
 // Using form from react-hook-form: see https://react-hook-form.com/get-started#ReactNative
 export default function AddChatroomScreen({ navigation }) {
@@ -29,9 +15,6 @@ export default function AddChatroomScreen({ navigation }) {
   const { control, handleSubmit, errors } = useForm();
 
   function createRoom(data) {
-    console.log('WIP: Create chatroom on firebase.');
-    console.log(data);
-
     if (data.roomName.length > 0) {
       firestore()
         .collection('chatrooms')

@@ -29,37 +29,36 @@ export default function ChatroomsScreen({ navigation }) {
       .collection('chatrooms')
       .where('users', 'array-contains', uid)
       .orderBy('updatedAt', 'desc')
-      .onSnapshot( // TODO: convert to docChanges
+      .onSnapshot(
         (querySnapshot) => {
-          setChats([]); // reset chats before updating
-          querySnapshot.forEach((doc) => {
-            const users = doc.data().names;
-            delete users[uid]; // exclude own name
-            // eslint-disable-next-line no-shadow
-            setChats((chats) => [
-              ...chats,
-              // append next chatroom to chat state
-              {
+          const newChats = querySnapshot.docChanges()
+            .filter((change) => change.type === 'added')
+            .map((change) => {
+              const users = change.doc.data().names;
+              delete users[uid]; // exclude own name
+              return {
                 recipients: users,
-                updatedAt: doc.data().updatedAt,
-                messages: doc.ref.collection('messages'),
-              },
-            ]);
-          });
+                updatedAt: change.doc.data().updatedAt,
+                messages: change.doc.ref.collection('messages'),
+              };
+            });
+          setChats((prevChats) => prevChats.concat(newChats));
+
           if (isLoading) {
             setIsLoading(false);
           }
-          return () => unsubscribe();
         },
         (e) => {
           setIsLoading(false);
           Alert.alert(e.message);
         },
       );
+    return () => unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // subscribe on mount
 
   // TODO: add search button
+  // TODO: change room name
   // TODO: look into rare timestamp race condition   // https://medium.com/firebase-developers/the-secrets-of-firestore-fieldvalue-servertimestamp-revealed-29dd7a38a82b
   if (isLoading) {
     return (
