@@ -29,7 +29,7 @@ export default function ChatroomsScreen({ navigation }) {
       .collection('chatrooms')
       .where('users', 'array-contains', uid)
       .orderBy('updatedAt', 'desc')
-      .onSnapshot(
+      .onSnapshot( // TODO: convert to docChanges
         (querySnapshot) => {
           setChats([]); // reset chats before updating
           querySnapshot.forEach((doc) => {

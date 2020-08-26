@@ -37,11 +37,19 @@ export default function AddChatroomScreen({ navigation }) {
         .collection('chatrooms')
         .add({
           roomName: data.roomName,
-          names: ['placeholder1', 'placeholder2'], // TODO: refactor so chatrooms don't require this and instead query user names from database + memoize.
+          names: ['placeholder3', 'placeholder2'], // TODO: refactor so chatrooms don't require this and instead query user names from database + memoize.
           users: [uid, data.recipientID],
           updatedAt: firestore.FieldValue.serverTimestamp(),
         })
-        .then(() => {
+        .then((newChatroomRef) => {
+          newChatroomRef
+            .collection('messages')
+            .add({
+              _id: 0,
+              text: 'New room created.',
+              createdAt: new Date().getTime(),
+              system: true,
+            });
           navigation.goBack();
         });
     }
