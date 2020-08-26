@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet, View,
 } from 'react-native';
@@ -23,6 +23,8 @@ const styles = StyleSheet.create({
 });
 
 export default function EvaluationScreen() {
+  const videoPlayer = useRef(null);
+
   const [evaluationDoc, setEvaluationDoc] = useState({});
   const [evaluations, setEvaluations] = useState([]);
   const [evaluationsLoaded, setEvaluationsLoaded] = useState(false);
@@ -60,11 +62,13 @@ export default function EvaluationScreen() {
 
   return (
     <View style={styles.container}>
-      {videoLinkLoaded && <EvalVideo videoLink={videoLink} style={styles.video} />}
+      {videoLinkLoaded
+      && <EvalVideo videoLink={videoLink} videoPlayer={videoPlayer} style={styles.video} />}
       <View style={styles.bottomContainer}>
         {evaluationsLoaded && (
         <TimestampedFeedbackList
           evaluations={evaluations}
+          videoPlayer={videoPlayer}
           style={styles.timestampedFeedback}
         />
         )}

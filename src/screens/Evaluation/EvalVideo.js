@@ -17,12 +17,13 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function EvalVideo({ videoLink }) {
+export default function EvalVideo({ videoLink, videoPlayer }) {
   return (
     <Video
       source={{
         uri: videoLink,
       }}
+      ref={videoPlayer}
       controls
       style={styles.video}
     />
@@ -30,5 +31,6 @@ export default function EvalVideo({ videoLink }) {
 }
 
 EvalVideo.propTypes = {
-  videoLink: PropTypes.element.isRequired,
+  videoPlayer: PropTypes.element.isRequired,
+  videoLink: PropTypes.string.isRequired,
 };
