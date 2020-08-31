@@ -28,6 +28,7 @@ export default function EvaluationScreen() {
   const [evaluationDoc, setEvaluationDoc] = useState({});
   const [evaluations, setEvaluations] = useState([]);
   const [evaluationsLoaded, setEvaluationsLoaded] = useState(false);
+  const [seekUntil, setSeekUntil] = useState({});
   const [videoLinkLoaded, setVideoLinkLoaded] = useState(false);
   const [videoLink, setVideoLink] = useState();
 
@@ -63,12 +64,20 @@ export default function EvaluationScreen() {
   return (
     <View style={styles.container}>
       {videoLinkLoaded
-      && <EvalVideo videoLink={videoLink} videoPlayer={videoPlayer} style={styles.video} />}
+      && (
+      <EvalVideo
+        videoLink={videoLink}
+        seekUntil={seekUntil}
+        videoPlayer={videoPlayer}
+        style={styles.video}
+      />
+      )}
       <View style={styles.bottomContainer}>
         {evaluationsLoaded && (
         <TimestampedFeedbackList
           evaluations={evaluations}
           videoPlayer={videoPlayer}
+          setSeekUntil={setSeekUntil}
           style={styles.timestampedFeedback}
         />
         )}
