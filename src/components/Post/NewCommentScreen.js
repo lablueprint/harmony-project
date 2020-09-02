@@ -17,13 +17,16 @@ const styles = StyleSheet.create({
 });
 
 export default function NewCommentScreen({ navigation }) {
-  const postId = navigation.getParam('id', 'No id Found');
   const [body, setBody] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const postId = navigation.getParam('id', 'No id Found');
+  const mainScreenLoadStatus = navigation.getParam('currentLoad');
+  const reloadMainScreen = navigation.getParam('setLoad');
 
   const handleSubmit = () => {
     setLoading(true);
+    reloadMainScreen(!mainScreenLoadStatus);
     const commentRecord = {
       postId,
       body,

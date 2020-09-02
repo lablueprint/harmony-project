@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, Image,
+  View, Text, StyleSheet, Image, Button,
 } from 'react-native';
 import Firestore from '@react-native-firebase/firestore';
+import Firebase from '@react-native-firebase/app';
 import { ScrollView } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
 import Comment from './Comment';
@@ -30,15 +31,11 @@ const styles = StyleSheet.create({
   },
 });
 
-function CommentLoader({ postID }) {
+function CommentLoader({ postID, loadingStatus }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [commentList, setCommentList] = useState([]);
   const commentsData = [];
 
-  /* Will only update on mount (since it has no dependencies). Thus, the user
-  must refresh the page or go to the next page and back again for the comment
-  to show.
-  */
   useEffect(() => {
     Firestore().collection('comments')
       .where('postId', '==', postID)
@@ -71,7 +68,9 @@ function CommentLoader({ postID }) {
       .catch((error) => {
         setErrorMessage(error.message);
       });
-  });
+  // Don't set commentsData as dependency or it'll enter an infinite rendering cycle
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadingStatus, postID]);
 
   return (
     <View style={styles.container}>
@@ -83,9 +82,89 @@ function CommentLoader({ postID }) {
   );
 }
 
+function likeButton(postID) {
+  const post = Firestore().collection('posts').doc(postID);
+  const user = Firebase.auth().currentUser.uid;
+
+  post.set({
+    likedBy: {
+      [user]: true,
+    },
+  },
+  { merge: true });
+
+  /* IF WE NEED TO CHANGE TO .update INSTEAD OF .set: For nested objects in
+  firebase, we must use a path string to update. If we simply updated the entire
+  'likedBy' object, then the ENTIRE map will be reset with whatever is input.
+
+  post.update({
+    [`likedBy.${username}`]: true,
+  });
+  */
+
+  return (null);
+}
+
+function unlikeButton(postID) {
+  const post = Firestore().collection('posts').doc(postID);
+  const user = Firebase.auth().currentUser.uid;
+
+  post.set({
+    likedBy: {
+      [user]: Firebase.firestore.FieldValue.delete(),
+    },
+  },
+  { merge: true });
+
+  return (null);
+}
+
+function DisplayLikes({ postID }) {
+  const [numLikes, setNumLikes] = useState(0);
+
+  Firestore().collection('posts').doc(postID)
+    .get()
+    .then((post) => {
+      // post contains the information from the post document. get()
+      // pulls the likedBy field. Using Firestore map syntax, we check if
+      // the key userID exists inside the map!
+      const likeMap = post.get('likedBy');
+      if (likeMap !== undefined) {
+        setNumLikes(Object.keys(likeMap).length);
+      }
+    });
+
+  return (
+    <Text>
+      {'\n'}
+      {numLikes}
+      {' '}
+      people liked this post.
+    </Text>
+  );
+}
+
 export default function Post({
-  title, createdAt, date, body, attachment, id,
+  title, createdAt, date, body, attachment, id, loadingStatus,
 }) {
+  const [loading, setLoading] = useState(false);
+  const [hasLiked, setHasLiked] = useState(false);
+  const userID = Firebase.auth().currentUser.uid;
+
+  // Runs whenever loading changes (someone hits the 'Like' or 'Unlike' button).
+  useEffect(() => {
+    // Checks if the user has liked this post or not.
+    Firestore().collection('posts').doc(id).get()
+      .then((post) => {
+        const likeMap = post.get('likedBy');
+        if (likeMap !== undefined) {
+          const inMap = (userID in likeMap);
+          setHasLiked(inMap);
+        }
+      });
+  }, [id, loading, userID]);
+
+
   return (
     <View style={styles.container}>
       <Text style={styles.topicText}>
@@ -108,7 +187,29 @@ export default function Post({
           />
         ) : null}
       </View>
-      <CommentLoader postID={id} />
+      <DisplayLikes postID={id} />
+      {hasLiked ? (
+        <View style={{ flexDirection: 'row' }}>
+          <Button
+            title="Unlike"
+            onPress={() => {
+              setLoading(!loading);
+              unlikeButton(id);
+            }}
+          />
+        </View>
+      ) : (
+        <View style={{ flexDirection: 'row' }}>
+          <Button
+            title="Like"
+            onPress={() => {
+              setLoading(!loading);
+              likeButton(id);
+            }}
+          />
+        </View>
+      )}
+      <CommentLoader postID={id} loadingStatus={loadingStatus} />
     </View>
   );
 }
@@ -120,14 +221,33 @@ Post.propTypes = {
   body: PropTypes.string.isRequired,
   attachment: PropTypes.string.isRequired,
   id: PropTypes.string,
+  loadingStatus: PropTypes.bool,
 };
 
 Post.defaultProps = {
   createdAt: '',
   date: '',
   id: '',
+  loadingStatus: false,
 };
 
 CommentLoader.propTypes = {
+  postID: PropTypes.string.isRequired,
+  loadingStatus: PropTypes.bool,
+};
+
+CommentLoader.defaultProps = {
+  loadingStatus: false,
+};
+
+likeButton.propTypes = {
+  postID: PropTypes.string.isRequired,
+};
+
+unlikeButton.propTypes = {
+  postID: PropTypes.string.isRequired,
+};
+
+DisplayLikes.propTypes = {
   postID: PropTypes.string.isRequired,
 };

@@ -79,9 +79,11 @@ export default function PostsScreen({ navigation }) {
   const [displayData, setDisplayData] = useState([]);
   const [isFirstPage, setIsFirstPage] = useState(true);
   const [isLastPage, setIsLastPage] = useState(false);
+  const [loadingNewComment, setLoadingNewComment] = useState(false);
+  const [loadingNewPost, setLoadingNewPost] = useState(false);
 
-
-  // Used only on inital mounting and never again. Sets up first set of posts.
+  // Used to set up initial posts. Additionally, called when a new post is made
+  // in order to "return" to the first page and see it.
   useEffect(() => {
     Firestore().collection('posts')
       .orderBy('createdAt', 'desc')
@@ -94,14 +96,14 @@ export default function PostsScreen({ navigation }) {
       .catch((error) => {
         setErrorMessage(error.message);
       });
-  }, []);
+  }, [loadingNewPost]);
 
   // Runs whenever displayData changes, component mounts, or navigation is
   // triggered
   useEffect(() => {
     // Ensures that this doesn't run if the first useEffect hasn't run yet OR
     // if there are 0 posts
-    if (!(displayData.length === 0)) {
+    if (displayData.length !== 0) {
     // Check if user is on first page
       getFirstPost()
         .then((snapshot) => {
@@ -137,6 +139,7 @@ export default function PostsScreen({ navigation }) {
               date={date.toDateString()}
               attachment={post.attachment}
               body={post.body}
+              loadingStatus={loadingNewComment}
             >
               {post.body}
             </Post>
@@ -144,14 +147,14 @@ export default function PostsScreen({ navigation }) {
               styles={styles.container}
               title="Comment on Post"
               onPress={() => {
-                navigation.navigate('NewComment', { id: post.id });
+                navigation.navigate('NewComment', { id: post.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
               }}
             />
           </View>
         );
       }));
     }
-  }, [displayData, navigation]);
+  }, [displayData, navigation, loadingNewComment]);
 
   return (
     <View style={styles.container}>
@@ -160,7 +163,7 @@ export default function PostsScreen({ navigation }) {
         <Button
           title="Make a Post"
           onPress={() => {
-            navigation.navigate('NewPost');
+            navigation.navigate('NewPost', { setLoad: setLoadingNewPost, currentLoad: loadingNewPost });
           }}
         />
         {errorMessage && <Text>{errorMessage}</Text>}
