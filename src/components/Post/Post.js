@@ -59,6 +59,7 @@ function CommentLoader({ postID, loadingStatus }) {
               createdAt={date.toTimeString()}
               date={date.toDateString()}
               body={comment.body}
+              id={comment.id}
             >
               {comment.body}
             </Comment>
@@ -96,6 +97,7 @@ function likeButton(postID) {
   /* IF WE NEED TO CHANGE TO .update INSTEAD OF .set: For nested objects in
   firebase, we must use a path string to update. If we simply updated the entire
   'likedBy' object, then the ENTIRE map will be reset with whatever is input.
+  If we change this, make sure to change the same logic in 'Comment'.
 
   post.update({
     [`likedBy.${username}`]: true,
@@ -240,14 +242,13 @@ CommentLoader.defaultProps = {
   loadingStatus: false,
 };
 
-likeButton.propTypes = {
-  postID: PropTypes.string.isRequired,
-};
-
-unlikeButton.propTypes = {
-  postID: PropTypes.string.isRequired,
-};
-
 DisplayLikes.propTypes = {
   postID: PropTypes.string.isRequired,
 };
+
+/* CODE TO GET A NAME FROM THE USERS DOCUMENT:
+  Firestore().collection('users').doc('MHnkJ88vOzY1wg6rKNYRCNwCJ8X2').get()
+    .then((snapshot) => {
+      console.log(snapshot.get('name'));
+    });
+*/

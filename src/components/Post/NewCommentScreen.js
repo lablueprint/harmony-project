@@ -34,6 +34,7 @@ export default function NewCommentScreen({ navigation }) {
       updatedAt: Firestore.Timestamp.now(),
       author: Firebase.auth().currentUser.uid,
       title: 'Comment',
+      likedBy: {},
     };
     Firestore().collection('comments')
       .add(commentRecord)
