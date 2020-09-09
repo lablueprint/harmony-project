@@ -45,19 +45,15 @@ export default function EvaluationScreen() {
   useEffect(() => {
     setVideoLink(evaluationDoc.recording);
     setEvaluations(evaluationDoc.evaluations);
-  }, [evaluationDoc]);
 
-  useEffect(() => {
-    if (videoLink !== undefined) {
+    if (videoLink) {
       setVideoLinkLoaded(true);
     }
-  }, [videoLink]);
 
-  useEffect(() => {
     if (evaluations !== undefined && evaluations.length !== 0) {
       setEvaluationsLoaded(true);
     }
-  }, [evaluations]);
+  }, [evaluationDoc, evaluations, videoLink]);
 
   return (
     <View style={styles.container}>
