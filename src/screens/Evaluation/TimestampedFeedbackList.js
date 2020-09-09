@@ -25,7 +25,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function TimestampedFeedbackList({ evaluations, videoPlayer }) {
+export default function TimestampedFeedbackList({
+  evaluations, setSeekUntil, videoPlayer,
+}) {
   function convertToMinSec(totalSeconds) {
     let seconds = totalSeconds % 60;
     if (seconds < 10) {
@@ -36,10 +38,17 @@ export default function TimestampedFeedbackList({ evaluations, videoPlayer }) {
     return `${minutes}:${seconds}`;
   }
 
-  const listItems = evaluations.map((i) => (
-    <View style={styles.container}>
+  const listItems = evaluations.map((i, index) => (
+    // eslint-disable-next-line react/no-array-index-key
+    <View style={styles.container} key={index}>
       <TouchableWithoutFeedback
-        onPress={() => { videoPlayer.current.seek(i.startTime); }}
+        // key={i.startTime + i.endTime + index}
+        onPress={() => {
+          videoPlayer.current.seek(i.startTime);
+          setSeekUntil(
+            i.endTime,
+          );
+        }}
         style={styles.timestamp}
       >
         <Text style={styles.text}>{`${convertToMinSec(i.startTime)}-${convertToMinSec(i.endTime)}`}</Text>
@@ -61,6 +70,7 @@ export default function TimestampedFeedbackList({ evaluations, videoPlayer }) {
 
 TimestampedFeedbackList.propTypes = {
   // navigation: PropTypes.element.isRequired,
-  videoPlayer: PropTypes.element.isRequired,
-  evaluations: PropTypes.element.isRequired,
+  setSeekUntil: PropTypes.func.isRequired,
+  evaluations: PropTypes.arrayOf(PropTypes.object).isRequired,
+  videoPlayer: PropTypes.objectOf(PropTypes.object).isRequired,
 };

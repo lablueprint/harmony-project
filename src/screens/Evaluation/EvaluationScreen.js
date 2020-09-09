@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet, View,
 } from 'react-native';
-// import { Button } from 'react-native-elements';
 // import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import EvalVideo from './EvalVideo';
@@ -28,7 +27,7 @@ export default function EvaluationScreen() {
   const [evaluationDoc, setEvaluationDoc] = useState({});
   const [evaluations, setEvaluations] = useState([]);
   const [evaluationsLoaded, setEvaluationsLoaded] = useState(false);
-  const [seekUntil, setSeekUntil] = useState({});
+  const [seekUntil, setSeekUntil] = useState(null);
   const [videoLinkLoaded, setVideoLinkLoaded] = useState(false);
   const [videoLink, setVideoLink] = useState();
 
@@ -55,7 +54,6 @@ export default function EvaluationScreen() {
   }, [videoLink]);
 
   useEffect(() => {
-    // console.log(evaluations);
     if (evaluations !== undefined && evaluations.length !== 0) {
       setEvaluationsLoaded(true);
     }

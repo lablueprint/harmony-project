@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Video from 'react-native-video';
 import {
   StyleSheet,
@@ -18,14 +18,22 @@ const styles = StyleSheet.create({
 });
 
 export default function EvalVideo({ videoLink, videoPlayer, seekUntil }) {
-  // console.log(seekUntil);
+  const [currentTime, setCurrentTime] = useState(0);
   const [doPause, setDoPause] = useState(false);
   const [didSeek, setDidSeek] = useState(false);
+
+  useEffect(() => {
+    if (doPause) {
+      console.log(currentTime);
+    }
+  }, [doPause, currentTime]);
+
   return (
     <Video
       controls
       onProgress={(e) => {
-        if (didSeek && (e.currentTime >= seekUntil.endTime)) {
+        if (didSeek && (e.currentTime >= seekUntil)) {
+          setCurrentTime(e.currentTime);
           setDoPause(true);
           setDidSeek(false);
         }
@@ -35,7 +43,7 @@ export default function EvalVideo({ videoLink, videoPlayer, seekUntil }) {
         setDidSeek(true);
       }}
       paused={doPause}
-      progressUpdateInterval={100}
+      // progressUpdateInterval={10}
       ref={videoPlayer}
       source={{
         uri: videoLink,
@@ -46,7 +54,11 @@ export default function EvalVideo({ videoLink, videoPlayer, seekUntil }) {
 }
 
 EvalVideo.propTypes = {
-  seekUntil: PropTypes.element.isRequired,
+  seekUntil: PropTypes.number,
   videoLink: PropTypes.string.isRequired,
-  videoPlayer: PropTypes.element.isRequired,
+  videoPlayer: PropTypes.objectOf(PropTypes.object).isRequired,
+};
+
+EvalVideo.defaultProps = {
+  seekUntil: -1,
 };

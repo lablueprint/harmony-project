@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 const styles = StyleSheet.create({
   container: {
     marginTop: 10,
+    marginBottom: 10,
     marginHorizontal: 10,
     padding: 10,
     backgroundColor: '#ffffff',
@@ -59,8 +60,14 @@ export default function Post({
 
 Post.propTypes = {
   title: PropTypes.string.isRequired,
-  createdAt: PropTypes.string.isRequired,
-  date: PropTypes.string.isRequired,
+  createdAt: PropTypes.string,
+  date: PropTypes.string,
   body: PropTypes.string.isRequired,
-  attachment: PropTypes.string.isRequired,
+  attachment: PropTypes.string,
+};
+
+Post.defaultProps = {
+  createdAt: '',
+  date: '',
+  attachment: '',
 };
