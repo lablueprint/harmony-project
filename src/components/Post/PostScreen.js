@@ -139,7 +139,7 @@ export default function PostsScreen({ navigation }) {
               date={date.toDateString()}
               attachment={post.attachment}
               body={post.body}
-              loadingStatus={loadingNewComment}
+              loadingNewComment={loadingNewComment}
             >
               {post.body}
             </Post>
