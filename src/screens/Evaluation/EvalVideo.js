@@ -17,23 +17,29 @@ const styles = StyleSheet.create({
   },
 });
 
+/**
+ *
+ * @param {String} videoLink A Firebase link to the submission video
+ * @param {ref} videoPlayer A react-native-video ref
+ * @param {Object} seekUntil An object that stores a timestamped comment's endTime
+ */
 export default function EvalVideo({ videoLink, videoPlayer, seekUntil }) {
-  const [currentTime, setCurrentTime] = useState(0);
+  /**
+   * doPause - A boolean indicating whether or not to pause the video
+   */
   const [doPause, setDoPause] = useState(false);
-  const [didSeek, setDidSeek] = useState(false);
 
-  useEffect(() => {
-    if (doPause) {
-      console.log(currentTime);
-    }
-  }, [doPause, currentTime]);
+  /**
+   * didSeek - A boolean indicating whether or not the user selected a timestamp range
+   * button
+   */
+  const [didSeek, setDidSeek] = useState(false);
 
   return (
     <Video
       controls
       onProgress={(e) => {
         if (didSeek && (e.currentTime >= seekUntil)) {
-          setCurrentTime(e.currentTime);
           setDoPause(true);
           setDidSeek(false);
         }
@@ -43,7 +49,6 @@ export default function EvalVideo({ videoLink, videoPlayer, seekUntil }) {
         setDidSeek(true);
       }}
       paused={doPause}
-      // progressUpdateInterval={10}
       ref={videoPlayer}
       source={{
         uri: videoLink,

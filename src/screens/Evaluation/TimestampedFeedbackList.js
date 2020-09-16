@@ -25,9 +25,19 @@ const styles = StyleSheet.create({
   },
 });
 
+/**
+ *
+ * @param {Array} evaluations An array of timestamped feedback comments
+ * @param {Function} setSeekUntil Sets seekUntil to the timestamped comment's endTime
+ * @param {ref} videoPlayer A react-native-video ref
+ */
 export default function TimestampedFeedbackList({
   evaluations, setSeekUntil, videoPlayer,
 }) {
+  /**
+   * Returns a string in MM:SS form
+   * @param {Number} totalSeconds The timestamp in seconds
+   */
   function convertToMinSec(totalSeconds) {
     let seconds = totalSeconds % 60;
     if (seconds < 10) {
@@ -38,11 +48,16 @@ export default function TimestampedFeedbackList({
     return `${minutes}:${seconds}`;
   }
 
+  /**
+   * listItems - For every comment in the evaluations array, create a:
+   *    - TouchableWithoutFeedback: A button that seeks to the comment's startTime
+   *      and sends the endTime to the EvalVideo
+   *    - Post: A post containing the comment's title and contents
+   */
   const listItems = evaluations.map((evaluationsListItem, index) => (
     // eslint-disable-next-line react/no-array-index-key
     <View style={styles.container} key={index}>
       <TouchableWithoutFeedback
-        // key={i.startTime + i.endTime + index}
         onPress={() => {
           videoPlayer.current.seek(evaluationsListItem.startTime);
           setSeekUntil(
@@ -61,6 +76,9 @@ export default function TimestampedFeedbackList({
     </View>
   ));
 
+  /**
+   * Present listItems in a ScrollView (allows the user to scroll)
+   */
   return (
     <ScrollView>
       <>{listItems}</>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   StyleSheet, View,
 } from 'react-native';
@@ -17,59 +17,71 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '50%',
   },
-  timestampedFeedback: {
-  },
 });
 
+/**
+ * Returns an EvaluationScreen with a submission video and the teacher's timestamped
+ * feedback comments
+ */
 export default function EvaluationScreen() {
+  /**
+   * videoPlayer - Allows TimestampedFeedbackList to access EvalVideo's seek() function
+   */
   const videoPlayer = useRef(null);
 
+  /**
+   * evaluationDoc - A document in the evaluations collection that corresponds to a single
+   * evaluation screen
+   *
+   * setEvaluationDoc - A function called after the evaluation document has been retrieved
+   * from Firebase
+   */
   const [evaluationDoc, setEvaluationDoc] = useState({});
-  const [evaluations, setEvaluations] = useState([]);
-  const [evaluationsLoaded, setEvaluationsLoaded] = useState(false);
-  const [seekUntil, setSeekUntil] = useState(null);
-  const [videoLinkLoaded, setVideoLinkLoaded] = useState(false);
-  const [videoLink, setVideoLink] = useState();
 
+  /**
+   * seekUntil - An object that stores the endTime of a timestamp range
+   *
+   * setSeekUntil - A function called by TimestampedFeedbackList's timestamped-comment buttons
+   */
+  const [seekUntil, setSeekUntil] = useState(null);
+
+  /**
+   * docId - (In the future, this should be retrieved from navigation, etc. rather than being
+   * "hardcoded") Is the document ID of an example evaluation scrren in Firestore
+   */
   const docId = 'bTzLmdl03mDOYwsZMyCP';
 
+  /**
+   * Uses the docId to retrieve a particular evaluation document.
+   */
   Firestore().collection('evaluations')
     .doc(docId)
     .get()
     .then((document) => {
       if (document.exists) {
-        setEvaluationDoc(document.data());
+        return document.data();
       }
+      return null;
+    })
+    .then((doc) => {
+      setEvaluationDoc(doc);
     });
-
-  useEffect(() => {
-    setVideoLink(evaluationDoc.recording);
-    setEvaluations(evaluationDoc.evaluations);
-
-    if (videoLink) {
-      setVideoLinkLoaded(true);
-    }
-
-    if (evaluations !== undefined && evaluations.length !== 0) {
-      setEvaluationsLoaded(true);
-    }
-  }, [evaluationDoc, evaluations, videoLink]);
 
   return (
     <View style={styles.container}>
-      {videoLinkLoaded
+      {evaluationDoc.recording
       && (
       <EvalVideo
-        videoLink={videoLink}
+        videoLink={evaluationDoc.recording}
         seekUntil={seekUntil}
         videoPlayer={videoPlayer}
         style={styles.video}
       />
       )}
       <View style={styles.bottomContainer}>
-        {evaluationsLoaded && (
+        {evaluationDoc.evaluations && (
         <TimestampedFeedbackList
-          evaluations={evaluations}
+          evaluations={evaluationDoc.evaluations}
           videoPlayer={videoPlayer}
           setSeekUntil={setSeekUntil}
           style={styles.timestampedFeedback}
