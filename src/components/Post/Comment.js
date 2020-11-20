@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, Button,
+  View, Text, StyleSheet, Button, Alert,
 } from 'react-native';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
@@ -87,7 +87,21 @@ export default function Comment({
 }) {
   const [loading, setLoading] = useState(false);
   const [hasLiked, setHasLiked] = useState(false);
+  const [hasDeleted, setHasDeleted] = useState(false);
+  const [isAuthor, setIsAuthor] = useState(false);
   const userID = Firebase.auth().currentUser.uid;
+
+  // Runs once and never again. Checks if the current user is the author of the
+  // comment.
+  useEffect(() => {
+    Firestore().collection('comments').doc(id).get()
+      .then((snapshot) => {
+        const commentAuthor = snapshot.get('author');
+        if (commentAuthor === userID) {
+          setIsAuthor(true);
+        }
+      });
+  }, [id, userID]);
 
   // Runs whenever loading changes (someone hits the 'Like' or 'Unlike' button).
   useEffect(() => {
@@ -102,45 +116,78 @@ export default function Comment({
       });
   }, [id, loading, userID]);
 
+  /*
+  * HasDeleted will only be true if the user fully carries through with a
+  * deletion. HasDeleted will force the comment to not display (on the frontend)
+  * while Firestore is busy doing it's magic in the backend.
+  */
   return (
-    <View style={styles.container}>
-      <Text style={styles.topicText}>
-        {title}
-      </Text>
-      <Text style={styles.timeText}>
-        {createdAt}
-      </Text>
-      <Text style={styles.timeText}>
-        {date}
-      </Text>
-      <View style={styles.contentContainer}>
-        <Text>
-          {body}
+    hasDeleted ? null : (
+      <View style={styles.container}>
+        <Text style={styles.topicText}>
+          {title}
         </Text>
+        <Text style={styles.timeText}>
+          {createdAt}
+        </Text>
+        <Text style={styles.timeText}>
+          {date}
+        </Text>
+        <View style={styles.contentContainer}>
+          <Text>
+            {body}
+          </Text>
+        </View>
+        <DisplayLikes commentID={id} />
+        {hasLiked ? (
+          <View style={{ flexDirection: 'row' }}>
+            <Button
+              title="Unlike"
+              onPress={() => {
+                setLoading(!loading);
+                unlikeButton(id);
+              }}
+            />
+          </View>
+        ) : (
+          <View style={{ flexDirection: 'row' }}>
+            <Button
+              title="Like"
+              onPress={() => {
+                setLoading(!loading);
+                likeButton(id);
+              }}
+            />
+          </View>
+        )}
+        {isAuthor ? (
+          <Button
+            title="Delete"
+            onPress={() => {
+              Alert.alert(
+                'Are you sure you want to delete this comment?',
+                'This action cannot be undone.',
+                [
+                  {
+                    text: 'Cancel',
+                    onPress: () => null,
+                    style: 'cancel',
+                  },
+                  {
+                    text: 'Delete',
+                    onPress: () => {
+                      setHasDeleted(true);
+                      Firestore().collection('comments').doc(id).delete();
+                    },
+                  },
+                ],
+                { cancelable: false },
+              );
+            }}
+          />
+        ) : null}
       </View>
-      <DisplayLikes commentID={id} />
-      {hasLiked ? (
-        <View style={{ flexDirection: 'row' }}>
-          <Button
-            title="Unlike"
-            onPress={() => {
-              setLoading(!loading);
-              unlikeButton(id);
-            }}
-          />
-        </View>
-      ) : (
-        <View style={{ flexDirection: 'row' }}>
-          <Button
-            title="Like"
-            onPress={() => {
-              setLoading(!loading);
-              likeButton(id);
-            }}
-          />
-        </View>
-      )}
-    </View>
+    )
   );
 }
 

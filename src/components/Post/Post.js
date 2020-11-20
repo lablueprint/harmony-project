@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, Image, Button,
+  View, Text, StyleSheet, Image, Button, Alert,
 } from 'react-native';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
@@ -238,6 +238,14 @@ function LoadCommentButton({
   const newLimitLess = numCommentsLoaded - loadAmount;
   const newLimitMore = numCommentsLoaded + loadAmount;
 
+  /**
+   * The second condition (loadedLastComment && numCommentsLoaded <= loadAmount)
+   * should only be true if a post only be true if there are no more comments
+   * available to load AND the user cannot load fewer comments than is allowed.
+   * For example, if loadAmount is 1, and there is 1 comment available in Firestore
+   * then no buttons will be displayed as the user can't request more comments and
+   * there must be a minimum of 1 comment displayed (provided they exist).
+   * */
   if (noComments || (loadedLastComment && numCommentsLoaded <= loadAmount)) {
     return null;
   }
@@ -298,7 +306,21 @@ export default function Post({
   const [loadedLastComment, setloadedLastComment] = useState(false);
   const [noComments, setNoComments] = useState(false);
   const [numCommentsLoaded, setNumCommentsLoaded] = useState(loadAmount);
+  const [isAuthor, setIsAuthor] = useState(false);
+  const [hasDeleted, setHasDeleted] = useState(false);
   const userID = Firebase.auth().currentUser.uid;
+
+  // Runs once and never again. Checks if the current user is the author of the
+  // post.
+  useEffect(() => {
+    Firestore().collection('posts').doc(id).get()
+      .then((snapshot) => {
+        const postAuthor = snapshot.get('author');
+        if (postAuthor === userID) {
+          setIsAuthor(true);
+        }
+      });
+  }, [id, userID]);
 
   // Runs whenever loading changes (someone hits the 'Like' or 'Unlike' button).
   useEffect(() => {
@@ -314,66 +336,130 @@ export default function Post({
   }, [id, loading, userID, numCommentsLoaded, loadedLastComment, noComments, loadingNewComment]);
 
 
+  /*
+  * HasDeleted will only be true if the user fully carries through with a
+  * deletion. HasDeleted will force the post to not display (on the frontend)
+  * while Firestore is busy doing it's magic in the backend.
+  */
   return (
-    <View style={styles.container}>
-      <Text style={styles.topicText}>
-        {title}
-      </Text>
-      <Text style={styles.timeText}>
-        {createdAt}
-      </Text>
-      <Text style={styles.timeText}>
-        {date}
-      </Text>
-      <View style={styles.contentContainer}>
-        <Text>
-          {body}
+    hasDeleted ? null : (
+      <View style={styles.container}>
+        <Text style={styles.topicText}>
+          {title}
         </Text>
-        {attachment ? (
-          <Image
-            style={{ width: '100%', height: 200, resizeMode: 'center' }}
-            source={{ uri: attachment }}
+        <Text style={styles.timeText}>
+          {createdAt}
+        </Text>
+        <Text style={styles.timeText}>
+          {date}
+        </Text>
+        <View style={styles.contentContainer}>
+          <Text>
+            {body}
+          </Text>
+          {attachment ? (
+            <Image
+              style={{ width: '100%', height: 200, resizeMode: 'center' }}
+              source={{ uri: attachment }}
+            />
+          ) : null}
+        </View>
+        <DisplayLikes postID={id} />
+        {hasLiked ? (
+          <View style={{ flexDirection: 'row' }}>
+            <Button
+              title="Unlike"
+              onPress={() => {
+                setLoading(!loading);
+                unlikeButton(id);
+              }}
+            />
+          </View>
+        ) : (
+          <View style={{ flexDirection: 'row' }}>
+            <Button
+              title="Like"
+              onPress={() => {
+                setLoading(!loading);
+                likeButton(id);
+              }}
+            />
+          </View>
+        )}
+        {isAuthor ? (
+          <Button
+            title="Delete"
+            onPress={() => {
+              Alert.alert(
+                'Are you sure you want to delete this post?',
+                'All comments will be deleted as well. This action cannot be undone.',
+                [
+                  {
+                    text: 'Cancel',
+                    onPress: () => null,
+                    style: 'cancel',
+                  },
+                  {
+                    text: 'Delete',
+                    onPress: () => {
+                      setHasDeleted(true);
+
+                      /* The comments of each post must also be deleted alongside
+                      * the post. This is done through "batched writes". First
+                      * create a Firestore query and get a snapshot.
+                      */
+                      Firestore().collection('comments')
+                        .where('postId', '==', id)
+                        .get()
+                        .then((snapshot) => {
+                          // Then create a Firestore batch.
+                          const batch = Firestore().batch();
+
+                          snapshot.forEach((doc) => {
+                            // For each document within the batch that matches
+                            // the each document in the snapshot, append a delete
+                            batch.delete(doc.ref);
+                          });
+
+                          // Commit the batch to finalize it.
+                          batch.commit();
+                        });
+
+                      Firestore().collection('posts').doc(id).delete();
+                    },
+                  },
+                ],
+                { cancelable: false },
+              );
+            }}
           />
         ) : null}
-      </View>
-      <DisplayLikes postID={id} />
-      {hasLiked ? (
-        <View style={{ flexDirection: 'row' }}>
-          <Button
-            title="Unlike"
-            onPress={() => {
-              setLoading(!loading);
-              unlikeButton(id);
-            }}
-          />
-        </View>
-      ) : (
-        <View style={{ flexDirection: 'row' }}>
-          <Button
-            title="Like"
-            onPress={() => {
-              setLoading(!loading);
-              likeButton(id);
-            }}
-          />
-        </View>
-      )}
-      <CommentLoader
-        postID={id}
-        loadingNewComment={loadingNewComment}
-        numCommentsLoaded={numCommentsLoaded}
-        setloadedLastComment={setloadedLastComment}
-        loadedLastComment={loadedLastComment}
-        setNoComments={setNoComments}
-        noComments={noComments}
-      />
-      <LoadCommentButton
+        <CommentLoader
+          postID={id}
+          loadingNewComment={loadingNewComment}
+          numCommentsLoaded={numCommentsLoaded}
+          setloadedLastComment={setloadedLastComment}
+          loadedLastComment={loadedLastComment}
+          setNoComments={setNoComments}
+          noComments={noComments}
+        />
+        {(loadedLastComment || noComments) ? null
+          : (
+            <Button
+              title="Load More Comments"
+              onPress={() => {
+                setNumCommentsLoaded(numCommentsLoaded + loadAmount);
+              }}
+            />
+          )}
+        {/* <LoadCommentButton
         loadedLastComment={loadedLastComment}
         noComments={noComments}
         setNumCommentsLoaded={setNumCommentsLoaded}
         numCommentsLoaded={numCommentsLoaded}
-      />
-    </View>
+      /> */}
+      </View>
+    )
   );
 }
 
