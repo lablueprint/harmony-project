@@ -5,6 +5,7 @@ import {
   StyleSheet, View, Text, TouchableWithoutFeedback,
 } from 'react-native';
 import Post from '../../components/Post/Post';
+import { convertToMinSec } from './MathFunctions';
 
 const styles = StyleSheet.create({
   container: {
@@ -32,22 +33,8 @@ const styles = StyleSheet.create({
  * @param {ref} videoPlayer A react-native-video ref
  */
 export default function TimestampedFeedbackList({
-  evaluations, setSeekUntil, videoPlayer,
+  evaluations, setRange, videoPlayer,
 }) {
-  /**
-   * Returns a string in MM:SS form
-   * @param {Number} totalSeconds The timestamp in seconds
-   */
-  function convertToMinSec(totalSeconds) {
-    let seconds = totalSeconds % 60;
-    if (seconds < 10) {
-      seconds = `0${seconds}`;
-    }
-
-    const minutes = Math.floor(totalSeconds / 60);
-    return `${minutes}:${seconds}`;
-  }
-
   /**
    * listItems - For every comment in the evaluations array, create a:
    *    - TouchableWithoutFeedback: A button that seeks to the comment's startTime
@@ -60,8 +47,12 @@ export default function TimestampedFeedbackList({
       <TouchableWithoutFeedback
         onPress={() => {
           videoPlayer.current.seek(evaluationsListItem.startTime);
-          setSeekUntil(
-            evaluationsListItem.endTime,
+          setRange(
+            {
+              startTime: evaluationsListItem.startTime,
+              endTime: evaluationsListItem.endTime,
+              length: evaluationsListItem.endTime - evaluationsListItem.startTime,
+            },
           );
         }}
         style={styles.timestamp}
@@ -88,7 +79,7 @@ export default function TimestampedFeedbackList({
 
 TimestampedFeedbackList.propTypes = {
   // navigation: PropTypes.element.isRequired,
-  setSeekUntil: PropTypes.func.isRequired,
+  setRange: PropTypes.func.isRequired,
   evaluations: PropTypes.arrayOf(PropTypes.object).isRequired,
   videoPlayer: PropTypes.objectOf(PropTypes.object).isRequired,
 };

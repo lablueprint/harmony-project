@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
-  bottomContainer: {
+  commentsContainer: {
     width: '100%',
     height: '50%',
   },
@@ -43,7 +43,7 @@ export default function EvaluationScreen() {
    *
    * setSeekUntil - A function called by TimestampedFeedbackList's timestamped-comment buttons
    */
-  const [seekUntil, setSeekUntil] = useState(null);
+  const [range, setRange] = useState({});
 
   /**
    * docId - (In the future, this should be retrieved from navigation, etc. rather than being
@@ -73,18 +73,17 @@ export default function EvaluationScreen() {
       && (
       <EvalVideo
         videoLink={evaluationDoc.recording}
-        seekUntil={seekUntil}
+        range={range}
+        setRange={setRange}
         videoPlayer={videoPlayer}
-        style={styles.video}
       />
       )}
-      <View style={styles.bottomContainer}>
+      <View style={styles.commentsContainer}>
         {evaluationDoc.evaluations && (
         <TimestampedFeedbackList
           evaluations={evaluationDoc.evaluations}
           videoPlayer={videoPlayer}
-          setSeekUntil={setSeekUntil}
-          style={styles.timestampedFeedback}
+          setRange={setRange}
         />
         )}
       </View>
