@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   StyleSheet, View,
 } from 'react-native';
-import { Button } from 'react-native-elements';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import EvalVideo from './EvalVideo';
 import TimestampedFeedbackList from './TimestampedFeedbackList';
@@ -11,48 +10,82 @@ import TimestampedFeedbackList from './TimestampedFeedbackList';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'center',
   },
-  formContainer: {
-    height: 400,
-    padding: 20,
-  },
-  comment: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignContent: 'flex-start',
-    marginTop: 5,
-    marginLeft: 3,
-    marginBottom: 5,
-    marginRight: 3,
+  commentsContainer: {
+    width: '100%',
+    height: '50%',
   },
 });
 
-export default function EvaluationScreen({ navigation }) {
-  const [evaluation, setEvaluation] = useState({});
+/**
+ * Returns an EvaluationScreen with a submission video and the teacher's timestamped
+ * feedback comments
+ */
+export default function EvaluationScreen() {
+  /**
+   * videoPlayer - Allows TimestampedFeedbackList to access EvalVideo's seek() function
+   */
+  const videoPlayer = useRef(null);
+
+  /**
+   * evaluationDoc - A document in the evaluations collection that corresponds to a single
+   * evaluation screen
+   *
+   * setEvaluationDoc - A function called after the evaluation document has been retrieved
+   * from Firebase
+   */
+  const [evaluationDoc, setEvaluationDoc] = useState({});
+
+  /**
+   * seekUntil - An object that stores the endTime of a timestamp range
+   *
+   * setSeekUntil - A function called by TimestampedFeedbackList's timestamped-comment buttons
+   */
+  const [range, setRange] = useState({});
+
+  /**
+   * docId - (In the future, this should be retrieved from navigation, etc. rather than being
+   * "hardcoded") Is the document ID of an example evaluation scrren in Firestore
+   */
   const docId = 'bTzLmdl03mDOYwsZMyCP';
 
-  const doc = Firestore().collection('evaluations').doc(docId);
-  doc.get()
+  /**
+   * Uses the docId to retrieve a particular evaluation document.
+   */
+  Firestore().collection('evaluations')
+    .doc(docId)
+    .get()
     .then((document) => {
       if (document.exists) {
-        setEvaluation(document.data());
+        return document.data();
       }
+      return null;
+    })
+    .then((doc) => {
+      setEvaluationDoc(doc);
     });
 
   return (
     <View style={styles.container}>
-      <EvalVideo uri={evaluation.recording} style={styles.top} />
-      <View style={styles.bottom}>
-        <TimestampedFeedbackList evaluations={evaluation.evaluations} />
-        <Button
-          title="+"
-          onPress={() => {
-            navigation.navigate('CreateEvaluation', { doc });
-          }}
+      {evaluationDoc.recording
+      && (
+      <EvalVideo
+        videoLink={evaluationDoc.recording}
+        range={range}
+        setRange={setRange}
+        videoPlayer={videoPlayer}
+      />
+      )}
+      <View style={styles.commentsContainer}>
+        {evaluationDoc.evaluations && (
+        <TimestampedFeedbackList
+          evaluations={evaluationDoc.evaluations}
+          videoPlayer={videoPlayer}
+          setRange={setRange}
         />
+        )}
       </View>
     </View>
   );
@@ -64,6 +97,8 @@ EvaluationScreen.navigationOptions = ({ navigation }) => ({
   headerShown: true, // button within the header to go back to the (homescreen)
 });
 
+/*
 EvaluationScreen.propTypes = {
   navigation: PropTypes.elementType.isRequired,
 };
+*/
