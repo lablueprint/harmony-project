@@ -37,10 +37,15 @@ const styles = StyleSheet.create({
   },
 });
 
+/*
+Announcements Screen function
+*/
 export default function AnnouncementsScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [postsList, setPostsList] = useState([]);
-
+  /*
+this will only run one time when the component is mounted
+*/
   useEffect(() => {
     Firestore().collection('announcements')
       .orderBy('createdAt', 'desc')
@@ -98,5 +103,9 @@ export default function AnnouncementsScreen({ navigation }) {
 }
 
 AnnouncementsScreen.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+    getParam: PropTypes.func.isRequired,
+  }).isRequired,
 
 };
