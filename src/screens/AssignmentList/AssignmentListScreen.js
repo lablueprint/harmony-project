@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import {
-  Text, View, SafeAreaView, ScrollView, StyleSheet, Button, TextInput,
+  Text, View, ScrollView, StyleSheet, Button,
 } from 'react-native';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function AssignmentList({ navigation }) {
+export default function AssignmentListScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [postsList, setPostsList] = useState([]);
 
@@ -77,7 +77,7 @@ export default function AssignmentList({ navigation }) {
   return (
     <View style={styles.container}>
       <ScrollView>
-        <Text style={styles.welcomeMessage}>Posts</Text>
+        <Text style={styles.welcomeMessage}>Assignments List</Text>
         <Button
           title="Make a Post"
           onPress={() => {
@@ -91,7 +91,7 @@ export default function AssignmentList({ navigation }) {
   );
 }
 
-AssignmentList.propTypes = {
+AssignmentListScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
     getParam: PropTypes.func.isRequired,

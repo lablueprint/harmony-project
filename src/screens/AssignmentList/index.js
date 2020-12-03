@@ -1,3 +1,3 @@
-import AssignmentList from './AssignmentList';
+import AssignmentList from './AssignmentListScreen';
 
 export default AssignmentList;
