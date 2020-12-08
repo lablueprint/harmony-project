@@ -22,9 +22,12 @@ export default function NewPostScreen({ navigation }) {
   const [attachment, setAttachment] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const mainScreenLoadStatus = navigation.getParam('currentLoad');
+  const reloadMainScreen = navigation.getParam('setLoad');
 
   const handleSubmit = () => {
     setLoading(true);
+    reloadMainScreen(!mainScreenLoadStatus);
     const postRecord = {
       title,
       body,
@@ -36,9 +39,9 @@ export default function NewPostScreen({ navigation }) {
       isPublic: true,
       dueDate: null,
       author: Firebase.auth().currentUser.uid,
+      likedBy: {},
     };
     Firestore().collection('posts')
-      .doc()
       .add(postRecord)
       .then(() => {
         setLoading(false);
