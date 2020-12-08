@@ -8,32 +8,26 @@ import Firestore from '@react-native-firebase/firestore';
 import Post from '../../components/Post/Post';
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  headingTitle: {
+    fontSize: 28,
+    fontWeight: '600',
   },
-  formContainer: {
-    height: 400,
-    padding: 20,
+  sectionContainer: {
+    marginTop: 32,
+    paddingHorizontal: 24,
   },
-  subContainer: {
-    marginBottom: 20,
-    padding: 5,
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: 'black',
   },
-  activity: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  textInput: {
+  sectionDescription: {
+    marginTop: 8,
     fontSize: 18,
-    margin: 5,
-    width: 200,
+    fontWeight: '400',
+  },
+  highlight: {
+    fontWeight: '700',
   },
 });
 
