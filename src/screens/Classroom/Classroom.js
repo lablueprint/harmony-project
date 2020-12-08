@@ -8,6 +8,7 @@ import {
 import PropTypes from 'prop-types';
 import Post from './Post';
 
+
 const styles = StyleSheet.create({
 
   headingTitle: {
