@@ -11,6 +11,7 @@ import Comment from './Comment';
 const styles = StyleSheet.create({
   container: {
     marginTop: 10,
+    marginBottom: 10,
     marginHorizontal: 10,
     padding: 10,
     backgroundColor: '#ffffff',
