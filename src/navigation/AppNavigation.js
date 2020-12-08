@@ -8,7 +8,7 @@ import ProfileScreen from '../screens/Profile';
 import EvaluationScreen from '../screens/Evaluation';
 import CreateEvaluationScreen from '../screens/CreateEvaluation';
 import GenericFormDemoScreen from '../screens/GenericFormDemo';
-import AnnouncementsScreen from '../screens/Announcements';
+import AssignmentListScreen from '../screens/AssignmentList';
 
 const AppNavigation = createStackNavigator(
   {
@@ -23,7 +23,7 @@ const AppNavigation = createStackNavigator(
     Evaluation: EvaluationScreen,
     CreateEvaluation: CreateEvaluationScreen,
     GenericFormDemo: GenericFormDemoScreen,
-    Announcements: AnnouncementsScreen,
+    AssignmentList: AssignmentListScreen,
   },
   {
     initialRouteName: 'Home',
