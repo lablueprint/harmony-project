@@ -91,6 +91,15 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.subContainer}>
         <Button
           style={styles.textInput}
+          title="Announcements"
+          onPress={() => {
+            navigation.navigate('Announcements');
+          }}
+        />
+      </View>
+      <View style={styles.subContainer}>
+        <Button
+          style={styles.textInput}
           title="Assignment List"
           onPress={() => {
             navigation.navigate('AssignmentList');
