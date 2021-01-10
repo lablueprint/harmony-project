@@ -1,12 +1,14 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 // import { NavigationContainer } from '@react-navigation/native';
 // import { createStackNavigator } from '@react-navigation/stack';
 import {
-  Text, View, SafeAreaView, ScrollView, StyleSheet, Button, TextInput,
+  Text, View, SafeAreaView, ScrollView, StyleSheet, Alert, /* Button, TextInput, */
 } from 'react-native';
 import PropTypes from 'prop-types';
-import Post from './Post';
+import Firestore from '@react-native-firebase/firestore';
+// import Post from './Post';
+import { INITIAL_USER_STATE } from '../../components';
 
 const styles = StyleSheet.create({
 
@@ -33,39 +35,68 @@ const styles = StyleSheet.create({
   },
 });
 
-/* const post1 = {
-  author: 'Timmy Turner',
-  text: "I wish that my code doesn't break I really want some pie
-  right now I wonder how people are gopnna see what im typing pls
-  bro just i want to eat i rlly want food bro pls",
-  time: '10:16 PM',
-};
-
-const cl = {
-  classroom: {
-    title: 'CL1',
-    posts: [post1],
-  },
-}; */
-
 // eslint-disable-next-line no-unused-vars
-function ClassroomHome({ navigation }) {
+export default function ClassroomHome({ navigation }) {
+  const [initializing, setInitializing] = useState(true);
+  const uid = navigation.getParam('uid', null);
+  const classroomInfo = navigation.getParam('classroomInfo', null);
+  const code = navigation.getParam('code', null);
+  const ref = Firestore().collection('users');
+  const [userState, setUserState] = useState(INITIAL_USER_STATE);
+
+  // const [showLoading, setShowLoading] = useState(false);
+
+  async function getUserData() {
+    try {
+      // If we somehow get to this screen with no uid passed, go back to homescreen
+      if (!uid) navigation.navigate('Home');
+      const doc = await ref.doc(uid).get();
+      const data = doc.data();
+      // Handler for case with nonexistent user entries in Firestore
+      if (!data) {
+        await ref.doc(uid).set({
+          ...userState,
+          createdAt: Firestore.FieldValue.serverTimestamp(),
+          updatedAt: Firestore.FieldValue.serverTimestamp(),
+        });
+      } else {
+        setUserState(data);
+      }
+      if (initializing) setInitializing(false);
+    } catch (e) {
+      setInitializing(false);
+      Alert.alert(
+        e.message,
+      );
+    }
+  }
+
+  useEffect(() => {
+    getUserData();
+  }, [userState]);
+
+  if (initializing) return null;
+
   return (
     <SafeAreaView>
       <ScrollView>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Text style={styles.headingTitle}>
-            Welcome to Classroom One!
+            {`Hi ${userState.name}! Welcome to ${classroomInfo.classTitle}!`}
           </Text>
+          <Text style={styles.headingTitle}>
+            {`Code: ${code.toUpperCase()}`}
+          </Text>
+          {/*
           <Button title="Make a Post!" onPress={() => navigation.navigate('Make a New Post')} />
+          */}
         </View>
-        <Post title="Idk What's Going on In Any Class" author="Cody Do" text="pls help me, I have 3 midterms next week" />
-        <Post title="Will pay someone to take my midterm" author="Cody Do" text="i don't have much but i have lots of love to give c: will pay in hugs" />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+/*
 // eslint-disable-next-line no-unused-vars
 function MakePost() {
   return (
@@ -90,6 +121,7 @@ function MakePost() {
     </View>
   );
 }
+*/
 
 ClassroomHome.propTypes = {
   navigation: PropTypes.shape({

@@ -2,15 +2,19 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import {
+  StyleSheet, View, Text, Alert, TextInput,
+} from 'react-native';
 import { Button } from 'react-native-elements';
+import Firestore, { firebase } from '@react-native-firebase/firestore';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import UploadFile from '../../components/UploadFile';
+import { INITIAL_USER_STATE } from '../../components';
 
 const styles = StyleSheet.create({
   subContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
     padding: 10,
   },
   textInput: {
@@ -23,11 +27,54 @@ const styles = StyleSheet.create({
 export default function HomeScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
+  const [userState, setUserState] = useState(INITIAL_USER_STATE);
   const [uid, setUid] = useState(navigation.getParam('uid', null));
+  const ref = Firestore().collection('users');
+  const [code, setCode] = useState('');
+
+  async function getUserData() {
+    try {
+      const doc = await ref.doc(uid).get();
+      const data = doc.data();
+      // Handler for case with nonexistent user entries in Firestore
+      setUserState(data);
+      if (initializing) setInitializing(false);
+    } catch (e) {
+      setInitializing(false);
+      Alert.alert(
+        e.message,
+      );
+    }
+  }
+
+  useEffect(() => {
+    getUserData();
+  }, [userState]);
 
   function onAuthStateChanged(authUser) {
     setUser(authUser);
-    if (initializing) setInitializing(false);
+  }
+
+  // input code, join
+  async function joinClassroom() {
+    const classRef = Firestore().collection('classrooms');
+    const doc = await classRef.doc(code.toLowerCase()).get();
+    const classroomInfo = doc.data();
+    if (!classroomInfo) {
+      Alert.alert(
+        'Please input a valid code!',
+      );
+    } else {
+      // currently updates every time you join a classroom
+      // in the future this would update only once: immediately upon signup
+      classRef.doc(code.toLowerCase()).update({
+        students: firebase.firestore.FieldValue.arrayUnion(uid),
+      });
+      ref.doc(uid).update({
+        classroomIds: firebase.firestore.FieldValue.arrayUnion(code.toLowerCase()),
+      });
+      navigation.navigate('Classroom', { code, classroomInfo, uid });
+    }
   }
 
   useEffect(() => {
@@ -88,6 +135,7 @@ export default function HomeScreen({ navigation }) {
           collection="posts"
         />
       </View>
+
       <View style={styles.subContainer}>
         <Button
           style={styles.textInput}
@@ -106,6 +154,37 @@ export default function HomeScreen({ navigation }) {
           }}
         />
       </View>
+      {userState && userState.role === 'TEACHER'
+        ? (
+          <View style={styles.subContainer}>
+            <Button
+              style={styles.textInput}
+              title="Create Classroom"
+              onPress={() => {
+                navigation.navigate('CreateClassroom', { uid });
+                // for now a separate page using this button
+              }}
+            />
+          </View>
+        )
+        : (
+          <View style={styles.subContainer}>
+            <TextInput
+              placeholder="ABCDEF"
+              fontSize={20}
+              maxLength={6}
+              onChangeText={setCode}
+              value={code}
+            />
+            <Button
+              style={styles.textInput}
+              title="Join Classroom"
+              onPress={() => {
+                joinClassroom();
+              }}
+            />
+          </View>
+        )}
     </View>
   );
 }
