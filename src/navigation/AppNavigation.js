@@ -9,7 +9,8 @@ import EvaluationScreen from '../screens/Evaluation';
 import CreateEvaluationScreen from '../screens/CreateEvaluation';
 import GenericFormDemoScreen from '../screens/GenericFormDemo';
 import AnnouncementsScreen from '../screens/Announcements';
-import AssignmentListScreen from '../screens/AssignmentList';
+import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
+import NewAssignmentScreen from '../screens/AssignmentList/NewAssignmentScreen';
 
 const AppNavigation = createStackNavigator(
   {
@@ -17,6 +18,7 @@ const AppNavigation = createStackNavigator(
     EditProfile: EditProfileScreen,
     Post: PostScreen,
     NewPost: NewPostScreen,
+    NewAssignment: NewAssignmentScreen,
     NewComment: NewCommentScreen,
     Chatrooms: ChatroomsScreen,
     Messages: MessageScreen,

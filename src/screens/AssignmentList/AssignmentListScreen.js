@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import {
-  Text, View, ScrollView, StyleSheet, Button,
+  Text, View, ScrollView, StyleSheet, Button, Alert,
 } from 'react-native';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
@@ -35,34 +35,58 @@ const styles = StyleSheet.create({
 export default function AssignmentListScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [postsList, setPostsList] = useState([]);
+  const [isTeacher, setRole] = useState(false);
+  const [initializing, setInitializing] = useState(true);
+
+  const uid = navigation.getParam('uid', null);
+  const ref = Firestore().collection('users');
+
+  async function getUserData() {
+    try {
+      ref.doc(uid).get().then((doc) => {
+        const data = doc.data();
+        if (data.role === 'TEACHER') {
+          setRole(true);
+        }
+      });
+
+      if (initializing) setInitializing(false);
+    } catch (e) {
+      setInitializing(false);
+      Alert.alert(
+        e.message,
+      );
+    }
+  }
 
   useEffect(() => {
+    getUserData();
     Firestore().collection('assignments')
       .orderBy('createdAt', 'desc')
       .limit(5)
       .get()
       .then((snapshot) => {
         const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        setPostsList(posts.map((post) => {
-          const date = post.createdAt.toDate();
+        setPostsList(posts.map((assignment) => {
+          const date = assignment.createdAt.toDate();
           return (
-            <View style={styles.container} key={post.id}>
+            <View style={styles.container} key={assignment.id}>
               <Post
-                key={post.id}
-                name={post.username}
-                title={post.title}
+                key={assignment.id}
+                name={assignment.username}
+                title={assignment.title}
                 createdAt={date.toTimeString()}
-                date={date.toDateString()}
-                attachment={post.attachment}
-                body={post.body}
+                date={assignment.dueDate}
+                attachment={assignment.attachments}
+                body={assignment.body}
               >
-                {post.body}
+                {assignment.body}
               </Post>
               <Button
                 styles={styles.container}
-                title="Comment on Post"
+                title="Comment on Assignment"
                 onPress={() => {
-                  navigation.navigate('NewComment', { ID: post.id });
+                  navigation.navigate('NewComment', { ID: assignment.id });
                 }}
               />
             </View>
@@ -74,16 +98,21 @@ export default function AssignmentListScreen({ navigation }) {
       });
   }, []);
 
+  if (initializing) return null;
+
   return (
     <View style={styles.container}>
       <ScrollView>
         <Text style={styles.welcomeMessage}>Assignments List</Text>
+        {isTeacher
+        && (
         <Button
-          title="Make a Post"
+          title="Create An Assignment"
           onPress={() => {
-            navigation.navigate('NewPost');
+            navigation.navigate('NewAssignment');
           }}
         />
+        )}
         {errorMessage && <Text>{errorMessage}</Text>}
         {postsList}
       </ScrollView>
