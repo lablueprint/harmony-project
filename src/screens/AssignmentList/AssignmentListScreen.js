@@ -6,6 +6,8 @@ import {
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
 import Post from '../../components/Post/Post';
+import UploadFile from '../../components/UploadFile/UploadFile';
+// import UploadFile from '../../components/UploadFile';
 
 const styles = StyleSheet.create({
 
@@ -37,9 +39,9 @@ export default function AssignmentListScreen({ navigation }) {
   const [postsList, setPostsList] = useState([]);
 
   useEffect(() => {
-    Firestore().collection('assignments')
-      .orderBy('createdAt', 'desc')
-      .limit(5)
+    Firestore().collection('assignments').where('hasBeenSubmitted', '==', false)
+      // .orderBy('createdAt', 'desc')
+      // .limit(5)
       .get()
       .then((snapshot) => {
         const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
@@ -65,6 +67,10 @@ export default function AssignmentListScreen({ navigation }) {
                   navigation.navigate('NewComment', { ID: post.id });
                 }}
               />
+              <UploadFile
+                docId="example"
+                collection="recordings"
+              />
             </View>
           );
         }));
@@ -86,7 +92,16 @@ export default function AssignmentListScreen({ navigation }) {
         />
         {errorMessage && <Text>{errorMessage}</Text>}
         {postsList}
+        <Button
+          style={styles.textInput}
+          title="View Posts"
+          onPress={() => {
+            navigation.navigate('Post');
+          }}
+        />
+
       </ScrollView>
+
     </View>
   );
 }
