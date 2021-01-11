@@ -27,12 +27,12 @@ export default function NewAssignmentScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [date, setDueDate] = useState('');
-  // const mainScreenLoadStatus = navigation.getParam('currentLoad');
-  // const reloadMainScreen = navigation.getParam('setLoad');
+  const mainScreenLoadStatus = navigation.getParam('currentLoad');
+  const reloadMainScreen = navigation.getParam('setLoad');
 
   const handleSubmit = () => {
     setLoading(true);
-    // reloadMainScreen(!mainScreenLoadStatus);
+    reloadMainScreen(!mainScreenLoadStatus);
 
     const assignmentRecord = {
       title,

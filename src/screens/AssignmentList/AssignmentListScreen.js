@@ -1,8 +1,9 @@
-import 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import {
-  Text, View, ScrollView, StyleSheet, Button, Alert,
+  Text, View, StyleSheet, Button, Alert,
 } from 'react-native';
+
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
 import Post from '../../components/Post/Post';
@@ -37,6 +38,8 @@ export default function AssignmentListScreen({ navigation }) {
   const [postsList, setPostsList] = useState([]);
   const [isTeacher, setRole] = useState(false);
   const [initializing, setInitializing] = useState(true);
+  const [loadingNewComment, setLoadingNewComment] = useState(false);
+  const [loadingNewPost, setLoadingNewPost] = useState(false);
 
   const uid = navigation.getParam('uid', null);
   const ref = Firestore().collection('users');
@@ -86,7 +89,7 @@ export default function AssignmentListScreen({ navigation }) {
                 styles={styles.container}
                 title="Comment on Assignment"
                 onPress={() => {
-                  navigation.navigate('NewComment', { ID: assignment.id });
+                  navigation.navigate('NewComment', { id: assignment.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
                 }}
               />
             </View>
@@ -96,7 +99,7 @@ export default function AssignmentListScreen({ navigation }) {
       .catch((error) => {
         setErrorMessage(error.message);
       });
-  }, []);
+  }, [loadingNewPost]);
 
   if (initializing) return null;
 
@@ -109,7 +112,7 @@ export default function AssignmentListScreen({ navigation }) {
         <Button
           title="Create An Assignment"
           onPress={() => {
-            navigation.navigate('NewAssignment');
+            navigation.navigate('NewAssignment', { setLoad: setLoadingNewPost, currentLoad: loadingNewPost });
           }}
         />
         )}
@@ -124,5 +127,6 @@ AssignmentListScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
     getParam: PropTypes.func.isRequired,
+
   }).isRequired,
 };
