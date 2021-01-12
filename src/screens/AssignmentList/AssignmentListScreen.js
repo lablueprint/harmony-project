@@ -39,14 +39,40 @@ export default function AssignmentListScreen({ navigation }) {
   const [postsList, setPostsList] = useState([]);
 
   useEffect(() => {
-    Firestore().collection('assignments').where('hasBeenSubmitted', '==', false)
-      // .orderBy('createdAt', 'desc')  // NEED TO CREATE A COMPOSITE INDEX FOR THIS TO WORK I THINK
-      // .limit(5)
+    Firestore().collection('assignments')
       .get()
       .then((snapshot) => {
         const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
         setPostsList(posts.map((post) => {
           const date = post.createdAt.toDate();
+          if (!post.hasBeenSubmitted) {
+            return (
+              <View style={styles.container} key={post.id}>
+                <Post
+                  key={post.id}
+                  name={post.username}
+                  title={post.title}
+                  createdAt={date.toTimeString()}
+                  date={date.toDateString()}
+                  attachment={post.attachment}
+                  body={post.body}
+                >
+                  {post.body}
+                </Post>
+                <Button
+                  styles={styles.container}
+                  title="Comment on Post"
+                  onPress={() => {
+                    navigation.navigate('NewComment', { ID: post.id });
+                  }}
+                />
+                <UploadFile
+                  docId="example" // The storage collection folder it gets sent to
+                  collection="recordings"
+                />
+              </View>
+            );
+          }
           return (
             <View style={styles.container} key={post.id}>
               <Post
@@ -66,10 +92,6 @@ export default function AssignmentListScreen({ navigation }) {
                 onPress={() => {
                   navigation.navigate('NewComment', { ID: post.id });
                 }}
-              />
-              <UploadFile
-                docId="example" // THE FOLDER IT GETS SENT TO IN STORAGE
-                collection="recordings"
               />
             </View>
           );
