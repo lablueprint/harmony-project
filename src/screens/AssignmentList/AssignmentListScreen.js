@@ -67,7 +67,7 @@ export default function AssignmentListScreen({ navigation }) {
                   }}
                 />
                 <UploadFile
-                  docId="example" // The storage collection folder it gets sent to
+                  docId={post.id}
                   collection="recordings"
                 />
               </View>
