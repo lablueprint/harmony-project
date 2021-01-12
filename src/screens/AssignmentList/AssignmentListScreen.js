@@ -40,7 +40,7 @@ export default function AssignmentListScreen({ navigation }) {
 
   useEffect(() => {
     Firestore().collection('assignments').where('hasBeenSubmitted', '==', false)
-      // .orderBy('createdAt', 'desc')
+      // .orderBy('createdAt', 'desc')  // NEED TO CREATE A COMPOSITE INDEX FOR THIS TO WORK I THINK
       // .limit(5)
       .get()
       .then((snapshot) => {
@@ -68,7 +68,7 @@ export default function AssignmentListScreen({ navigation }) {
                 }}
               />
               <UploadFile
-                docId="example"
+                docId="example" // THE FOLDER IT GETS SENT TO IN STORAGE
                 collection="recordings"
               />
             </View>
