@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { Button } from 'react-native-elements';
 // import Auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
+import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
 
@@ -25,7 +25,7 @@ export default function ChatroomsScreen({ navigation }) {
     console.log('Mounted. Subscribing to chatrooms...');
     // build chats - list of tuples of chatrooms with (recipients, updatedAt, messages)
     // |- recipients is a map of userid: displayname
-    const unsubscribe = firestore()
+    const unsubscribe = Firestore()
       .collection('chatrooms')
       .where('users', 'array-contains', uid)
       .orderBy('updatedAt', 'desc')
@@ -37,6 +37,7 @@ export default function ChatroomsScreen({ navigation }) {
               const users = change.doc.data().names;
               delete users[uid]; // exclude own name
               return {
+                roomName: change.doc.data().roomName,
                 recipients: users,
                 updatedAt: change.doc.data().updatedAt,
                 messages: change.doc.ref.collection('messages'),
@@ -58,8 +59,8 @@ export default function ChatroomsScreen({ navigation }) {
   }, []); // subscribe on mount
 
   // TODO: add search button
-  // TODO: change room name
   // TODO: look into rare timestamp race condition   // https://medium.com/firebase-developers/the-secrets-of-firestore-fieldvalue-servertimestamp-revealed-29dd7a38a82b
+  // TODO: make create chatroom only show up for teachers
   if (isLoading) {
     return (
       <SafeAreaView>
@@ -93,7 +94,7 @@ export default function ChatroomsScreen({ navigation }) {
             return (
               <View>
                 <Button
-                  title={`${index.toString()} ${membernames}`}
+                  title={item.roomName}
                   onPress={() => {
                     navigation.navigate('Messages',
                       {

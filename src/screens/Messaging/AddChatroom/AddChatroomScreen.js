@@ -5,7 +5,7 @@ import { Button } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import { useForm, Controller } from 'react-hook-form';
 import { TextInput } from 'react-native-gesture-handler';
-import firestore from '@react-native-firebase/firestore';
+import Firestore from '@react-native-firebase/firestore';
 import { styles } from './styles';
 
 // TODO: Refactor this into a new modal screen. Will require new navigation stack.
@@ -14,15 +14,19 @@ export default function AddChatroomScreen({ navigation }) {
   const uid = navigation.getParam('uid', null);
   const { control, handleSubmit, errors } = useForm();
 
-  function createRoom(data) {
-    if (data.roomName.length > 0) {
-      firestore()
+  async function createRoom(formData) {
+    if (formData.roomName.length > 0) {
+      // convert to email
+      const recipients = await Firestore().collection('users')
+        .where('email', 'in', formData.recipientIDs)
+        .get();
+      Firestore()
         .collection('chatrooms')
         .add({
-          roomName: data.roomName,
+          roomName: formData.roomName,
           names: ['placeholder3', 'placeholder2'], // TODO: refactor so chatrooms don't require this and instead query user names from database + memoize.
-          users: [uid, data.recipientID],
-          updatedAt: firestore.FieldValue.serverTimestamp(),
+          users: [uid, ...recipients],
+          updatedAt: Firestore.FieldValue.serverTimestamp(),
         })
         .then((newChatroomRef) => {
           newChatroomRef
@@ -49,7 +53,7 @@ export default function AddChatroomScreen({ navigation }) {
             <TextInput
               style={styles.input}
               onBlur={onBlur}
-              onChangeText={(value) => onChange(value)}
+              onChangeText={(value) => { onChange(value); }}
               value={value}
               placeholder="Enter room name..."
             />
@@ -65,7 +69,8 @@ export default function AddChatroomScreen({ navigation }) {
             <TextInput
               style={styles.input}
               onBlur={onBlur}
-              onChangeText={(value) => onChange(value)}
+              onChangeText={(value) => { onChange(value); }}
+              multiline={false}
               value={value}
               placeholder="Enter recipient uid..."
             />
