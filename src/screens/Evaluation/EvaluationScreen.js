@@ -1,9 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   StyleSheet, View,
 } from 'react-native';
 // import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
+import PropTypes from 'prop-types';
 import EvalVideo from './EvalVideo';
 import TimestampedFeedbackList from './TimestampedFeedbackList';
 
@@ -23,7 +24,8 @@ const styles = StyleSheet.create({
  * Returns an EvaluationScreen with a submission video and the teacher's timestamped
  * feedback comments
  */
-export default function EvaluationScreen() {
+// TODO: rename evaluations to 'feedback'
+export default function EvaluationScreen({ navigation }) {
   /**
    * videoPlayer - Allows TimestampedFeedbackList to access EvalVideo's seek() function
    */
@@ -39,9 +41,7 @@ export default function EvaluationScreen() {
   const [evaluationDoc, setEvaluationDoc] = useState({});
 
   /**
-   * seekUntil - An object that stores the endTime of a timestamp range
-   *
-   * setSeekUntil - A function called by TimestampedFeedbackList's timestamped-comment buttons
+   * range - {startTime, endTime} (in seconds) of timestamped feedback
    */
   const [range, setRange] = useState({});
 
@@ -49,28 +49,48 @@ export default function EvaluationScreen() {
    * docId - (In the future, this should be retrieved from navigation, etc. rather than being
    * "hardcoded") Is the document ID of an example evaluation scrren in Firestore
    */
-  const docId = 'bTzLmdl03mDOYwsZMyCP';
+  const [evalId, setEvalId] = useState(navigation.getParam('evalId', null));
 
   /**
    * Uses the docId to retrieve a particular evaluation document.
    */
-  Firestore().collection('evaluations')
-    .doc(docId)
-    .get()
-    .then((document) => {
-      if (document.exists) {
-        return document.data();
+  useEffect(() => {
+    // TODO: refactor this to utils, add to assignment list view
+    const placeholderRecording = 'https://firebasestorage.googleapis.com/v0/b/la-blueprint-harmony-project.appspot.com/o/images%2FVID_20200310_193940847.mp4?alt=media&token=9651b6e5-a82e-4578-91c3-0b261c609e52';
+    async function createEval({
+      teacherId, recording = placeholderRecording, studentId, submissionComment = 'kekw',
+    }) {
+      const newEval = {
+        teacherId,
+        createdAt: Firestore.Timestamp.now(),
+        updatedAt: Firestore.Timestamp.now(),
+        recording,
+        evaluations: [],
+        submissionComment,
+        studentId,
+      };
+      return Firestore().collection('evaluations').add(newEval);
+    }
+    async function fetchOrCreateEval() {
+      let evalDoc = await Firestore().collection('evaluations').doc(evalId).get();
+      if (evalDoc.exists) {
+        setEvaluationDoc(evalDoc.data());
+      } else {
+        evalDoc = await createEval({
+          teacherId: 'testTeacher',
+          studentId: 'testStudent',
+        });
+        setEvalId(evalDoc.id);
       }
-      return null;
-    })
-    .then((doc) => {
-      setEvaluationDoc(doc);
-    });
+    }
+    fetchOrCreateEval();
+  }, [evalId]);
 
   return (
     <View style={styles.container}>
       {evaluationDoc.recording
       && (
+      // Stop autoplay?
       <EvalVideo
         videoLink={evaluationDoc.recording}
         range={range}
@@ -97,8 +117,6 @@ EvaluationScreen.navigationOptions = ({ navigation }) => ({
   headerShown: true, // button within the header to go back to the (homescreen)
 });
 
-/*
 EvaluationScreen.propTypes = {
   navigation: PropTypes.elementType.isRequired,
 };
-*/
