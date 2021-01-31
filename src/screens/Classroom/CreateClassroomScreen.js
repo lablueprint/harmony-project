@@ -51,7 +51,6 @@ const nums = /[0-9]/; // regex to check number-only input for classLength
 // navigation MUST INCLUDE: uid
 export default function CreateClassroomScreen({ navigation }) {
   const uid = navigation.getParam('uid', null);
-  const [errorMessage, setErrorMessage] = useState(null);
   const [className, setName] = useState(''); // state var to hold class name
   const [classDesc, setDesc] = useState(''); // state var to hold class description
   const [classType, setType] = useState(classTypes.default); // state var to hold class type
@@ -115,7 +114,7 @@ export default function CreateClassroomScreen({ navigation }) {
       // meet days empty
       Alert.alert('Please select a meet day(s).');
     } else if (length.length === 0 || length === '0' || !nums.test(length)) {
-      // class length empty
+      // class length empty or not only numeric
       Alert.alert('Please input a nonzero numeric length.');
     } else if (classStart.length === 0) {
       // no start date
@@ -164,8 +163,8 @@ export default function CreateClassroomScreen({ navigation }) {
         .then(() => {
           navigation.navigate('Classroom', { code, classroomInfo, uid });
         })
-        .catch((error) => {
-          setErrorMessage(error.message);
+        .catch((e) => {
+          Alert.alert(e.message);
         });
     }
   }
@@ -173,7 +172,6 @@ export default function CreateClassroomScreen({ navigation }) {
   return (
     <SafeAreaView>
       <ScrollView style={styles.container}>
-        {errorMessage && <Text>{errorMessage}</Text>}
         <View style={styles.subContainer}>
           <Text>
             Classroom Name:
