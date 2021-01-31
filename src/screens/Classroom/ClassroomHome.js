@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react';
 // import { NavigationContainer } from '@react-navigation/native';
 // import { createStackNavigator } from '@react-navigation/stack';
 import {
-  Text, View, SafeAreaView, ScrollView, StyleSheet, Alert, /* Button, TextInput, */
+  Text, View, SafeAreaView, ScrollView, StyleSheet, Alert, Button, /*  TextInput, */
 } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 // import Post from './Post';
@@ -35,57 +36,75 @@ const styles = StyleSheet.create({
   },
 });
 
-// eslint-disable-next-line no-unused-vars
+// navigation MUST INCLUDE: code, classroomInfo, uid
 export default function ClassroomHome({ navigation }) {
-  const [initializing, setInitializing] = useState(true);
   const uid = navigation.getParam('uid', null);
   const classroomInfo = navigation.getParam('classroomInfo', null);
   const code = navigation.getParam('code', null);
-  const ref = Firestore().collection('users');
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
 
-  // const [showLoading, setShowLoading] = useState(false);
-
-  async function getUserData() {
-    try {
-      // If we somehow get to this screen with no uid passed, go back to homescreen
-      if (!uid) navigation.navigate('Home');
-      const doc = await ref.doc(uid).get();
-      const data = doc.data();
-      // Handler for case with nonexistent user entries in Firestore
-      if (!data) {
-        await ref.doc(uid).set({
-          ...userState,
-          createdAt: Firestore.FieldValue.serverTimestamp(),
-          updatedAt: Firestore.FieldValue.serverTimestamp(),
-        });
-      } else {
-        setUserState(data);
-      }
-      if (initializing) setInitializing(false);
-    } catch (e) {
-      setInitializing(false);
-      Alert.alert(
-        e.message,
-      );
-    }
-  }
-
   useEffect(() => {
-    getUserData();
-  }, [userState]);
+    // fetch user data
+    Firestore().collection('users')
+      .doc(uid)
+      .get()
+      .then((document) => {
+        if (document.exists) {
+          return document.data();
+        }
+        return null;
+      })
+      .then((data) => {
+        setUserState(data);
+      })
+      .catch((e) => {
+        Alert.alert(e.message);
+      });
+  });
 
-  if (initializing) return null;
+  // copies code to clipboard
+  const copyToClipboard = () => {
+    Clipboard.setString(code);
+  };
 
   return (
     <SafeAreaView>
       <ScrollView>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Text style={styles.headingTitle}>
-            {`Hi ${userState.name}! Welcome to ${classroomInfo.classTitle}!`}
+            {`Hi ${userState.name}! Welcome to ${classroomInfo.name}!`}
           </Text>
-          <Text style={styles.headingTitle}>
+          <Text style={styles.sectionDescription}>
+            {`Description: ${classroomInfo.description}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
             {`Code: ${code.toUpperCase()}`}
+          </Text>
+          <Button
+            style={styles.textInput}
+            title="Copy Code"
+            onPress={copyToClipboard}
+          />
+          <Text style={styles.sectionDescription}>
+            {`Type: ${classroomInfo.type}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
+            {`Terms: ${classroomInfo.term}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
+            {`Year: ${classroomInfo.year}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
+            {`Meet Days: ${classroomInfo.meetDays}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
+            {`Length: ${classroomInfo.classLength}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
+            {`Start: ${classroomInfo.startDate}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
+            {`End: ${classroomInfo.endDate}`}
           </Text>
           {/*
           <Button title="Make a Post!" onPress={() => navigation.navigate('Make a New Post')} />

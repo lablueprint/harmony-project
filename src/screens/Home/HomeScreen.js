@@ -6,7 +6,7 @@ import {
   StyleSheet, View, Text, Alert, TextInput,
 } from 'react-native';
 import { Button } from 'react-native-elements';
-import Firestore, { firebase } from '@react-native-firebase/firestore';
+import Firestore from '@react-native-firebase/firestore';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import UploadFile from '../../components/UploadFile';
@@ -24,36 +24,13 @@ const styles = StyleSheet.create({
   },
 });
 
+// navigation MUST INCLUDE: uid
 export default function HomeScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
   const [uid, setUid] = useState(navigation.getParam('uid', null));
-  const ref = Firestore().collection('users');
   const [code, setCode] = useState('');
-
-  async function getUserData() {
-    try {
-      const doc = await ref.doc(uid).get();
-      const data = doc.data();
-      // Handler for case with nonexistent user entries in Firestore
-      setUserState(data);
-      if (initializing) setInitializing(false);
-    } catch (e) {
-      setInitializing(false);
-      Alert.alert(
-        e.message,
-      );
-    }
-  }
-
-  useEffect(() => {
-    getUserData();
-  }, [userState]);
-
-  function onAuthStateChanged(authUser) {
-    setUser(authUser);
-  }
 
   // input code, join
   async function joinClassroom() {
@@ -65,29 +42,67 @@ export default function HomeScreen({ navigation }) {
         'Please input a valid code!',
       );
     } else {
-      // currently updates every time you join a classroom
-      // in the future this would update only once: immediately upon signup
-      classRef.doc(code.toLowerCase()).update({
-        students: firebase.firestore.FieldValue.arrayUnion(uid),
-      });
-      ref.doc(uid).update({
-        classroomIds: firebase.firestore.FieldValue.arrayUnion(code.toLowerCase()),
-      });
+      // if user is a student or teacher, add their id to the classroom
+      if (userState.role === 'STUDENT') {
+        classRef.doc(code.toLowerCase()).update({
+          studentIDs: Firestore.FieldValue.arrayUnion(user.uid),
+        });
+      }
+      if (userState.role === 'TEACHER') {
+        classRef.doc(code.toLowerCase()).update({
+          teacherIDs: Firestore.FieldValue.arrayUnion(user.uid),
+        });
+      }
       navigation.navigate('Classroom', { code, classroomInfo, uid });
     }
   }
 
+  function onAuthStateChanged(authUser) {
+    setUser(authUser);
+    if (initializing) setInitializing(false);
+  }
+
+  // check signin on mount
   useEffect(() => {
     const subscriber = Auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; // unsubscribe on unmount
   }, []);
 
+  // if signed in, set uid
   useEffect(() => {
     if (user && !uid) setUid(user.uid);
   }, [user]);
 
+  useEffect(() => {
+    // if the user is signed in, then fetch its data
+    if (uid) {
+      Firestore().collection('users')
+        .doc(uid)
+        .get()
+        .then((document) => {
+          if (document.exists) {
+            return document.data();
+          }
+          return null;
+        })
+        .then((data) => {
+          setUserState(data);
+        })
+        .catch((e) => {
+          Alert.alert(e.message);
+        });
+      // force teacher to create classroom on login
+      /* if (userState && userState.role && userState.role === 'TEACHER'
+      && userState.classroomIds.length === 0) {
+        navigation.navigate('CreateClassroom', { uid });
+      } */
+    }
+  }, [uid]);
+
+  // if loading user data, return null
   if (initializing) return null;
 
+  // if not logged in, unmount and go to signin page
   if (!user) {
     return navigation.navigate('SignIn');
   }
@@ -154,36 +169,34 @@ export default function HomeScreen({ navigation }) {
           }}
         />
       </View>
+      <View style={styles.subContainer}>
+        <TextInput
+          placeholder="ABCDEF"
+          fontSize={20}
+          maxLength={6}
+          onChangeText={setCode}
+          value={code}
+        />
+        <Button
+          style={styles.textInput}
+          title="Join Classroom"
+          onPress={() => {
+            joinClassroom();
+          }}
+        />
+      </View>
       {userState && userState.role === 'TEACHER'
-        ? (
-          <View style={styles.subContainer}>
-            <Button
-              style={styles.textInput}
-              title="Create Classroom"
-              onPress={() => {
-                navigation.navigate('CreateClassroom', { uid });
-                // for now a separate page using this button
-              }}
-            />
-          </View>
-        )
-        : (
-          <View style={styles.subContainer}>
-            <TextInput
-              placeholder="ABCDEF"
-              fontSize={20}
-              maxLength={6}
-              onChangeText={setCode}
-              value={code}
-            />
-            <Button
-              style={styles.textInput}
-              title="Join Classroom"
-              onPress={() => {
-                joinClassroom();
-              }}
-            />
-          </View>
+        && (
+        <View style={styles.subContainer}>
+          <Button
+            style={styles.textInput}
+            title="Create Classroom"
+            onPress={() => {
+              navigation.navigate('CreateClassroom', { uid });
+              // for now a separate page using this button
+            }}
+          />
+        </View>
         )}
     </View>
   );

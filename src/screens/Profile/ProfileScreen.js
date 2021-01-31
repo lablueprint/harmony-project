@@ -1,12 +1,11 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Alert, Picker,
+  StyleSheet, View, Alert,
 } from 'react-native';
 import { Button, Text } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
-import { INITIAL_USER_STATE, roles } from '../../components';
+import { INITIAL_USER_STATE } from '../../components';
 
 const styles = StyleSheet.create({
   container: {
@@ -42,13 +41,12 @@ const styles = StyleSheet.create({
   },
 });
 
+// navigation MUST INCLUDE: uid
 export default function ProfileScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
   const uid = navigation.getParam('uid', null);
   const ref = Firestore().collection('users');
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
-
-  const [showLoading, setShowLoading] = useState(false);
 
   async function getUserData() {
     try {
@@ -77,7 +75,7 @@ export default function ProfileScreen({ navigation }) {
 
   useEffect(() => {
     getUserData();
-  }, []);
+  });
 
   // const submitProfile = async () => {
   //   setShowLoading(true);
@@ -181,12 +179,6 @@ export default function ProfileScreen({ navigation }) {
             }}
           />
         </View>
-        {showLoading
-          && (
-          <View style={styles.activity}>
-            <ActivityIndicator size="large" color="#0000ff" />
-          </View>
-          )}
       </View>
     </View>
   );
