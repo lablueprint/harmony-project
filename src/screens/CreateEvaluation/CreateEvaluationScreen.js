@@ -73,5 +73,8 @@ CreateEvaluationScreen.navigationOptions = ({ navigation }) => ({
 });
 
 CreateEvaluationScreen.propTypes = {
-  navigation: PropTypes.elementType.isRequired,
+  navigation: PropTypes.shape({
+    getParam: PropTypes.func.isRequired,
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
 };

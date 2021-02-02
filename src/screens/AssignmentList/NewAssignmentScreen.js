@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View, Button, Text, ActivityIndicator, StyleSheet,
+  View, Button, Text, ActivityIndicator, StyleSheet, Alert,
 } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
@@ -29,6 +29,30 @@ export default function NewAssignmentScreen({ navigation }) {
   const [date, setDueDate] = useState('');
   const mainScreenLoadStatus = navigation.getParam('currentLoad');
   const reloadMainScreen = navigation.getParam('setLoad');
+  const [classroom, setClassroomID] = useState('');
+
+  const [initializing, setInitializing] = useState(true);
+  const uid = navigation.getParam('uid', null);
+
+  const ref = Firestore().collection('users');
+
+  useEffect(() => {
+    console.log('ONE');
+    try {
+      ref.doc(uid).get().then((doc) => {
+        const data = doc.data();
+        setClassroomID(data.classroomIds[0]);
+      });
+      if (initializing) setInitializing(false);
+    } catch (e) {
+      setInitializing(false);
+      Alert.alert(
+        e.message,
+      );
+    }
+  }, []);
+
+  if (initializing) return null;
 
   const handleSubmit = () => {
     setLoading(true);
@@ -40,7 +64,7 @@ export default function NewAssignmentScreen({ navigation }) {
       attachments: attachment,
       createdAt: Firestore.Timestamp.now(),
       updatedAt: Firestore.Timestamp.now(),
-      classroomID: null,
+      classroomID: classroom,
       hasBeenGraded: false,
       dueDate: date.dateString,
       author: Firebase.auth().currentUser.uid,
@@ -50,7 +74,7 @@ export default function NewAssignmentScreen({ navigation }) {
       .add(assignmentRecord)
       .then(() => {
         setLoading(false);
-        navigation.navigate('AssignmentList');
+        navigation.navigate('AssignmentList', { uid });
       })
       .catch((error) => {
         setErrorMessage(error.message);

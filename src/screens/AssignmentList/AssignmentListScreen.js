@@ -1,7 +1,7 @@
 import { ScrollView } from 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import {
-  Text, View, StyleSheet, Button, Alert,
+  Text, View, StyleSheet, Button,
 } from 'react-native';
 
 import Firestore from '@react-native-firebase/firestore';
@@ -15,8 +15,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+    padding: 10,
+
   },
   sectionTitle: {
     fontSize: 24,
@@ -31,39 +31,50 @@ const styles = StyleSheet.create({
   highlight: {
     fontWeight: '700',
   },
+  buttons:
+  {
+    color: 'blue',
+    paddingLeft: 35,
+    fontSize: 15,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+
+  },
 });
 
 export default function AssignmentListScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [postsList, setPostsList] = useState([]);
-  const [isTeacher, setRole] = useState(false);
-  const [initializing, setInitializing] = useState(true);
+  // const [initializing, setInitializing] = useState(true);
   const [loadingNewComment, setLoadingNewComment] = useState(false);
   const [loadingNewPost, setLoadingNewPost] = useState(false);
+  const [isTeacher, setRole] = useState(false);
+  const [finished1, setFinished1] = useState(false);
 
   const uid = navigation.getParam('uid', null);
-  const ref = Firestore().collection('users');
-
-  async function getUserData() {
-    try {
-      ref.doc(uid).get().then((doc) => {
-        const data = doc.data();
-        if (data.role === 'TEACHER') {
-          setRole(true);
-        }
-      });
-
-      if (initializing) setInitializing(false);
-    } catch (e) {
-      setInitializing(false);
-      Alert.alert(
-        e.message,
-      );
+  useEffect(() => {
+    async function getUserData() {
+      Firestore().collection('users').doc(uid).get()
+        .then((doc) => {
+          const data = doc.data();
+          if (data.role === 'TEACHER') {
+            setRole(true);
+          }
+        })
+        .then(() => {
+          setFinished1(true);
+        });
     }
-  }
+    getUserData();
+  }, []);
 
   useEffect(() => {
-    getUserData();
+    if (!finished1) {
+      return;
+    }
+    console.log('ONE');
     Firestore().collection('assignments')
       .orderBy('createdAt', 'desc')
       .limit(5)
@@ -73,7 +84,7 @@ export default function AssignmentListScreen({ navigation }) {
         setPostsList(posts.map((assignment) => {
           const date = assignment.createdAt.toDate();
           return (
-            <View style={styles.container} key={assignment.id}>
+            <View style={styles.sectionContainer} key={assignment.id}>
               <Post
                 key={assignment.id}
                 name={assignment.username}
@@ -85,13 +96,30 @@ export default function AssignmentListScreen({ navigation }) {
               >
                 {assignment.body}
               </Post>
-              <Button
-                styles={styles.container}
-                title="Comment on Assignment"
-                onPress={() => {
-                  navigation.navigate('NewComment', { id: assignment.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
-                }}
-              />
+              <View style={styles.buttonsContainer}>
+                <Text
+                  style={styles.buttons}
+                  onPress={() => {
+                    navigation.navigate('NewComment', { id: assignment.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
+                  }}
+                >
+                  Comment on Assignment
+                </Text>
+                {isTeacher
+                && (
+                <Text
+                  style={styles.buttons}
+                  onPress={() => {
+                    navigation.navigate('Submissions', {
+                      assignment: assignment.id,
+                      classroom: assignment.classroomID,
+                    });
+                  }}
+                >
+                  View Submissions
+                </Text>
+                )}
+              </View>
             </View>
           );
         }));
@@ -99,20 +127,19 @@ export default function AssignmentListScreen({ navigation }) {
       .catch((error) => {
         setErrorMessage(error.message);
       });
-  }, [loadingNewPost]);
+  }, [navigation, loadingNewComment, finished1]);
 
-  if (initializing) return null;
+  // if (initializing) return null;
 
   return (
-    <View style={styles.container}>
+    <View>
       <ScrollView>
-        <Text style={styles.welcomeMessage}>Assignments List</Text>
         {isTeacher
         && (
         <Button
           title="Create An Assignment"
           onPress={() => {
-            navigation.navigate('NewAssignment', { setLoad: setLoadingNewPost, currentLoad: loadingNewPost });
+            navigation.navigate('NewAssignment', { setLoad: setLoadingNewPost, currentLoad: loadingNewPost, uid });
           }}
         />
         )}
