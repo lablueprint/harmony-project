@@ -1,12 +1,15 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 // import { NavigationContainer } from '@react-navigation/native';
 // import { createStackNavigator } from '@react-navigation/stack';
 import {
-  Text, View, SafeAreaView, ScrollView, StyleSheet, Button, TextInput,
+  Text, View, SafeAreaView, ScrollView, StyleSheet, Alert, Button, /*  TextInput, */
 } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import PropTypes from 'prop-types';
-import Post from './Post';
+import Firestore from '@react-native-firebase/firestore';
+// import Post from './Post';
+import { INITIAL_USER_STATE } from '../../components';
 
 const styles = StyleSheet.create({
 
@@ -33,39 +36,86 @@ const styles = StyleSheet.create({
   },
 });
 
-/* const post1 = {
-  author: 'Timmy Turner',
-  text: "I wish that my code doesn't break I really want some pie
-  right now I wonder how people are gopnna see what im typing pls
-  bro just i want to eat i rlly want food bro pls",
-  time: '10:16 PM',
-};
+// navigation MUST INCLUDE: code, classroomInfo, uid
+export default function ClassroomHome({ navigation }) {
+  const uid = navigation.getParam('uid', null);
+  const classroomInfo = navigation.getParam('classroomInfo', null);
+  const code = navigation.getParam('code', null);
+  const [userState, setUserState] = useState(INITIAL_USER_STATE);
 
-const cl = {
-  classroom: {
-    title: 'CL1',
-    posts: [post1],
-  },
-}; */
+  useEffect(() => {
+    // fetch user data
+    Firestore().collection('users')
+      .doc(uid)
+      .get()
+      .then((document) => {
+        if (document.exists) {
+          return document.data();
+        }
+        return null;
+      })
+      .then((data) => {
+        setUserState(data);
+      })
+      .catch((e) => {
+        Alert.alert(e.message);
+      });
+  });
 
-// eslint-disable-next-line no-unused-vars
-function ClassroomHome({ navigation }) {
+  // copies code to clipboard
+  const copyToClipboard = () => {
+    Clipboard.setString(code);
+  };
+
   return (
     <SafeAreaView>
       <ScrollView>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Text style={styles.headingTitle}>
-            Welcome to Classroom One!
+            {`Hi ${userState.name}! Welcome to ${classroomInfo.name}!`}
           </Text>
+          <Text style={styles.sectionDescription}>
+            {`Description: ${classroomInfo.description}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
+            {`Code: ${code.toUpperCase()}`}
+          </Text>
+          <Button
+            style={styles.textInput}
+            title="Copy Code"
+            onPress={copyToClipboard}
+          />
+          <Text style={styles.sectionDescription}>
+            {`Type: ${classroomInfo.type}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
+            {`Terms: ${classroomInfo.term}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
+            {`Year: ${classroomInfo.year}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
+            {`Meet Days: ${classroomInfo.meetDays}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
+            {`Length: ${classroomInfo.classLength}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
+            {`Start: ${classroomInfo.startDate}`}
+          </Text>
+          <Text style={styles.sectionDescription}>
+            {`End: ${classroomInfo.endDate}`}
+          </Text>
+          {/*
           <Button title="Make a Post!" onPress={() => navigation.navigate('Make a New Post')} />
+          */}
         </View>
-        <Post title="Idk What's Going on In Any Class" author="Cody Do" text="pls help me, I have 3 midterms next week" />
-        <Post title="Will pay someone to take my midterm" author="Cody Do" text="i don't have much but i have lots of love to give c: will pay in hugs" />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+/*
 // eslint-disable-next-line no-unused-vars
 function MakePost() {
   return (
@@ -90,6 +140,7 @@ function MakePost() {
     </View>
   );
 }
+*/
 
 ClassroomHome.propTypes = {
   navigation: PropTypes.shape({
