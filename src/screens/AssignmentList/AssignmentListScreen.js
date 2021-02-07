@@ -146,7 +146,7 @@ export default function AssignmentListScreen({ navigation }) {
       .catch((error) => {
         setErrorMessage(error.message);
       });
-  }, []);
+  });
 
   return (
     <View style={styles.container}>
