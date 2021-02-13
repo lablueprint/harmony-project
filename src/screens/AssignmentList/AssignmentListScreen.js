@@ -15,7 +15,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   sectionContainer: {
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingBottom: 10,
 
   },
   sectionTitle: {
@@ -97,6 +98,8 @@ export default function AssignmentListScreen({ navigation }) {
                 {assignment.body}
               </Post>
               <View style={styles.buttonsContainer}>
+                {!isTeacher
+                && (
                 <Text
                   style={styles.buttons}
                   onPress={() => {
@@ -105,19 +108,31 @@ export default function AssignmentListScreen({ navigation }) {
                 >
                   Comment on Assignment
                 </Text>
+                // KENDRICK BUTTON HERE
+                )}
                 {isTeacher
                 && (
-                <Text
-                  style={styles.buttons}
-                  onPress={() => {
-                    navigation.navigate('Submissions', {
-                      assignment: assignment.id,
-                      classroom: assignment.classroomID,
-                    });
-                  }}
-                >
-                  View Submissions
-                </Text>
+                  <>
+                    <Text
+                      style={styles.buttons}
+                      onPress={() => {
+                        navigation.navigate('NewComment', { id: assignment.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
+                      }}
+                    >
+                      Comment on Assignment
+                    </Text>
+                    <Text
+                      style={styles.buttons}
+                      onPress={() => {
+                        navigation.navigate('Submissions', {
+                          assignment: assignment.id,
+                          classroom: assignment.classroomID,
+                        });
+                      }}
+                    >
+                      View Submissions
+                    </Text>
+                  </>
                 )}
               </View>
             </View>

@@ -262,7 +262,7 @@ export default function SubmissionsList({ navigation }) {
         <List.Section>
           <List.Accordion
             title="Students Missing Assignments"
-            left={() => <List.Icon icon="folder" />}
+            left={() => <List.Icon icon="alert-circle" />}
             expanded={expanded}
             onPress={handlePress}
           >
@@ -270,7 +270,7 @@ export default function SubmissionsList({ navigation }) {
           </List.Accordion>
           <List.Accordion
             title="Students To Evaluate"
-            left={() => <List.Icon icon="folder" />}
+            left={() => <List.Icon icon="clipboard-check-multiple-outline" />}
             expanded={expanded1}
             onPress={handlePress1}
           >
@@ -278,7 +278,7 @@ export default function SubmissionsList({ navigation }) {
           </List.Accordion>
           <List.Accordion
             title="Students Evaluated"
-            left={() => <List.Icon icon="folder" />}
+            left={() => <List.Icon icon="clipboard-check-multiple" />}
             expanded={expanded2}
             onPress={handlePress2}
           >
