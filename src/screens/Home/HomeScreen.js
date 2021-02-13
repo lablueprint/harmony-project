@@ -165,7 +165,7 @@ export default function HomeScreen({ navigation }) {
           style={styles.textInput}
           title="Assignment List"
           onPress={() => {
-            navigation.navigate('AssignmentList');
+            navigation.navigate('AssignmentList', { uid });
           }}
         />
       </View>
