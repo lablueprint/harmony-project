@@ -12,6 +12,7 @@ import AnnouncementsScreen from '../screens/Announcements';
 import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
 import NewAssignmentScreen from '../screens/AssignmentList/NewAssignmentScreen';
 import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
+import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
 
 const AppNavigation = createStackNavigator(
   {
@@ -30,6 +31,8 @@ const AppNavigation = createStackNavigator(
     GenericFormDemo: GenericFormDemoScreen,
     Announcements: AnnouncementsScreen,
     AssignmentList: AssignmentListScreen,
+    CreateClassroom: CreateClassroomScreen,
+    Classroom: ClassroomHome,
   },
   {
     initialRouteName: 'Home',
