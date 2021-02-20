@@ -1,3 +1,4 @@
-import Classroom from './Classroom';
+import ClassroomHome from './ClassroomHome';
+import CreateClassroomScreen from './CreateClassroomScreen';
 
-export default Classroom;
+export { ClassroomHome, CreateClassroomScreen };

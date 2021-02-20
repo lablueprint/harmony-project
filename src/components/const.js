@@ -11,10 +11,28 @@ const roles = {
 
 const terms = {
   fall: 'FALL',
+  winter: 'WINTER',
   spring: 'SPRING',
   summer: 'SUMMER',
-  winter: 'WINTER',
   default: 'FALL',
+};
+
+const classTypes = {
+  group: 'group',
+  ensemble: 'ensemble',
+  musicianship: 'musicianship',
+  mentorship: 'mentorship',
+  private_lessons: 'private lessons',
+  default: 'group',
+};
+
+const classDays = {
+  monday: 'MONDAY',
+  tuesday: 'TUESDAY',
+  wednesday: 'WEDNESDAY',
+  thursday: 'THURSDAY',
+  friday: 'FRIDAY',
+  default: 'MONDAY',
 };
 
 //////////////////////////////////////////////////////
@@ -22,19 +40,25 @@ const terms = {
 //////// INITIAL STATE OF FIRESTORE SCHEMAS /////////
 
 const INITIAL_USER_STATE = {
-  address: '',
-  associatedId: [],
-  classroomIds: [],
-  createdAt: '',
   email: '',
   name: '',
   role: roles.default,
+  createdAt: '',
   updatedAt: '',
+  address: '',
 };
 
 const INITIAL_CLASSROOM_STATE = {
-  year: '',
-  term: terms.default,
+  teacherIDs: [],
+  studentIDs: [],
+  name: '',
+  type: classTypes.default,
+  term: [],
+  year: 2021,
+  meetDays: [],
+  classLength: 0,
+  startDate: '',
+  endDate: '',
   description: '',
   createdAt: '',
 };
@@ -53,7 +77,9 @@ const INITIAL_CHAT_STATE = {
 };
 //////////////////////////////////////////////////////
 
-export { roles, terms };
+export {
+  roles, terms, classTypes, classDays,
+};
 export {
   INITIAL_USER_STATE, INITIAL_CLASSROOM_STATE, INITIAL_MESSAGE_STATE, INITIAL_CHAT_STATE,
 };

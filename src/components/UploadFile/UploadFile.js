@@ -12,6 +12,7 @@ import UploadFileToFirebase from '../../utils/FileManipulation';
 // TODO: Move this to somewhere else
 // Added to prevent Base64 data from being added to media files
 // Greatly increases uploading speed
+
 const imagePickerOptions = {
   mediaType: 'mixed',
   noData: true,
@@ -19,9 +20,10 @@ const imagePickerOptions = {
 
 const UploadFile = (props) => {
   const {
-    docId, collection,
+    setAttachment, postId, collection,
   } = props;
 
+  /* Creating New Function to create new submissions */
   const getFileLocalPath = (imagePickerResponse) => {
     const { path, uri } = imagePickerResponse;
     return Platform.OS === 'android' ? path : uri;
@@ -34,7 +36,8 @@ const UploadFile = (props) => {
           break;
         case 'success':
           snapshot.ref.getDownloadURL().then((downloadURL) => {
-            Alert.alert(`Upload succeeded! ${downloadURL}`);
+            setAttachment(downloadURL);
+            // Alert.alert(`Upload succeeded! ${downloadURL}`);
           });
           break;
         default:
@@ -54,7 +57,7 @@ const UploadFile = (props) => {
       } else {
         const localPath = getFileLocalPath(imagePickerResponse);
 
-        const uploadTask = UploadFileToFirebase(collection, docId, localPath);
+        const uploadTask = UploadFileToFirebase(collection, postId, localPath);
         monitorUpload(uploadTask);
       }
     });
@@ -71,10 +74,11 @@ const UploadFile = (props) => {
 };
 
 // props:
-// - docId: String, Required - Id of document to add as a record of upload (in Firestore)
+// - postId: String, Required - Id of document to add as a record of upload (in Firestore)
 // - collection: String, Optional - Collection to add to as a record of the upload
 UploadFile.propTypes = {
-  docId: PropTypes.string.isRequired,
+  setAttachment: PropTypes.string.isRequired,
+  postId: PropTypes.string.isRequired,
   collection: PropTypes.string.isRequired,
 };
 
