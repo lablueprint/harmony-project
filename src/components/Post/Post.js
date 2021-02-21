@@ -16,6 +16,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#ffffff',
     borderRadius: 10,
+    width: '90%',
   },
   contentContainer: {
     paddingTop: 20,
@@ -467,7 +468,7 @@ Post.propTypes = {
   createdAt: PropTypes.string,
   date: PropTypes.string, // date object ?
   body: PropTypes.string.isRequired,
-  attachment: PropTypes.string.isRequired,
+  attachment: PropTypes.string,
   id: PropTypes.string,
   loadingNewComment: PropTypes.bool,
 };
@@ -476,6 +477,7 @@ Post.defaultProps = {
   createdAt: '',
   date: '',
   id: '',
+  attachment: '',
   loadingNewComment: false,
 };
 

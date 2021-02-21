@@ -61,7 +61,7 @@ export default function TimestampedFeedbackList({
       </TouchableWithoutFeedback>
       <Post
         title={evaluationsListItem.title}
-        body={evaluationsListItem.comment}
+        body={evaluationsListItem.body}
         style={styles.comment}
       />
     </View>
