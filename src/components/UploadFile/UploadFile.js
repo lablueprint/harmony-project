@@ -77,9 +77,9 @@ const UploadFile = (props) => {
 // - postId: String, Required - Id of document to add as a record of upload (in Firestore)
 // - collection: String, Optional - Collection to add to as a record of the upload
 UploadFile.propTypes = {
-  setAttachment: PropTypes.string.isRequired,
-  postId: PropTypes.string.isRequired,
-  collection: PropTypes.string.isRequired,
+  // setAttachment: PropTypes.string.isRequired,
+  // postId: PropTypes.string.isRequired,
+  // collection: PropTypes.string.isRequired,
 };
 
 /*
