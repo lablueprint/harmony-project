@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import {
-  INITIAL_CLASSROOM_STATE, classTypes, terms, classDays,
+  INITIAL_CLASSROOM_STATE, classTypes, classDays,
 } from '../../components';
 // import Post from './Post';
 
@@ -54,12 +54,6 @@ export default function CreateClassroomScreen({ navigation }) {
   const [className, setName] = useState(''); // state var to hold class name
   const [classDesc, setDesc] = useState(''); // state var to hold class description
   const [classType, setType] = useState(classTypes.default); // state var to hold class type
-  const [termToggle, setTerm] = useState({
-    fall: false,
-    spring: false,
-    summer: false,
-    winter: false,
-  }); // state var keeping track of term checkboxes
   const [dayToggle, setDays] = useState({
     mon: false,
     tues: false,
@@ -106,9 +100,6 @@ export default function CreateClassroomScreen({ navigation }) {
     if (className.length === 0) {
       // class name empty
       Alert.alert('Please input a class name.');
-    } else if (!termToggle.fall && !termToggle.winter && !termToggle.spring && !termToggle.summer) {
-      // terms empty
-      Alert.alert('Please select a term(s).');
     } else if (!dayToggle.mon && !dayToggle.tues && !dayToggle.wed
             && !dayToggle.thurs && !dayToggle.fri) {
       // meet days empty
@@ -127,12 +118,6 @@ export default function CreateClassroomScreen({ navigation }) {
       Alert.alert('Please make sure the end date is after the start date.');
     } else {
       const code = await makeid(6); // generate unique code
-      const classTerms = [];
-      // 4 if statements instead of forEach to ensure proper ordering
-      if (termToggle.fall) classTerms.push(terms.fall);
-      if (termToggle.winter) classTerms.push(terms.winter);
-      if (termToggle.spring) classTerms.push(terms.spring);
-      if (termToggle.summer) classTerms.push(terms.summer);
 
       const days = [];
       // 5 if statements instead of forEach to ensure proper ordering
@@ -148,7 +133,6 @@ export default function CreateClassroomScreen({ navigation }) {
         teacherIDs: [uid],
         name: className,
         type: classType,
-        term: classTerms,
         meetDays: days,
         startDate: classStart,
         endDate: classEnd,
@@ -207,73 +191,6 @@ export default function CreateClassroomScreen({ navigation }) {
             <Picker.Item label="Mentorship" value={classTypes.mentorship} />
             <Picker.Item label="Private Lessons" value={classTypes.private_lessons} />
           </Picker>
-        </View>
-        <View style={styles.subContainer}>
-          <Text>Terms:</Text>
-          <View style={styles.checklist}>
-            <CheckBox
-              value={termToggle.fall}
-              onValueChange={(value) => {
-                setTerm({ ...termToggle, fall: value });
-              }}
-            />
-            <TouchableHighlight
-              onPress={() => {
-                setTerm({ ...termToggle, fall: !termToggle.fall });
-              }}
-              underlayColor="#E1E1E1"
-            >
-              <Text>FALL</Text>
-            </TouchableHighlight>
-          </View>
-          <View style={styles.checklist}>
-            <CheckBox
-              value={termToggle.winter}
-              onValueChange={(value) => {
-                setTerm({ ...termToggle, winter: value });
-              }}
-            />
-            <TouchableHighlight
-              onPress={() => {
-                setTerm({ ...termToggle, winter: !termToggle.winter });
-              }}
-              underlayColor="#E1E1E1"
-            >
-              <Text>WINTER</Text>
-            </TouchableHighlight>
-          </View>
-          <View style={styles.checklist}>
-            <CheckBox
-              value={termToggle.spring}
-              onValueChange={(value) => {
-                setTerm({ ...termToggle, spring: value });
-              }}
-            />
-            <TouchableHighlight
-              onPress={() => {
-                setTerm({ ...termToggle, spring: !termToggle.spring });
-              }}
-              underlayColor="#E1E1E1"
-            >
-              <Text>SPRING</Text>
-            </TouchableHighlight>
-          </View>
-          <View style={styles.checklist}>
-            <CheckBox
-              value={termToggle.summer}
-              onValueChange={(value) => {
-                setTerm({ ...termToggle, summer: value });
-              }}
-            />
-            <TouchableHighlight
-              onPress={() => {
-                setTerm({ ...termToggle, summer: !termToggle.summer });
-              }}
-              underlayColor="#E1E1E1"
-            >
-              <Text>SUMMER</Text>
-            </TouchableHighlight>
-          </View>
         </View>
         <View style={styles.subContainer}>
           <Text>Meet days:</Text>

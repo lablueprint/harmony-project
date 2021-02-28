@@ -65,8 +65,8 @@ export default function SignUpScreen({ navigation }) {
         const { user } = doSignUp;
         setShowLoading(false);
         if (user) {
-          // check if classroom exists before signing up student/parent
-          if (userState.role === 'PARENT' || userState.role === 'STUDENT') {
+          // check if classroom exists before signing up student
+          if (userState.role === 'STUDENT') {
             classRef.doc(code.toLowerCase()).get()
               .then((document) => {
                 if (document.exists) {
@@ -79,7 +79,7 @@ export default function SignUpScreen({ navigation }) {
                   // if user is a student, add their id to the classroom
                   if (userState.role === 'STUDENT') {
                     classRef.doc(code.toLowerCase()).update({
-                      students: Firestore.FieldValue.arrayUnion(user.uid),
+                      studentIDs: Firestore.FieldValue.arrayUnion(user.uid),
                     });
                   }
                   Firestore().collection('users').doc(user.uid).set({
@@ -106,7 +106,7 @@ export default function SignUpScreen({ navigation }) {
               updatedAt: Firestore.FieldValue.serverTimestamp(),
             });
             // sign in and navigate to home screen upon signup
-            navigation.navigate('Home', { uid: user.uid });
+            navigation.navigate('Landing', { uid: user.uid });
           }
         }
       } catch (e) {
@@ -146,7 +146,6 @@ export default function SignUpScreen({ navigation }) {
             }}
           >
             <Picker.Item label="Student" value={roles.student} />
-            <Picker.Item label="Parent" value={roles.parent} />
             <Picker.Item label="Teacher" value={roles.teacher} />
           </Picker>
         </View>
@@ -172,8 +171,8 @@ export default function SignUpScreen({ navigation }) {
             onChangeText={setPassword}
           />
         </View>
-        {(userState.role === 'PARENT' || userState.role === 'STUDENT')
-        // show join code textinput only when user is signing up as a student or parent
+        {userState.role === 'STUDENT'
+        // show join code textinput only when user is signing up as a student
         && (
           <View style={styles.subContainer}>
             <Text style={{ fontSize: 20, height: 40 }}>Classroom code:</Text>

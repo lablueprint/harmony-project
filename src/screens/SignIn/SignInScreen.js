@@ -47,9 +47,9 @@ export default function SignInScreen({ navigation }) {
     try {
       const doSignIn = await Auth().signInWithEmailAndPassword(email, password);
       setShowLoading(false);
-      // if valid signin, navigate to home
+      // if valid signin, navigate to landing
       if (doSignIn.user) {
-        navigation.navigate('Home', { uid: doSignIn.user.uid });
+        navigation.navigate('Landing', { uid: doSignIn.user.uid });
       }
     } catch (e) {
       setShowLoading(false);
