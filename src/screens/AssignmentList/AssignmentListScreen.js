@@ -33,19 +33,30 @@ const styles = StyleSheet.create({
   },
 });
 
+// const screenHandler = ((postID, updatedValue) => {
+//   console.log(postID);
+//   Firestore().collection('assignments').doc(postID).update({
+//     doPin: updatedValue,
+//   })
+//     .then(() => {
+//       console.log(`Successfully updated doPin to ${updatedValue}`);
+//     })
+//     .catch((error) => {
+//       console.log('Error updating doPin: ', error);
+//     });
+// });
+
 export default function AssignmentListScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
-  const [postsList, setPostsList] = useState([]);
+  const [assignmentsList, setAssignmentsList] = useState([]);
+  const [rerender, setRerender] = useState(false);
   const uid = navigation.getParam('uid', null);
 
-  const createSubmission = ((userID, postID, body, attachment) => {
-    // TODO: see if doc already exists. If it does, update the body, attachment, and updatedAt
-    console.log(userID);
-    Firestore().collection('submissions').where('authorID', '==', userID).where('assignmentID', '==', postID)
+  const createSubmission = ((userID, assignmentID, body, attachment) => {
+    Firestore().collection('submissions').where('authorID', '==', userID).where('assignmentID', '==', assignmentID)
       .get()
       .then((querySnapshot) => {
         if (querySnapshot.size > 0) { // update if submission exists
-          // querySnapshot.forEach((doc) => console.log(doc));
           const docID = querySnapshot.docs[0].id;
           Firestore().collection('submissions').doc(docID).update({
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -59,10 +70,10 @@ export default function AssignmentListScreen({ navigation }) {
               console.log('Submission update failed');
               console.log(error);
             });
-        } else { // do this to add submission if it doesn't exist
+        } else { // add submission if it doesn't exist
           Firestore().collection('submissions').add({
             authorID: userID,
-            assignmentID: postID,
+            assignmentID,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
             body,
@@ -94,34 +105,39 @@ export default function AssignmentListScreen({ navigation }) {
       })
       .then((studentClassroomIDs) => {
         // Gets all the assignments
-        Firestore().collection('assignments').limit(6)
-          .orderBy('createdAt', 'desc')
+        Firestore().collection('assignments')
+          .orderBy('doPin', 'desc')
+          .orderBy('updatedAt', 'desc')
           .get()
           .then((snapshot) => {
             // This creates an object for each document
-            const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-            setPostsList(posts.map((post) => {
-              const date = post.createdAt.toDate();
+            const assignments = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+            setAssignmentsList(assignments.map((assignment) => {
+              const date = assignment.createdAt.toDate();
               // Only returns assignments with classroomIDs in classroomIDsList
-              if (studentClassroomIDs.includes(post.classroomID)) {
+              if (studentClassroomIDs.includes(assignment.classroomID)) {
                 return (
-                  <View style={styles.container} key={post.id}>
+                  <View style={styles.container} key={assignment.id}>
                     <Post
-                      key={post.id}
-                      name={post.username}
-                      title={post.title}
+                      id={assignment.id}
+                      name={assignment.username}
+                      title={assignment.title}
                       createdAt={date.toTimeString()}
                       date={date.toDateString()}
-                      attachment={post.attachment}
-                      body={post.body}
+                      attachments={assignment.attachments}
+                      body={assignment.body}
+                      collection="assignments"
+                      pin={assignment.doPin}
+                      rerender={rerender}
+                      setRerender={setRerender}
                     >
-                      {post.body}
+                      {assignment.body}
                     </Post>
                     <Button
                       styles={styles.container}
                       title="Comment on Post"
                       onPress={() => {
-                        navigation.navigate('NewComment', { ID: post.id });
+                        navigation.navigate('NewComment', { ID: assignment.id });
                       }}
                     />
                     <Button
@@ -129,9 +145,10 @@ export default function AssignmentListScreen({ navigation }) {
                       onPress={() => {
                         navigation.navigate('NewPost', {
                           userID: uid,
-                          postID: post.id,
+                          postID: assignment.id,
                           collection: 'recordings',
-                          title: post.title,
+                          title: assignment.title,
+                          mediaType: assignment.mediaType,
                           handleSubmit: createSubmission,
                         });
                       }}
@@ -146,7 +163,7 @@ export default function AssignmentListScreen({ navigation }) {
       .catch((error) => {
         setErrorMessage(error.message);
       });
-  });
+  }, [navigation, uid, rerender]);
 
   return (
     <View style={styles.container}>
@@ -159,7 +176,7 @@ export default function AssignmentListScreen({ navigation }) {
           }}
         />
         {errorMessage && <Text>{errorMessage}</Text>}
-        {postsList}
+        {assignmentsList}
         <Button
           style={styles.textInput}
           title="View Posts"
