@@ -25,6 +25,7 @@ export default function CreateEvaluationScreen({ navigation }) {
   const [comment, onChangeComment] = useState('');
 
   const doc = navigation.getParam('doc', '');
+  // const submission = navigation.getParam('submissionID', '');
 
   return (
     <View style={styles.container}>

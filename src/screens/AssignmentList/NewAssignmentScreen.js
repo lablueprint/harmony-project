@@ -74,6 +74,7 @@ export default function NewAssignmentScreen({ navigation }) {
       .add(assignmentRecord)
       .then(() => {
         setLoading(false);
+
         navigation.navigate('AssignmentList', { uid });
       })
       .catch((error) => {

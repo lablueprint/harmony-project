@@ -1,4 +1,6 @@
 import React, { useState, useRef } from 'react';
+import PropTypes from 'prop-types';
+
 import {
   StyleSheet, View,
 } from 'react-native';
@@ -23,7 +25,7 @@ const styles = StyleSheet.create({
  * Returns an EvaluationScreen with a submission video and the teacher's timestamped
  * feedback comments
  */
-export default function EvaluationScreen() {
+export default function EvaluationScreen({ navigation }) {
   /**
    * videoPlayer - Allows TimestampedFeedbackList to access EvalVideo's seek() function
    */
@@ -49,7 +51,7 @@ export default function EvaluationScreen() {
    * docId - (In the future, this should be retrieved from navigation, etc. rather than being
    * "hardcoded") Is the document ID of an example evaluation scrren in Firestore
    */
-  const docId = 'bTzLmdl03mDOYwsZMyCP';
+  const docId = navigation.getParam('uid', null);
 
   /**
    * Uses the docId to retrieve a particular evaluation document.
@@ -91,14 +93,22 @@ export default function EvaluationScreen() {
   );
 }
 
-// eslint-disable-next-line no-unused-vars
-EvaluationScreen.navigationOptions = ({ navigation }) => ({
-  title: 'Evaluation',
-  headerShown: true, // button within the header to go back to the (homescreen)
-});
+// // eslint-disable-next-line no-unused-vars
+// EvaluationScreen.navigationOptions = ({ navigation }) => ({
+//   title: 'Evaluation',
+//   headerShown: true, // button within the header to go back to the (homescreen)
+// });
 
 /*
 EvaluationScreen.propTypes = {
   navigation: PropTypes.elementType.isRequired,
 };
 */
+
+EvaluationScreen.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+    getParam: PropTypes.func.isRequired,
+
+  }).isRequired,
+};
