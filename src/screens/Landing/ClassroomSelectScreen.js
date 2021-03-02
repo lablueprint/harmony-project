@@ -169,7 +169,7 @@ export default function ClassroomSelectScreen({ navigation }) {
   }, [user]);
 
   useEffect(() => {
-    const focusListener = navigation.addListener('didFocus', () => {
+    function fetch() {
       setLoading(true);
       setClasses([]);
       // if the user is signed in, then fetch its data and fetch classrooms
@@ -219,6 +219,11 @@ export default function ClassroomSelectScreen({ navigation }) {
           navigation.navigate('CreateClassroom', { uid });
         } */
       }
+    }
+    fetch();
+
+    const focusListener = navigation.addListener('didFocus', () => {
+      fetch();
     });
 
     return () => focusListener.remove();
