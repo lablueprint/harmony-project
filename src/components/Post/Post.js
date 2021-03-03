@@ -334,6 +334,21 @@ export default function Post({
   const [hasDeleted, setHasDeleted] = useState(false);
   const userID = Firebase.auth().currentUser.uid;
 
+  const [showMore, setShowMore] = useState(true);
+  const [buttons, setButtons] = useState(true);
+
+  const [lines, setLines] = useState(6);
+
+  // const [showMoreComments, setShowMoreComments] = useState(false);
+  // const [amount, setAmount] = useState(2);
+
+  const onTextLayout = (e) => {
+    if (e.nativeEvent.lines.length > 5) {
+      setButtons(true);
+    } else {
+      setButtons(false);
+    }
+  };
   // Runs once and never again. Checks if the current user is the author of the
   // post.
   useEffect(() => {
@@ -365,6 +380,7 @@ export default function Post({
   attachments.filter((x) => x) removes all non-empty strings.
   */
 
+
   const images = attachments.filter((x) => x).map((image) => ({ source: { uri: image } }));
   const hasImages = (images.length > 0);
 
@@ -387,9 +403,27 @@ export default function Post({
           {date}
         </Text>
         <View style={styles.contentContainer}>
-          <Text>
+          <Text numberOfLines={lines} onTextLayout={onTextLayout}>
             {body}
           </Text>
+          {showMore && buttons && (
+          <Button
+            title="Show More"
+            onPress={() => {
+              setLines(body.numberOfLines);
+              setShowMore(false);
+            }}
+          />
+          )}
+          {!showMore && buttons && (
+          <Button
+            title="Hide More"
+            onPress={() => {
+              setLines(6);
+              setShowMore(true);
+            }}
+          />
+          )}
           { (hasImages) ? (
             <Gallery
               style={{ width: '100%', height: 200, resizeMode: 'center' }}

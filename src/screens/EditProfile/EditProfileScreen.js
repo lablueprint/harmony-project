@@ -1,12 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Text, Alert, Picker,
+  StyleSheet, ActivityIndicator, View, Text, Alert,
 } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
-import { INITIAL_USER_STATE, roles } from '../../components';
+import { INITIAL_USER_STATE } from '../../components';
 
 const styles = StyleSheet.create({
   container: {
@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
   },
 });
 
+// navigation MUST INCLUDE: uid
 export default function EditProfileScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
   const uid = navigation.getParam('uid', null);
@@ -98,6 +99,9 @@ export default function EditProfileScreen({ navigation }) {
       <View style={styles.formContainer}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Text style={{ fontSize: 28, height: 50 }}>Edit Your Profile</Text>
+          <Text style={{ fontSize: 20, height: 50 }}>
+            {`You are a ${userState.role}`}
+          </Text>
         </View>
         <View style={styles.subContainer}>
           <Input
@@ -137,22 +141,6 @@ export default function EditProfileScreen({ navigation }) {
               });
             }}
           />
-        </View>
-        <View style={styles.subContainer}>
-          <Picker
-            selectedValue={userState.role}
-            style={styles.textInput}
-            onValueChange={(value) => {
-              setUserState({
-                ...userState,
-                role: value,
-              });
-            }}
-          >
-            <Picker.Item label="Student" value={roles.student} />
-            <Picker.Item label="Parent" value={roles.parent} />
-            <Picker.Item label="Teacher" value={roles.teacher} />
-          </Picker>
         </View>
         <View style={styles.subContainer}>
           <Button

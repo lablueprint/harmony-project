@@ -40,13 +40,16 @@ export default function SignInScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showLoading, setShowLoading] = useState(false);
+
+  // signin
   const signin = async () => {
     setShowLoading(true);
     try {
       const doSignIn = await Auth().signInWithEmailAndPassword(email, password);
       setShowLoading(false);
+      // if valid signin, navigate to landing
       if (doSignIn.user) {
-        navigation.navigate('Home', { uid: doSignIn.user.uid });
+        navigation.navigate('Landing', { uid: doSignIn.user.uid });
       }
     } catch (e) {
       setShowLoading(false);
