@@ -54,7 +54,7 @@ export default function EvaluationScreen() {
   /**
    * Uses the docId to retrieve a particular evaluation document.
    */
-  Firestore().collection('evaluations')
+    Firestore().collection('evaluations')
     .doc(docId)
     .get()
     .then((document) => {

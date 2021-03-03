@@ -154,7 +154,6 @@ function CommentLoader({
         }
       });
 
-
   // Don't set commentsData as dependency or it'll enter an infinite rendering cycle
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadingNewComment, postID, numCommentsLoaded, loadedLastComment, loadCounter, forceRerender]);
@@ -335,7 +334,6 @@ export default function Post({
         }
       });
   }, [id, loading, userID, numCommentsLoaded, loadedLastComment, noComments, loadingNewComment]);
-
 
   /*
   * HasDeleted will only be true if the user fully carries through with a
