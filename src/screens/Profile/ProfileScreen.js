@@ -179,6 +179,15 @@ export default function ProfileScreen({ navigation }) {
             }}
           />
         </View>
+        <View style={styles.subContainerButton}>
+          <Button
+            style={styles.textInput}
+            title="Back to Landing"
+            onPress={() => {
+              navigation.navigate('Landing');
+            }}
+          />
+        </View>
       </View>
     </View>
   );

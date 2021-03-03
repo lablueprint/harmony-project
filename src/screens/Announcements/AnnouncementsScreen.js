@@ -36,37 +36,42 @@ Announcements Screen function
 */
 export default function AnnouncementsScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
-  const [postsList, setPostsList] = useState([]);
+  const [announcementsList, setAnnouncementsList] = useState([]);
+  const [rerender, setRerender] = useState(false);
   /*
 this will only run one time when the component is mounted
 */
   useEffect(() => {
     Firestore().collection('announcements')
-      .orderBy('createdAt', 'desc')
-      .limit(1)
+      .orderBy('doPin', 'desc')
+      .orderBy('updatedAt', 'desc')
       .get()
       .then((snapshot) => {
-        const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        setPostsList(posts.map((post) => {
-          const date = post.createdAt.toDate();
+        const announcements = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        setAnnouncementsList(announcements.map((announcement) => {
+          const date = announcement.createdAt.toDate();
           return (
-            <View style={styles.container} key={post.id}>
+            <View style={styles.container} key={announcement.id}>
               <Post
-                key={post.id}
-                name={post.username}
-                title={post.title}
+                id={announcement.id}
+                name={announcement.username}
+                title={announcement.title}
                 createdAt={date.toTimeString()}
                 date={date.toDateString()}
-                attachment={post.attachment}
-                body={post.body}
+                attachments={announcement.attachments}
+                body={announcement.body}
+                collection="announcements"
+                pin={announcement.doPin}
+                rerender={rerender}
+                setRerender={setRerender}
               >
-                {post.body}
+                {announcement.body}
               </Post>
               <Button
                 styles={styles.container}
                 title="Comment on Post"
                 onPress={() => {
-                  navigation.navigate('NewComment', { ID: post.id });
+                  navigation.navigate('NewComment', { ID: announcement.id });
                 }}
               />
 
@@ -77,7 +82,7 @@ this will only run one time when the component is mounted
       .catch((error) => {
         setErrorMessage(error.message);
       });
-  }, []);
+  }, [navigation, rerender]);
 
   return (
     <View style={styles.container}>
@@ -90,7 +95,7 @@ this will only run one time when the component is mounted
           }}
         />
         {errorMessage && <Text>{errorMessage}</Text>}
-        {postsList}
+        {announcementsList}
       </ScrollView>
     </View>
   );
