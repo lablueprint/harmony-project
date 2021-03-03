@@ -46,16 +46,29 @@ const styles = StyleSheet.create({
   },
 });
 
+// const screenHandler = ((postID, updatedValue) => {
+//   console.log(postID);
+//   Firestore().collection('assignments').doc(postID).update({
+//     doPin: updatedValue,
+//   })
+//     .then(() => {
+//       console.log(`Successfully updated doPin to ${updatedValue}`);
+//     })
+//     .catch((error) => {
+//       console.log('Error updating doPin: ', error);
+//     });
+// });
+
 export default function AssignmentListScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
-  const [postsList, setPostsList] = useState([]);
-  // const [initializing, setInitializing] = useState(true);
+  const uid = navigation.getParam('uid', null);
+  const [assignmentsList, setAssignmentsList] = useState([]);
+  const [rerender, setRerender] = useState(false);
   const [loadingNewComment, setLoadingNewComment] = useState(false);
   const [loadingNewPost, setLoadingNewPost] = useState(false);
   const [isTeacher, setRole] = useState(false);
   const [finished1, setFinished1] = useState(false);
-  const uid = navigation.getParam('uid', null);
-
+  
   useEffect(() => {
     console.log('ONE');
     async function getUserData() {
@@ -304,19 +317,67 @@ export default function AssignmentListScreen({ navigation }) {
       })
       .then((studentClassroomIDs) => {
         // Gets all the assignments
-        Firestore().collection('assignments').limit(6)
-          .orderBy('createdAt', 'desc')
+        Firestore().collection('assignments')
+          .orderBy('doPin', 'desc')
+          .orderBy('updatedAt', 'desc')
           .get()
           .then((snapshot) => {
             // This creates an object for each document
+            const assignments = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+            setAssignmentsList(assignments.map((assignment) => {
+              const date = assignment.createdAt.toDate();
+              // Only returns assignments with classroomIDs in classroomIDsList
+              if (studentClassroomIDs.includes(assignment.classroomID)) {
+                return (
+                  <View style={styles.container} key={assignment.id}>
+                    <Post
+                      id={assignment.id}
+                      name={assignment.username}
+                      title={assignment.title}
+                      createdAt={date.toTimeString()}
+                      date={date.toDateString()}
+                      attachments={assignment.attachments}
+                      body={assignment.body}
+                      collection="assignments"
+                      pin={assignment.doPin}
+                      rerender={rerender}
+                      setRerender={setRerender}
+                    >
+                      {assignment.body}
+                    </Post>
+                    <Button
+                      styles={styles.container}
+                      title="Comment on Post"
+                      onPress={() => {
+                        navigation.navigate('NewComment', { ID: assignment.id });
+                      }}
+                    />
+                    <Button
+                      title="Upload Submission"
+                      onPress={() => {
+                        navigation.navigate('NewPost', {
+                          userID: uid,
+                          postID: assignment.id,
+                          collection: 'recordings',
+                          title: assignment.title,
+                          mediaType: assignment.mediaType,
+                          handleSubmit: createSubmission,
+                        });
+                      }}
+                    />
+                  </View>
+                );
+              }
+              return null;
+            }));
             const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
 
             const getPosts = async () => Promise.all(posts.map(
               async (post) => getSinglePost(post, studentClassroomIDs),
             ));
             async function setPosts() {
-              const postList = await getPosts();
-              setPostsList(postList);
+              const assignmentsList = await getPosts();
+              setAssignmentList(assignmentsList);
             }
             setPosts();
           });
@@ -324,7 +385,7 @@ export default function AssignmentListScreen({ navigation }) {
       .catch((error) => {
         setErrorMessage(error.message);
       });
-  }, [finished1, navigation, loadingNewComment]);
+  }, [finished1, navigation, loadingNewComment, uid, rerender]);
 
   return (
     <View>
@@ -339,7 +400,7 @@ export default function AssignmentListScreen({ navigation }) {
         />
         )}
         {errorMessage && <Text>{errorMessage}</Text>}
-        {postsList}
+        {assignmentsList}
         {/* <Button
           style={styles.textInput}
           title="View Posts"
