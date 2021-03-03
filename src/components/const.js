@@ -9,14 +9,6 @@ const roles = {
   default: 'STUDENT',
 };
 
-const terms = {
-  fall: 'FALL',
-  winter: 'WINTER',
-  spring: 'SPRING',
-  summer: 'SUMMER',
-  default: 'FALL',
-};
-
 const classTypes = {
   group: 'group',
   ensemble: 'ensemble',
@@ -53,12 +45,10 @@ const INITIAL_CLASSROOM_STATE = {
   studentIDs: [],
   name: '',
   type: classTypes.default,
-  term: [],
-  year: 2021,
   meetDays: [],
   classLength: 0,
-  startDate: '',
-  endDate: '',
+  startDate: '', // 'yyyy-mm-dd'
+  endDate: '', // 'yyyy-mm-dd'
   description: '',
   createdAt: '',
 };
@@ -78,7 +68,7 @@ const INITIAL_CHAT_STATE = {
 //////////////////////////////////////////////////////
 
 export {
-  roles, terms, classTypes, classDays,
+  roles, classTypes, classDays,
 };
 export {
   INITIAL_USER_STATE, INITIAL_CLASSROOM_STATE, INITIAL_MESSAGE_STATE, INITIAL_CHAT_STATE,

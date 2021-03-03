@@ -14,6 +14,7 @@ import { INITIAL_USER_STATE } from '../../components';
 const styles = StyleSheet.create({
 
   headingTitle: {
+    textAlign: 'center',
     fontSize: 28,
     fontWeight: '600',
   },
@@ -34,6 +35,10 @@ const styles = StyleSheet.create({
   highlight: {
     fontWeight: '700',
   },
+  subContainerButton: {
+    marginBottom: 15,
+    padding: 5,
+  },
 });
 
 // navigation MUST INCLUDE: code, classroomInfo, uid
@@ -44,6 +49,7 @@ export default function ClassroomHome({ navigation }) {
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
 
   useEffect(() => {
+    let mounted = true;
     // fetch user data
     Firestore().collection('users')
       .doc(uid)
@@ -55,11 +61,13 @@ export default function ClassroomHome({ navigation }) {
         return null;
       })
       .then((data) => {
-        setUserState(data);
+        if (mounted) { setUserState(data); }
       })
       .catch((e) => {
         Alert.alert(e.message);
       });
+
+    return () => { mounted = false; };
   });
 
   // copies code to clipboard
@@ -89,12 +97,6 @@ export default function ClassroomHome({ navigation }) {
             {`Type: ${classroomInfo.type}`}
           </Text>
           <Text style={styles.sectionDescription}>
-            {`Terms: ${classroomInfo.term}`}
-          </Text>
-          <Text style={styles.sectionDescription}>
-            {`Year: ${classroomInfo.year}`}
-          </Text>
-          <Text style={styles.sectionDescription}>
             {`Meet Days: ${classroomInfo.meetDays}`}
           </Text>
           <Text style={styles.sectionDescription}>
@@ -109,6 +111,15 @@ export default function ClassroomHome({ navigation }) {
           {/*
           <Button title="Make a Post!" onPress={() => navigation.navigate('Make a New Post')} />
           */}
+          <View style={styles.subContainerButton}>
+            <Button
+              style={styles.textInput}
+              title="Back to Landing"
+              onPress={() => {
+                navigation.navigate('Landing', uid);
+              }}
+            />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
