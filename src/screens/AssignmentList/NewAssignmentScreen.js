@@ -21,9 +21,9 @@ const styles = StyleSheet.create({
 });
 
 export default function NewAssignmentScreen({ navigation }) {
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [attachment, setAttachment] = useState('');
+  const [title, setTitle] = useState(navigation.getParam('title'));
+  const [body, setBody] = useState(navigation.getParam('body'));
+  const [attachment, setAttachment] = useState(navigation.getParam('attachments')[0]);
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [date, setDueDate] = useState('');
@@ -86,25 +86,37 @@ export default function NewAssignmentScreen({ navigation }) {
     <View style={styles.container}>
       {errorMessage && <Text>{errorMessage}</Text>}
       <View style={styles.tweetContainer}>
+        <Text padding={10}>
+          Title
+        </Text>
         <TextInput
           placeholder="Topic"
+          padding={10}
           fontSize={24}
           onChangeText={setTitle}
           value={title}
         />
+        <Text padding={10}>
+          Attachment
+        </Text>
         <TextInput
           placeholder="Attachment URL"
+          padding={10}
           value={attachment}
           onChangeText={(content) => setAttachment(content)}
         />
+        <Text padding={10}>
+          Description
+        </Text>
         <TextInput
           autoFocus
+          padding={10}
           placeholder="What's on your mind?"
           multiline
           value={body}
           onChangeText={(content) => setBody(content)}
         />
-        <Text>
+        <Text padding={10}>
           Choose a Due Date
         </Text>
 

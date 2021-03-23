@@ -2,12 +2,13 @@ import { ScrollView } from 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import {
   Text, View, StyleSheet, Button,
+  TouchableOpacity,
 } from 'react-native';
+import { Card } from 'react-native-elements';
 
 import Firestore from '@react-native-firebase/firestore';
 import firebase from '@react-native-firebase/app';
 import PropTypes from 'prop-types';
-import Post from '../../components/Post/Post';
 
 const styles = StyleSheet.create({
 
@@ -33,17 +34,14 @@ const styles = StyleSheet.create({
   highlight: {
     fontWeight: '700',
   },
-  buttons:
-  {
-    color: 'blue',
-    paddingLeft: 35,
-    fontSize: 10,
-  },
   buttonsContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
+    paddingLeft: 10,
+    paddingTop: 10,
 
   },
+
 });
 
 // const screenHandler = ((postID, updatedValue) => {
@@ -68,7 +66,7 @@ export default function AssignmentListScreen({ navigation }) {
   const [loadingNewPost, setLoadingNewPost] = useState(false);
   const [isTeacher, setRole] = useState(false);
   const [finished1, setFinished1] = useState(false);
-  
+
   useEffect(() => {
     console.log('ONE');
     async function getUserData() {
@@ -135,6 +133,9 @@ export default function AssignmentListScreen({ navigation }) {
 
     async function isEvaluated(userID, postID) {
       let ret = null;
+      if (isTeacher) {
+        return ret;
+      }
       await Firestore().collection('evaluations').where('studentID', '==', userID).where('assignmentID', '==', postID)
         .get()
         .then((querySnapshot) => {
@@ -147,6 +148,9 @@ export default function AssignmentListScreen({ navigation }) {
 
     async function isSubmitted(userID, postID) {
       let ret = null;
+      if (isTeacher) {
+        return ret;
+      }
       await Firestore().collection('submissions').where('authorID', '==', userID).where('assignmentID', '==', postID)
         .get()
         .then((querySnapshot) => {
@@ -157,146 +161,143 @@ export default function AssignmentListScreen({ navigation }) {
       return ret;
     }
 
-    async function getSinglePost(post, studentClassroomIDs) {
-      const date = post.createdAt.toDate();
-      const hasBeenEval = await isEvaluated(uid, post.id);
-      const hasBeenSubmitted = await isSubmitted(uid, post.id);
-      console.log(hasBeenEval);
+    async function setStudentsSeen(assignmentID, studentsSeenNew) {
+      Firestore().collection('assignments').doc(assignmentID).update({
+        studentsSeen: studentsSeenNew,
+      });
+    }
 
+    async function getStudentsCompleted(assignmentID, classroomID) {
+      const completedStudents = [];
+      let allStudents = [];
+
+      await Firestore().collection('submissions').where('assignmentID', '==', assignmentID)
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            completedStudents.push(doc.data().authorID);
+          });
+        });
+      await Firestore().collection('classrooms').doc(classroomID)
+        .get()
+        .then((doc) => { allStudents = doc.data().studentIDs; });
+      allStudents = allStudents.filter((element) => !completedStudents.includes(element));
+      return [completedStudents, allStudents];
+    }
+
+    async function getSingleAssignment(assignment, studentClassroomIDs) {
+      const hasBeenEval = await isEvaluated(uid, assignment.id);
+      const hasBeenSubmitted = await isSubmitted(uid, assignment.id);
+      let studentsSeenTemp = [];
+      await Firestore().collection('assignments').doc(assignment.id)
+        .get()
+        .then((doc) => { studentsSeenTemp = doc.data().studentsSeen; });
+
+      const studentsStatus = await getStudentsCompleted(assignment.id, assignment.classroomID);
+      const studentsCompleted = studentsStatus[0];
+      const studentsNotCompleted = studentsStatus[1];
+
+      console.log(hasBeenEval);
       console.log(hasBeenSubmitted);
 
       // Only returns assignments with classroomIDs in classroomIDsList
-      if (studentClassroomIDs.includes(post.classroomID)) {
+      if (studentClassroomIDs.includes(assignment.classroomID)) {
         return (
-          <View style={styles.container} key={post.id}>
-            <Post
-              key={post.id}
-              name={post.username}
-              title={post.title}
-              createdAt={date.toTimeString()}
-              date={date.toDateString()}
-              attachment={post.attachment}
-              body={post.body}
-              loadingNewComment={loadingNewComment}
+          <>
+            <TouchableOpacity
+              onPress={async () => {
+                if (!isTeacher && !studentsSeenTemp.includes(uid)) {
+                  studentsSeenTemp.push(uid);
+                  await setStudentsSeen(assignment.id, studentsSeenTemp);
+                  console.log('UPDATED');
+                }
+                navigation.navigate('Assignment', {
+                  assignment,
+                  isTeacher,
+                  hasBeenEval,
+                  hasBeenSubmitted,
+                  loadingNewComment,
+                  setLoadingNewComment,
+                  rerender,
+                  setRerender,
+                  uid,
+                  createSubmission,
+
+                });
+              }}
             >
-              {post.body}
-            </Post>
-            <View style={styles.buttonsContainer}>
-              {!isTeacher && !hasBeenEval && hasBeenSubmitted
-                    && (
-                      <>
-                        <Text
-                          style={styles.buttons}
-                          onPress={() => {
-                            navigation.navigate('NewComment', { id: post.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
-                          }}
-                        >
-                          Comment on Assignment
-                        </Text>
-                        <Text
-                          style={styles.buttons}
-                          onPress={() => {
-                            navigation.navigate('NewPost', {
-                              userID: uid,
-                              postID: post.id,
-                              collection: 'recordings',
-                              title: post.title,
-                              handleSubmit: createSubmission,
-                            });
-                          }}
-                        >
-                          Upload Submission
-                        </Text>
-                        {/* TODO: View submissions */}
-                        <Text
-                          style={styles.buttons}
-                          onPress={() => {
+              <Card
+                title={assignment.title}
+                titleStyle={{
+                  textAlign: 'left',
+                }}
+                containerStyle={{ padding: 20 }}
+              >
+                {isTeacher && (
+                <Text
+                  style={styles.buttonsContainer}
+                  onPress={() => {
+                    navigation.navigate('StudentNames', {
+                      students: studentsSeenTemp,
+                    });
+                  }}
+                >
+                  Seen:
+                  {' '}
+                  {studentsSeenTemp.length}
+                </Text>
+                )}
 
-                          }}
-                        >
-                          View Submission
-                        </Text>
+                {isTeacher && (
+                <Text
+                  style={styles.buttonsContainer}
+                  onPress={() => {
+                    navigation.navigate('StudentNames', {
+                      students: studentsCompleted,
+                    });
+                  }}
+                >
+                  Completed:
+                  {' '}
+                  {studentsCompleted.length}
+                </Text>
+                )}
 
-                      </>
-                    )}
-              {!isTeacher && !hasBeenEval && !hasBeenSubmitted
-                  && (
-                    <>
-                      <Text
-                        style={styles.buttons}
-                        onPress={() => {
-                          navigation.navigate('NewComment', { id: post.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
-                        }}
-                      >
-                        Comment on Assignment
-                      </Text>
-                      <Text
-                        style={styles.buttons}
-                        onPress={() => {
-                          navigation.navigate('NewPost', {
-                            userID: uid,
-                            postID: post.id,
-                            collection: 'recordings',
-                            title: post.title,
-                            handleSubmit: createSubmission,
-                          });
-                        }}
-                      >
-                        Upload Submission
-                      </Text>
-                    </>
-                  )}
-              {!isTeacher && hasBeenEval
-                  && (
-                    <>
-                      <Text
-                        style={styles.buttons}
-                        onPress={() => {
-                          navigation.navigate('NewComment', { id: post.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
-                        }}
-                      >
-                        Comment on Assignment
-                      </Text>
-                      <Text
-                        style={styles.buttons}
-                        onPress={() => {
-                          navigation.navigate('Evaluation', {
-                            uid: hasBeenEval,
-                          });
-                        }}
-                      >
-                        View Evaluation
-                      </Text>
+                {isTeacher && (
+                <Text
+                  style={styles.buttonsContainer}
+                  onPress={() => {
+                    navigation.navigate('StudentNames', {
+                      students: studentsNotCompleted,
+                    });
+                  }}
+                >
+                  Not Completed:
+                  {' '}
+                  {studentsNotCompleted.length}
+                </Text>
+                )}
 
-                    </>
-                  )}
-              {isTeacher
-                  && (
-                    <>
-                      <Text
-                        style={styles.buttons}
-                        onPress={() => {
-                          navigation.navigate('NewComment', { id: post.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
-                        }}
-                      >
-                        Comment on Assignment
-                      </Text>
-                      <Text
-                        style={styles.buttons}
-                        onPress={() => {
-                          navigation.navigate('Submissions', {
-                            assignment: post.id,
-                            classroom: post.classroomID,
-                          });
-                        }}
-                      >
-                        View Submissions
-                      </Text>
-                    </>
-                  )}
-            </View>
+                {isTeacher && (
+                <Button
+                  style={styles.buttonsContainer}
+                  title="Edit"
+                  onPress={() => {
+                    navigation.navigate('NewAssignment', {
+                      setLoad: setLoadingNewPost,
+                      currentLoad: loadingNewPost,
+                      uid,
+                      title: assignment.title,
+                      body: assignment.body,
+                      attachments: assignment.attachments,
+                    });
+                  }}
+                />
+                )}
+              </Card>
+            </TouchableOpacity>
 
-          </View>
+          </>
         );
       }
       return null;
@@ -322,92 +323,48 @@ export default function AssignmentListScreen({ navigation }) {
           .orderBy('updatedAt', 'desc')
           .get()
           .then((snapshot) => {
-            // This creates an object for each document
             const assignments = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-            setAssignmentsList(assignments.map((assignment) => {
-              const date = assignment.createdAt.toDate();
-              // Only returns assignments with classroomIDs in classroomIDsList
-              if (studentClassroomIDs.includes(assignment.classroomID)) {
-                return (
-                  <View style={styles.container} key={assignment.id}>
-                    <Post
-                      id={assignment.id}
-                      name={assignment.username}
-                      title={assignment.title}
-                      createdAt={date.toTimeString()}
-                      date={date.toDateString()}
-                      attachments={assignment.attachments}
-                      body={assignment.body}
-                      collection="assignments"
-                      pin={assignment.doPin}
-                      rerender={rerender}
-                      setRerender={setRerender}
-                    >
-                      {assignment.body}
-                    </Post>
-                    <Button
-                      styles={styles.container}
-                      title="Comment on Post"
-                      onPress={() => {
-                        navigation.navigate('NewComment', { ID: assignment.id });
-                      }}
-                    />
-                    <Button
-                      title="Upload Submission"
-                      onPress={() => {
-                        navigation.navigate('NewPost', {
-                          userID: uid,
-                          postID: assignment.id,
-                          collection: 'recordings',
-                          title: assignment.title,
-                          mediaType: assignment.mediaType,
-                          handleSubmit: createSubmission,
-                        });
-                      }}
-                    />
-                  </View>
-                );
-              }
-              return null;
-            }));
-            const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
 
-            const getPosts = async () => Promise.all(posts.map(
-              async (post) => getSinglePost(post, studentClassroomIDs),
+            const getAssignments = async () => Promise.all(assignments.map(
+              async (assignment) => getSingleAssignment(assignment, studentClassroomIDs),
             ));
-            async function setPosts() {
-              const assignmentsList = await getPosts();
-              setAssignmentList(assignmentsList);
+            async function setAssignments() {
+              const assigns = await getAssignments();
+              setAssignmentsList(assigns);
             }
-            setPosts();
+            setAssignments();
           });
       })
       .catch((error) => {
         setErrorMessage(error.message);
       });
-  }, [finished1, navigation, loadingNewComment, uid, rerender]);
+  }, [finished1, navigation, loadingNewPost, loadingNewComment, rerender]);
 
   return (
     <View>
       <ScrollView>
-        {isTeacher
-        && (
-        <Button
-          title="Create An Assignment"
-          onPress={() => {
-            navigation.navigate('NewAssignment', { setLoad: setLoadingNewPost, currentLoad: loadingNewPost, uid });
-          }}
-        />
-        )}
+        <View>
+          {isTeacher
+            && (
+
+            <Button
+              title="Create An Assignment"
+              onPress={() => {
+                navigation.navigate('NewAssignment', {
+                  setLoad: setLoadingNewPost,
+                  currentLoad: loadingNewPost,
+                  uid,
+                  title: '',
+                  body: '',
+                  attachments: '',
+                });
+              }}
+            />
+            )}
+        </View>
         {errorMessage && <Text>{errorMessage}</Text>}
         {assignmentsList}
-        {/* <Button
-          style={styles.textInput}
-          title="View Posts"
-          onPress={() => {
-            navigation.navigate('Post');
-          }}
-        /> */}
+
       </ScrollView>
     </View>
   );
