@@ -4,6 +4,7 @@ import {
   INITIAL_MESSAGE_STATE,
   INITIAL_CHAT_STATE,
   roles,
+  instruments,
   classDays,
   classTypes,
 } from './const';
@@ -14,6 +15,7 @@ export {
   INITIAL_MESSAGE_STATE,
   INITIAL_CHAT_STATE,
   roles,
+  instruments,
   classDays,
   classTypes,
 };

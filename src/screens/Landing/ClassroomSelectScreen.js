@@ -185,6 +185,11 @@ export default function ClassroomSelectScreen({ navigation }) {
           })
           .then(async (data) => {
             setUserState(data);
+            if (user.emailVerified) {
+              setUserState({ ...userState, isVerified: true });
+            }
+            // also update grade level...
+
             await Firestore().collection('classrooms').orderBy('endDate', 'desc').get()
               .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
@@ -223,7 +228,9 @@ export default function ClassroomSelectScreen({ navigation }) {
     fetch();
 
     const focusListener = navigation.addListener('didFocus', () => {
-      fetch();
+      if (userState !== INITIAL_USER_STATE) {
+        fetch();
+      }
     });
 
     return () => focusListener.remove();
