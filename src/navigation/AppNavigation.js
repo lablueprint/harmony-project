@@ -10,6 +10,8 @@ import CreateEvaluationScreen from '../screens/CreateEvaluation';
 import GenericFormDemoScreen from '../screens/GenericFormDemo';
 import AnnouncementsScreen from '../screens/Announcements';
 import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
+import StudentsNamesScreen from '../screens/AssignmentList/StudentsNamesScreen';
+import AssignmentScreen from '../screens/AssignmentList/AssignmentScreen';
 import NewAssignmentScreen from '../screens/AssignmentList/NewAssignmentScreen';
 import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
 import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
@@ -22,10 +24,12 @@ const AppNavigation = createStackNavigator(
     Post: PostScreen,
     NewPost: NewPostScreen,
     NewAssignment: NewAssignmentScreen,
+    Assignment: AssignmentScreen,
     Submissions: SubmissionsList,
     NewComment: NewCommentScreen,
     Chatrooms: ChatroomsScreen,
     Messages: MessageScreen,
+    StudentNames: StudentsNamesScreen,
     Profile: ProfileScreen,
     Evaluation: EvaluationScreen,
     CreateEvaluation: CreateEvaluationScreen,
@@ -37,7 +41,7 @@ const AppNavigation = createStackNavigator(
     Landing: ClassroomSelectScreen,
   },
   {
-    initialRouteName: 'Landing',
+    initialRouteName: 'Home',
   },
 );
 
