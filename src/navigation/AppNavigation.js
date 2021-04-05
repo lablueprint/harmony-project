@@ -13,7 +13,7 @@ import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen
 import NewAssignmentScreen from '../screens/AssignmentList/NewAssignmentScreen';
 import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
 import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
-import ClassroomSelectScreen from '../screens/Landing';
+import { ClassroomSelectScreen, LoadClasses } from '../screens/Landing';
 
 const AppNavigation = createStackNavigator(
   {
@@ -35,6 +35,7 @@ const AppNavigation = createStackNavigator(
     CreateClassroom: CreateClassroomScreen,
     Classroom: ClassroomHome,
     Landing: ClassroomSelectScreen,
+    Load: LoadClasses,
   },
   {
     initialRouteName: 'Landing',

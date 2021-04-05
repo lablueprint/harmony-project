@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet, ActivityIndicator, View, Text, Alert, SafeAreaView, ScrollView,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Button, Input } from 'react-native-elements';
-import { Calendar } from 'react-native-calendars';
 // eslint-disable-next-line import/no-unresolved
 import CheckBox from '@react-native-community/checkbox';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import Auth from '@react-native-firebase/auth';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
-import { INITIAL_USER_STATE, roles, instruments } from '../../components/const';
+import { INITIAL_USER_STATE, roles } from '../../components/const';
+import DatePicker from '../../components/DatePicker';
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
+    display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
+    alignSelf: 'center',
+    paddingTop: 40,
   },
   formContainer: {
     height: 400,
@@ -58,29 +60,9 @@ export default function SignUpScreen({ navigation }) {
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
   const [password, setPassword] = useState(''); // keeps track of inputted password to ensure validity
   const [showLoading, setShowLoading] = useState(false);
+  const [instruments, setInsts] = useState([]);
+  const [initializing, setInitializing] = useState(true);
   const [next, setNext] = useState(false);
-  const instToggle = {
-    musicianship: false,
-    bassoon: false,
-    cello: false,
-    clarinet: false,
-    bass: false,
-    drumline: false,
-    drums: false,
-    flute: false,
-    frenchHorn: false,
-    guitar: false,
-    production: false,
-    oboe: false,
-    percussion: false,
-    keyboard: false,
-    sax: false,
-    trombone: false,
-    trumpet: false,
-    tuba: false,
-    viola: false,
-    violin: false,
-  };
 
   // password error message
   let message = 'Password must include:\n';
@@ -111,9 +93,15 @@ export default function SignUpScreen({ navigation }) {
   };
 
   const signup = async () => {
+    const userInsts = [];
+    instruments.forEach((i) => {
+      if (i.toggle) {
+        userInsts.push(i.name);
+      }
+    });
+
     // if everything valid, signup
-    if (password.length >= 8 && numbers.test(password) && uppers.test(password)
-    && lowers.test(password) && symbols.test(password)) {
+    if (userInsts.length !== 0 && userState.dob.length !== 0) {
       setShowLoading(true);
       try {
         // user is signed up, then the appropriate firestore calls are made based on role
@@ -122,19 +110,13 @@ export default function SignUpScreen({ navigation }) {
         setShowLoading(false);
         if (user) {
           user.sendEmailVerification();
-          const userInsts = [];
-          Object.entries(instToggle).forEach((key, value) => {
-            if (value) {
-              userInsts.push(instruments[key]);
-            }
-          });
           Firestore().collection('users').doc(user.uid).set({
             ...userState,
             createdAt: Firestore.FieldValue.serverTimestamp(),
             updatedAt: Firestore.FieldValue.serverTimestamp(),
           });
           // sign in and navigate to home screen upon signup
-          navigation.navigate('Landing', { uid: user.uid });
+          navigation.navigate('Load');
         }
       } catch (e) {
         setShowLoading(false);
@@ -143,11 +125,56 @@ export default function SignUpScreen({ navigation }) {
         );
       }
     } else {
+      let error = '';
+      if (userInsts.length === 0) {
+        error += 'Please choose at least one instrument.\n';
+      }
+      if (userState.dob.length === 0) {
+        error += 'Please input your date of birth.';
+      }
       Alert.alert(
-        'Please enter a date of birth',
+        error,
       );
     }
   };
+
+  useEffect(() => {
+    async function fetchInsts() {
+      console.log('fetch');
+      const { user } = await Auth().signInAnonymously();
+      if (user) {
+        // fetch instruments from Firestore and place them into the instruments state var
+        // each object in the instruments state var hold the name and
+        // whether or not they've been chosen (toggle)
+        await Firestore().collection('instruments').orderBy('name', 'asc').get()
+          .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              setInsts((insts) => [...insts, { name: doc.data().name, toggle: false }]);
+            });
+          })
+          .catch((e) => {
+            Alert.alert(e.message);
+            console.log(e.message);
+          });
+
+        // delete anonymous user after fetching instruments from Firestore
+        Auth().currentUser.delete();
+      }
+      if (initializing) setInitializing(false);
+    }
+
+    const focusListener = navigation.addListener('didFocus', () => {
+      fetchInsts();
+      console.log('yes');
+    });
+
+    return () => focusListener.remove();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // if loading instruments, return null
+  if (initializing) return null;
 
   return (
     <View style={styles.container}>
@@ -220,6 +247,7 @@ export default function SignUpScreen({ navigation }) {
                     setUserState({
                       ...userState,
                       displayName: text,
+                      hpID: '',
                     });
                   }}
                 />
@@ -234,6 +262,7 @@ export default function SignUpScreen({ navigation }) {
                   onChangeText={(text) => {
                     setUserState({
                       ...userState,
+                      displayName: '',
                       hpID: text,
                     });
                   }}
@@ -262,6 +291,7 @@ export default function SignUpScreen({ navigation }) {
         && (
           <SafeAreaView>
             <ScrollView style={{ height: '80%', marginVertical: 20 }}>
+              {userState.role === 'STUDENT' && (
               <View style={styles.subContainer}>
                 <Picker
                   selectedValue={userState.gradeLevel}
@@ -288,51 +318,64 @@ export default function SignUpScreen({ navigation }) {
                   <Picker.Item label="12th" value={12} />
                 </Picker>
               </View>
+              )}
               <View style={styles.subContainer}>
                 <Text>
                   Instruments:
                 </Text>
-                {Object.entries(instruments).map(([key, val]) => (
-                  <View style={styles.checklist}>
+                {console.log(instruments)}
+                {instruments.map((i, index) => (
+                  <View key={i.name} style={styles.checklist}>
                     <CheckBox
-                      value={instToggle[key]}
+                      value={i.toggle}
                       onValueChange={(value) => {
-                        instToggle[key] = value;
+                        const items = [...instruments];
+                        items[index].toggle = value;
+                        setInsts(items);
                       }}
                     />
                     <TouchableHighlight
                       onPress={() => {
-                        instToggle[key] = !instToggle[key];
+                        const items = [...instruments];
+                        items[index].toggle = !i.toggle;
+                        setInsts(items);
                       }}
                       underlayColor="#E1E1E1"
                     >
-                      <Text>{val}</Text>
+                      <Text>{i.name}</Text>
                     </TouchableHighlight>
                   </View>
                 ))}
               </View>
               <Text>Date of Birth:</Text>
-              <Calendar
-                minDate={Date()}
-                onDayPress={(data) => {
+              <DatePicker
+                onChange={(date) => {
                   setUserState({
                     ...userState,
-                    dob: data,
+                    dob: date,
                   });
                 }}
-                markedDates={{
-                  [userState.dob]: { selected: true },
-                }}
               />
-              <View style={styles.subContainer}>
-                <Button
-                  style={styles.textInput}
-                  title="Sign Up"
-                  onPress={() => signup()}
-                />
-              </View>
             </ScrollView>
           </SafeAreaView>
+        )}
+        {next && (
+          <>
+            <View style={styles.subContainer}>
+              <Button
+                style={styles.textInput}
+                title="Back"
+                onPress={() => { setNext(false); }}
+              />
+            </View>
+            <View style={styles.subContainer}>
+              <Button
+                style={styles.textInput}
+                title="Sign Up"
+                onPress={() => signup()}
+              />
+            </View>
+          </>
         )}
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Text>Already a user?</Text>
@@ -366,5 +409,6 @@ SignUpScreen.navigationOptions = ({ navigation }) => ({
 SignUpScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
+    addListener: PropTypes.func.isRequired,
   }).isRequired,
 };
