@@ -49,7 +49,7 @@ export default function SignInScreen({ navigation }) {
       setShowLoading(false);
       // if valid signin, navigate to landing
       if (doSignIn.user) {
-        navigation.navigate('Landing', { uid: doSignIn.user.uid });
+        navigation.navigate('Load');
       }
     } catch (e) {
       setShowLoading(false);
