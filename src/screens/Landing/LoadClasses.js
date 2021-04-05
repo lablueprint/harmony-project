@@ -58,7 +58,6 @@ export default function LoadClasses({ navigation }) {
                       doc.data().teacherIDs.forEach((element) => {
                         if (element === uid) {
                           setClasses((c) => [...c, { ...doc.data(), code: doc.id }]);
-                          console.log(doc.id);
                         }
                       });
                     }
@@ -75,7 +74,6 @@ export default function LoadClasses({ navigation }) {
               });
             if (loading) {
               setLoading(false);
-              console.log('done load');
             }
           })
           .catch((e) => {

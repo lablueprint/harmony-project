@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
   },
 });
 
+// required props: onChange, a function that receives the date string as a parameter
 export default function DatePicker(props) {
   const [day, setDay] = useState(1);
   const [month, setMonth] = useState(0);
@@ -45,16 +46,12 @@ export default function DatePicker(props) {
     setMonth(m);
     setYear(y);
 
-    console.log(m);
-
     const tempDays = [...monthsDays];
     // leap year adjustments for February day count
     if ((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0) {
       tempDays[1] = 29;
-      console.log('leap');
     } else {
       tempDays[1] = 28;
-      console.log('no');
     }
     setDays(tempDays);
 
@@ -96,7 +93,6 @@ export default function DatePicker(props) {
         }}
       >
         {pickerDays.map((i, index) => (index < monthsDays[month] && <Picker.Item key={i} label={`${i}`} value={i} />))}
-        {console.log(monthsDays[month])}
       </Picker>
       <Picker
         selectedValue={year}

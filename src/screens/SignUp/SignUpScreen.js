@@ -140,7 +140,6 @@ export default function SignUpScreen({ navigation }) {
 
   useEffect(() => {
     async function fetchInsts() {
-      console.log('fetch');
       const { user } = await Auth().signInAnonymously();
       if (user) {
         // fetch instruments from Firestore and place them into the instruments state var
@@ -154,7 +153,6 @@ export default function SignUpScreen({ navigation }) {
           })
           .catch((e) => {
             Alert.alert(e.message);
-            console.log(e.message);
           });
 
         // delete anonymous user after fetching instruments from Firestore
@@ -165,7 +163,6 @@ export default function SignUpScreen({ navigation }) {
 
     const focusListener = navigation.addListener('didFocus', () => {
       fetchInsts();
-      console.log('yes');
     });
 
     return () => focusListener.remove();
@@ -323,7 +320,6 @@ export default function SignUpScreen({ navigation }) {
                 <Text>
                   Instruments:
                 </Text>
-                {console.log(instruments)}
                 {instruments.map((i, index) => (
                   <View key={i.name} style={styles.checklist}>
                     <CheckBox
