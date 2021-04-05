@@ -184,7 +184,7 @@ export default function ProfileScreen({ navigation }) {
             style={styles.textInput}
             title="Back to Landing"
             onPress={() => {
-              navigation.navigate('Load');
+              navigation.navigate('Landing');
             }}
           />
         </View>

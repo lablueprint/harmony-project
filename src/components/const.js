@@ -27,6 +27,29 @@ const classDays = {
   default: 'MONDAY',
 };
 
+const instruments = {
+  musicianship: 'Musicianship',
+  bassoon: 'Bassoon',
+  cello: 'Cello',
+  clarinet: 'Clarinet',
+  bass: 'Bass',
+  drumline: 'Drumline',
+  drums: 'Drums',
+  flute: 'Flute',
+  frenchHorn: 'French Horn',
+  guitar: 'Guitar',
+  production: 'Music Production',
+  oboe: 'Oboe',
+  percussion: 'Percussion',
+  keyboard: 'Piano/Keyboard',
+  sax: 'Saxophone',
+  trombone: 'Trombone',
+  trumpet: 'Trumpet',
+  tuba: 'Tuba',
+  viola: 'Viola',
+  violin: 'Violin',
+};
+
 //////////////////////////////////////////////////////
 
 //////// INITIAL STATE OF FIRESTORE SCHEMAS /////////
@@ -74,7 +97,7 @@ const INITIAL_CHAT_STATE = {
 //////////////////////////////////////////////////////
 
 export {
-  roles, classTypes, classDays,
+  roles, classTypes, classDays, instruments,
 };
 export {
   INITIAL_USER_STATE, INITIAL_CLASSROOM_STATE, INITIAL_MESSAGE_STATE, INITIAL_CHAT_STATE,
