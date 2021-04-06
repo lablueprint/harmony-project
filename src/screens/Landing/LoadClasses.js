@@ -100,7 +100,7 @@ export default function LoadClasses({ navigation }) {
   if (loading) return null;
 
   return navigation.navigate('Landing', {
-    user, uid, userState, classrooms,
+    uid, userState, classrooms,
   });
 }
 
