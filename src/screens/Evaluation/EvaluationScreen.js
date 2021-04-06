@@ -258,11 +258,11 @@ export default function EvaluationScreen({ navigation }) {
   );
 }
 
-// eslint-disable-next-line no-unused-vars
-EvaluationScreen.navigationOptions = ({ navigation }) => ({
-  title: 'Evaluation',
-  headerShown: true, // button within the header to go back to the (homescreen)
-});
+// // eslint-disable-next-line no-unused-vars
+// EvaluationScreen.navigationOptions = ({ navigation }) => ({
+//   title: 'Evaluation',
+//   headerShown: true, // button within the header to go back to the (homescreen)
+// });
 
 EvaluationScreen.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types

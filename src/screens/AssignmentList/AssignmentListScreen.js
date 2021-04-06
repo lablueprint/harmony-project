@@ -1,12 +1,14 @@
-import 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import {
-  Text, View, ScrollView, StyleSheet, Button,
+  Text, View, StyleSheet, Button,
+  TouchableOpacity,
 } from 'react-native';
+import { Card } from 'react-native-elements';
+
 import Firestore from '@react-native-firebase/firestore';
 import firebase from '@react-native-firebase/app';
 import PropTypes from 'prop-types';
-import Post from '../../components/Post/Post';
 
 const styles = StyleSheet.create({
 
@@ -15,8 +17,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+    paddingHorizontal: 10,
+    paddingBottom: 10,
+
   },
   sectionTitle: {
     fontSize: 24,
@@ -31,55 +34,275 @@ const styles = StyleSheet.create({
   highlight: {
     fontWeight: '700',
   },
+  buttonsContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    paddingLeft: 10,
+    paddingTop: 10,
+
+  },
+
 });
+
+// const screenHandler = ((postID, updatedValue) => {
+//   console.log(postID);
+//   Firestore().collection('assignments').doc(postID).update({
+//     doPin: updatedValue,
+//   })
+//     .then(() => {
+//       console.log(`Successfully updated doPin to ${updatedValue}`);
+//     })
+//     .catch((error) => {
+//       console.log('Error updating doPin: ', error);
+//     });
+// });
 
 export default function AssignmentListScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
-  const [postsList, setPostsList] = useState([]);
   const uid = navigation.getParam('uid', null);
-
-  const createSubmission = ((userID, postID, body, attachment) => {
-    // TODO: see if doc already exists. If it does, update the body, attachment, and updatedAt
-    console.log(userID);
-    Firestore().collection('submissions').where('authorID', '==', userID).where('assignmentID', '==', postID)
-      .get()
-      .then((querySnapshot) => {
-        if (querySnapshot.size > 0) { // update if submission exists
-          // querySnapshot.forEach((doc) => console.log(doc));
-          const docID = querySnapshot.docs[0].id;
-          Firestore().collection('submissions').doc(docID).update({
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            body,
-            attachment,
-          })
-            .then(() => {
-              console.log('Successfully updated document!');
-            })
-            .catch((error) => {
-              console.log('Submission update failed');
-              console.log(error);
-            });
-        } else { // do this to add submission if it doesn't exist
-          Firestore().collection('submissions').add({
-            authorID: userID,
-            assignmentID: postID,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            body,
-            attachment,
-            hasReceivedFeedback: false,
-          }).then(() => {
-            console.log('Successfully inserted document!');
-          })
-            .catch((error) => {
-              console.log('Submission failed ):');
-              console.log(error);
-            });
-        }
-      });
-  });
+  const [assignmentsList, setAssignmentsList] = useState([]);
+  const [rerender, setRerender] = useState(false);
+  const [loadingNewComment, setLoadingNewComment] = useState(false);
+  const [loadingNewPost, setLoadingNewPost] = useState(false);
+  const [isTeacher, setRole] = useState(false);
+  const [finished1, setFinished1] = useState(false);
 
   useEffect(() => {
+    console.log('ONE');
+    async function getUserData() {
+      Firestore().collection('users').doc(uid).get()
+        .then((doc) => {
+          const data = doc.data();
+          if (data.role === 'TEACHER') {
+            setRole(true);
+          }
+        })
+        .then(() => {
+          setFinished1(true);
+        });
+    }
+    getUserData();
+  }, [navigation]);
+
+  useEffect(() => {
+    if (!finished1) {
+      return;
+    }
+
+    // const uid = navigation.getParam('uid', null);
+    const createSubmission = ((userID, postID, body, attachment) => {
+    // TODO: see if doc already exists. If it does, update the body, attachment, and updatedAt
+      console.log(userID);
+      Firestore().collection('submissions').where('authorID', '==', userID).where('assignmentID', '==', postID)
+        .get()
+        .then((querySnapshot) => {
+          if (querySnapshot.size > 0) { // update if submission exists
+          // querySnapshot.forEach((doc) => console.log(doc));
+            const docID = querySnapshot.docs[0].id;
+            Firestore().collection('submissions').doc(docID).update({
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              body,
+              attachment,
+            })
+              .then(() => {
+                console.log('Successfully updated document!');
+              })
+              .catch((error) => {
+                console.log('Submission update failed');
+                console.log(error);
+              });
+          } else { // do this to add submission if it doesn't exist
+            Firestore().collection('submissions').add({
+              authorID: userID,
+              assignmentID: postID,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              body,
+              attachment,
+              hasReceivedFeedback: false,
+            }).then(() => {
+              console.log('Successfully inserted document!');
+            })
+              .catch((error) => {
+                console.log('Submission failed ):');
+                console.log(error);
+              });
+          }
+        });
+    });
+
+    async function isEvaluated(userID, postID) {
+      let ret = null;
+      if (isTeacher) {
+        return ret;
+      }
+      await Firestore().collection('evaluations').where('studentID', '==', userID).where('assignmentID', '==', postID)
+        .get()
+        .then((querySnapshot) => {
+          if (querySnapshot.size > 0) {
+            ret = querySnapshot.docs[0].id;
+          }
+        });
+      return ret;
+    }
+
+    async function isSubmitted(userID, postID) {
+      let ret = null;
+      if (isTeacher) {
+        return ret;
+      }
+      await Firestore().collection('submissions').where('authorID', '==', userID).where('assignmentID', '==', postID)
+        .get()
+        .then((querySnapshot) => {
+          if (querySnapshot.size > 0) {
+            ret = querySnapshot.docs[0].id;
+          }
+        });
+      return ret;
+    }
+
+    async function setStudentsSeen(assignmentID, studentsSeenNew) {
+      Firestore().collection('assignments').doc(assignmentID).update({
+        studentsSeen: studentsSeenNew,
+      });
+    }
+
+    async function getStudentsCompleted(assignmentID, classroomID) {
+      const completedStudents = [];
+      let allStudents = [];
+
+      await Firestore().collection('submissions').where('assignmentID', '==', assignmentID)
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            completedStudents.push(doc.data().authorID);
+          });
+        });
+      await Firestore().collection('classrooms').doc(classroomID)
+        .get()
+        .then((doc) => { allStudents = doc.data().studentIDs; });
+      allStudents = allStudents.filter((element) => !completedStudents.includes(element));
+      return [completedStudents, allStudents];
+    }
+
+    async function getSingleAssignment(assignment, studentClassroomIDs) {
+      const hasBeenEval = await isEvaluated(uid, assignment.id);
+      const hasBeenSubmitted = await isSubmitted(uid, assignment.id);
+      let studentsSeenTemp = [];
+      await Firestore().collection('assignments').doc(assignment.id)
+        .get()
+        .then((doc) => { studentsSeenTemp = doc.data().studentsSeen; });
+
+      const studentsStatus = await getStudentsCompleted(assignment.id, assignment.classroomID);
+      const studentsCompleted = studentsStatus[0];
+      const studentsNotCompleted = studentsStatus[1];
+
+      console.log(hasBeenEval);
+      console.log(hasBeenSubmitted);
+
+      // Only returns assignments with classroomIDs in classroomIDsList
+      if (studentClassroomIDs.includes(assignment.classroomID)) {
+        return (
+          <>
+            <TouchableOpacity
+              onPress={async () => {
+                if (!isTeacher && !studentsSeenTemp.includes(uid)) {
+                  studentsSeenTemp.push(uid);
+                  await setStudentsSeen(assignment.id, studentsSeenTemp);
+                  console.log('UPDATED');
+                }
+                navigation.navigate('Assignment', {
+                  assignment,
+                  isTeacher,
+                  hasBeenEval,
+                  hasBeenSubmitted,
+                  loadingNewComment,
+                  setLoadingNewComment,
+                  rerender,
+                  setRerender,
+                  uid,
+                  createSubmission,
+
+                });
+              }}
+            >
+              <Card
+                title={assignment.title}
+                titleStyle={{
+                  textAlign: 'left',
+                }}
+                containerStyle={{ padding: 20 }}
+              >
+                {isTeacher && (
+                <Text
+                  style={styles.buttonsContainer}
+                  onPress={() => {
+                    navigation.navigate('StudentNames', {
+                      students: studentsSeenTemp,
+                    });
+                  }}
+                >
+                  Seen:
+                  {' '}
+                  {studentsSeenTemp.length}
+                </Text>
+                )}
+
+                {isTeacher && (
+                <Text
+                  style={styles.buttonsContainer}
+                  onPress={() => {
+                    navigation.navigate('StudentNames', {
+                      students: studentsCompleted,
+                    });
+                  }}
+                >
+                  Completed:
+                  {' '}
+                  {studentsCompleted.length}
+                </Text>
+                )}
+
+                {isTeacher && (
+                <Text
+                  style={styles.buttonsContainer}
+                  onPress={() => {
+                    navigation.navigate('StudentNames', {
+                      students: studentsNotCompleted,
+                    });
+                  }}
+                >
+                  Not Completed:
+                  {' '}
+                  {studentsNotCompleted.length}
+                </Text>
+                )}
+
+                {isTeacher && (
+                <Button
+                  style={styles.buttonsContainer}
+                  title="Edit"
+                  onPress={() => {
+                    navigation.navigate('NewAssignment', {
+                      setLoad: setLoadingNewPost,
+                      currentLoad: loadingNewPost,
+                      uid,
+                      title: assignment.title,
+                      body: assignment.body,
+                      attachments: assignment.attachments,
+                    });
+                  }}
+                />
+                )}
+              </Card>
+            </TouchableOpacity>
+
+          </>
+        );
+      }
+      return null;
+    }
+
     // Gets all the classrooms
     Firestore().collection('classrooms').get()
       .then((snapshot) => {
@@ -90,83 +313,58 @@ export default function AssignmentListScreen({ navigation }) {
             studentClassroomIDs.push(classrooms[i].id);
           }
         }
+        console.log(studentClassroomIDs);
         return studentClassroomIDs;
       })
       .then((studentClassroomIDs) => {
         // Gets all the assignments
-        Firestore().collection('assignments').limit(6)
-          .orderBy('createdAt', 'desc')
+        Firestore().collection('assignments')
+          .orderBy('doPin', 'desc')
+          .orderBy('updatedAt', 'desc')
           .get()
           .then((snapshot) => {
-            // This creates an object for each document
-            const posts = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-            setPostsList(posts.map((post) => {
-              const date = post.createdAt.toDate();
-              // Only returns assignments with classroomIDs in classroomIDsList
-              if (studentClassroomIDs.includes(post.classroomID)) {
-                return (
-                  <View style={styles.container} key={post.id}>
-                    <Post
-                      key={post.id}
-                      name={post.username}
-                      title={post.title}
-                      createdAt={date.toTimeString()}
-                      date={date.toDateString()}
-                      attachment={post.attachment}
-                      body={post.body}
-                    >
-                      {post.body}
-                    </Post>
-                    <Button
-                      styles={styles.container}
-                      title="Comment on Post"
-                      onPress={() => {
-                        navigation.navigate('NewComment', { ID: post.id });
-                      }}
-                    />
-                    <Button
-                      title="Upload Submission"
-                      onPress={() => {
-                        navigation.navigate('NewPost', {
-                          userID: uid,
-                          postID: post.id,
-                          collection: 'recordings',
-                          title: post.title,
-                          handleSubmit: createSubmission,
-                        });
-                      }}
-                    />
-                  </View>
-                );
-              }
-              return null;
-            }));
+            const assignments = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+
+            const getAssignments = async () => Promise.all(assignments.map(
+              async (assignment) => getSingleAssignment(assignment, studentClassroomIDs),
+            ));
+            async function setAssignments() {
+              const assigns = await getAssignments();
+              setAssignmentsList(assigns);
+            }
+            setAssignments();
           });
       })
       .catch((error) => {
         setErrorMessage(error.message);
       });
-  });
+  }, [finished1, navigation, loadingNewPost, loadingNewComment, rerender]);
 
   return (
-    <View style={styles.container}>
+    <View>
       <ScrollView>
-        <Text style={styles.welcomeMessage}>Assignments List</Text>
-        <Button
-          title="Make a Post"
-          onPress={() => {
-            navigation.navigate('NewPost');
-          }}
-        />
+        <View>
+          {isTeacher
+            && (
+
+            <Button
+              title="Create An Assignment"
+              onPress={() => {
+                navigation.navigate('NewAssignment', {
+                  setLoad: setLoadingNewPost,
+                  currentLoad: loadingNewPost,
+                  uid,
+                  title: '',
+                  body: '',
+                  attachments: '',
+                });
+              }}
+            />
+            )}
+        </View>
         {errorMessage && <Text>{errorMessage}</Text>}
-        {postsList}
-        <Button
-          style={styles.textInput}
-          title="View Posts"
-          onPress={() => {
-            navigation.navigate('Post');
-          }}
-        />
+        {assignmentsList}
+
       </ScrollView>
     </View>
   );
@@ -176,5 +374,6 @@ AssignmentListScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
     getParam: PropTypes.func.isRequired,
+
   }).isRequired,
 };

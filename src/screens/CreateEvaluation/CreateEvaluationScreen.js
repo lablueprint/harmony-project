@@ -25,6 +25,7 @@ export default function CreateEvaluationScreen({ navigation }) {
   const [comment, onChangeComment] = useState('');
 
   const doc = navigation.getParam('doc', '');
+  // const submission = navigation.getParam('submissionID', '');
 
   return (
     <View style={styles.container}>
@@ -73,5 +74,8 @@ CreateEvaluationScreen.navigationOptions = ({ navigation }) => ({
 });
 
 CreateEvaluationScreen.propTypes = {
-  navigation: PropTypes.elementType.isRequired,
+  navigation: PropTypes.shape({
+    getParam: PropTypes.func.isRequired,
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
 };

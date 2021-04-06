@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, Image, Button, Alert,
+  View, Text, StyleSheet, Button, Alert,
 } from 'react-native';
+import Gallery from 'react-native-image-gallery';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -169,12 +170,12 @@ function CommentLoader({
   );
 }
 
-function likeButton(postID) {
-  const post = Firestore().collection('posts').doc(postID);
+function likeButton(postID, collection) {
+  const post = Firestore().collection(collection).doc(postID);
   const user = Firebase.auth().currentUser.uid;
 
   post.set({
-    likedBy: {
+    likedByIDs: {
       [user]: true,
     },
   },
@@ -182,7 +183,7 @@ function likeButton(postID) {
 
   /* IF WE NEED TO CHANGE TO .update INSTEAD OF .set: For nested objects in
   firebase, we must use a path string to update. If we simply updated the entire
-  'likedBy' object, then the ENTIRE map will be reset with whatever is input.
+  'likedByIDs' object, then the ENTIRE map will be reset with whatever is input.
   If we change this, make sure to change the same logic in 'Comment'.
 
   post.update({
@@ -193,12 +194,12 @@ function likeButton(postID) {
   return (null);
 }
 
-function unlikeButton(postID) {
-  const post = Firestore().collection('posts').doc(postID);
+function unlikeButton(postID, collection) {
+  const post = Firestore().collection(collection).doc(postID);
   const user = Firebase.auth().currentUser.uid;
 
   post.set({
-    likedBy: {
+    likedByIDs: {
       [user]: Firebase.firestore.FieldValue.delete(),
     },
   },
@@ -207,17 +208,17 @@ function unlikeButton(postID) {
   return (null);
 }
 
-function DisplayLikes({ postID }) {
+function DisplayLikes({ postID, collection }) {
   const [numLikes, setNumLikes] = useState(0);
 
-  Firestore().collection('posts').doc(postID)
+  Firestore().collection(collection).doc(postID)
     .get()
     .then((post) => {
       /* post contains the information from the post document. get()
        pulls the likedBy field. Using Firestore map syntax, we check if
        the key userID exists inside the map!
        */
-      const likeMap = post.get('likedBy');
+      const likeMap = post.get('likedByIDs');
       if (likeMap !== undefined) {
         setNumLikes(Object.keys(likeMap).length);
       }
@@ -299,8 +300,31 @@ function LoadCommentButton({
   );
 }
 
+function PinPost({
+  postID, initialValue, collection, rerender, setRerender,
+}) {
+  return (
+    <Button
+      title={initialValue ? 'Unpin' : 'Pin'}
+      onPress={() => {
+        Firestore().collection(collection).doc(postID).update({
+          doPin: !initialValue,
+        })
+          .then(() => {
+            setRerender(!rerender);
+            console.log(`Successfully updated doPin to ${!initialValue}`);
+          })
+          .catch((error) => {
+            console.log('Error updating doPin: ', error);
+          });
+      }}
+    />
+  );
+}
+
 export default function Post({
-  title, createdAt, date, body, attachment, id, loadingNewComment,
+  title, createdAt, date, body, attachments, id, loadingNewComment, collection, pin, rerender,
+  setRerender,
 }) {
   const [loading, setLoading] = useState(false);
   const [hasLiked, setHasLiked] = useState(false);
@@ -311,36 +335,61 @@ export default function Post({
   const [hasDeleted, setHasDeleted] = useState(false);
   const userID = Firebase.auth().currentUser.uid;
 
+  const [showMore, setShowMore] = useState(true);
+  const [buttons, setButtons] = useState(true);
+
+  const [lines, setLines] = useState(6);
+
+  // const [showMoreComments, setShowMoreComments] = useState(false);
+  // const [amount, setAmount] = useState(2);
+
+  const onTextLayout = (e) => {
+    if (e.nativeEvent.lines.length > 5) {
+      setButtons(true);
+    } else {
+      setButtons(false);
+    }
+  };
   // Runs once and never again. Checks if the current user is the author of the
   // post.
   useEffect(() => {
-    Firestore().collection('posts').doc(id).get()
+    Firestore().collection(collection).doc(id).get()
       .then((snapshot) => {
         const postAuthor = snapshot.get('author');
         if (postAuthor === userID) {
           setIsAuthor(true);
         }
       });
-  }, [id, userID]);
+  }, [collection, id, userID]);
 
   // Runs whenever loading changes (someone hits the 'Like' or 'Unlike' button).
   useEffect(() => {
     // Checks if the user has liked this post or not.
-    Firestore().collection('posts').doc(id).get()
+    Firestore().collection(collection).doc(id).get()
       .then((post) => {
-        const likeMap = post.get('likedBy');
+        const likeMap = post.get('likedByIDs');
         if (likeMap !== undefined) {
           const inMap = (userID in likeMap);
           setHasLiked(inMap);
         }
       });
-  }, [id, loading, userID, numCommentsLoaded, loadedLastComment, noComments, loadingNewComment]);
+  }, [collection, id, loading, userID, numCommentsLoaded, loadedLastComment, noComments,
+    loadingNewComment]);
+
+  /*
+  hasImages will only be true if attachments has at least one url in attachments.
+  attachments.filter((x) => x) removes all non-empty strings.
+  */
+
+  const images = attachments.filter((x) => x).map((image) => ({ source: { uri: image } }));
+  const hasImages = (images.length > 0);
 
   /*
   * HasDeleted will only be true if the user fully carries through with a
   * deletion. HasDeleted will force the post to not display (on the frontend)
   * while Firestore is busy doing it's magic in the backend.
   */
+
   return (
     hasDeleted ? null : (
       <View style={styles.container}>
@@ -354,24 +403,42 @@ export default function Post({
           {date}
         </Text>
         <View style={styles.contentContainer}>
-          <Text>
+          <Text numberOfLines={lines} onTextLayout={onTextLayout}>
             {body}
           </Text>
-          {attachment ? (
-            <Image
+          {showMore && buttons && (
+          <Button
+            title="Show More"
+            onPress={() => {
+              setLines(body.numberOfLines);
+              setShowMore(false);
+            }}
+          />
+          )}
+          {!showMore && buttons && (
+          <Button
+            title="Hide More"
+            onPress={() => {
+              setLines(6);
+              setShowMore(true);
+            }}
+          />
+          )}
+          { (hasImages) ? (
+            <Gallery
               style={{ width: '100%', height: 200, resizeMode: 'center' }}
-              source={{ uri: attachment }}
+              images={images}
             />
           ) : null}
         </View>
-        <DisplayLikes postID={id} />
+        <DisplayLikes postID={id} collection={collection} />
         {hasLiked ? (
           <View style={{ flexDirection: 'row' }}>
             <Button
               title="Unlike"
               onPress={() => {
                 setLoading(!loading);
-                unlikeButton(id);
+                unlikeButton(id, collection);
               }}
             />
           </View>
@@ -381,10 +448,19 @@ export default function Post({
               title="Like"
               onPress={() => {
                 setLoading(!loading);
-                likeButton(id);
+                likeButton(id, collection);
               }}
             />
           </View>
+        )}
+        {isAuthor && (
+        <PinPost
+          postID={id}
+          initialValue={pin}
+          collection={collection}
+          rerender={rerender}
+          setRerender={setRerender}
+        />
         )}
         {isAuthor ? (
           <Button
@@ -468,9 +544,13 @@ Post.propTypes = {
   createdAt: PropTypes.string,
   date: PropTypes.string, // date object ?
   body: PropTypes.string.isRequired,
-  attachment: PropTypes.string,
+  attachments: PropTypes.arrayOf(PropTypes.string),
   id: PropTypes.string,
   loadingNewComment: PropTypes.bool,
+  collection: PropTypes.string.isRequired,
+  pin: PropTypes.bool.isRequired,
+  rerender: PropTypes.bool.isRequired,
+  setRerender: PropTypes.func.isRequired,
 };
 
 Post.defaultProps = {
@@ -479,6 +559,7 @@ Post.defaultProps = {
   id: '',
   attachment: '',
   loadingNewComment: false,
+  attachments: [],
 };
 
 CommentLoader.propTypes = {
@@ -502,6 +583,7 @@ CommentLoader.defaultProps = {
 
 DisplayLikes.propTypes = {
   postID: PropTypes.string.isRequired,
+  collection: PropTypes.string.isRequired,
 };
 
 LoadCommentButton.propTypes = {
@@ -509,6 +591,14 @@ LoadCommentButton.propTypes = {
   noComments: PropTypes.bool.isRequired,
   setNumCommentsLoaded: PropTypes.func.isRequired,
   numCommentsLoaded: PropTypes.number.isRequired,
+};
+
+PinPost.propTypes = {
+  postID: PropTypes.string.isRequired,
+  initialValue: PropTypes.bool.isRequired,
+  collection: PropTypes.string.isRequired,
+  rerender: PropTypes.bool.isRequired,
+  setRerender: PropTypes.func.isRequired,
 };
 
 /* CODE TO GET A NAME FROM THE USERS DOCUMENT:
