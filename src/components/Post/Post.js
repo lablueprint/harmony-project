@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   bodyText: {
-    fontSize: 14,
+    fontSize: 18,
   },
 });
 
@@ -322,7 +322,16 @@ function PinPost({
 }
 
 export default function Post({
-  title, createdAt, date, body, attachments, id, loadingNewComment, collection, pin, rerender,
+  title, 
+  createdAt, 
+  date, 
+  body, 
+  attachments, 
+  id, 
+  loadingNewComment, 
+  collection, 
+  pin, 
+  rerender,
   setRerender,
 }) {
   const [loading, setLoading] = useState(false);
@@ -393,9 +402,11 @@ export default function Post({
   return (
     hasDeleted ? null : (
       <View style={styles.container}>
-        <Text style={styles.topicText}>
-          {title}
-        </Text>
+        {title !== '' && 
+          <Text style={styles.topicText}>
+            {title}
+          </Text>
+        }
         <Text style={styles.timeText}>
           {createdAt}
         </Text>
@@ -540,7 +551,7 @@ export default function Post({
 }
 
 Post.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   createdAt: PropTypes.string,
   date: PropTypes.string, // date object ?
   body: PropTypes.string.isRequired,
@@ -554,6 +565,7 @@ Post.propTypes = {
 };
 
 Post.defaultProps = {
+  title: '',
   createdAt: '',
   date: '',
   id: '',

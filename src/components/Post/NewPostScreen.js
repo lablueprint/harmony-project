@@ -16,6 +16,11 @@ const styles = StyleSheet.create({
 });
 
 export default function NewPostScreen({ navigation }) {
+  // const [title, setTitle] = useState('');
+  // const [errorMessage, setErrorMessage] = useState(null);
+  // const [loading, setLoading] = useState(false);
+  // const mainScreenLoadStatus = navigation.getParam('currentLoad');
+  // const reloadMainScreen = navigation.getParam('setLoad');
   const [body, setBody] = useState('');
   const [attachment, setAttachment] = useState('');
   const userID = navigation.getParam('userID');
@@ -26,7 +31,6 @@ export default function NewPostScreen({ navigation }) {
   const displayUpload = navigation.getParam('displayUpload', true);
   const collection = navigation.getParam('collection');
   const buttonTitle = navigation.getParam('buttonTitle', 'Submit');
-  const mediaType = navigation.getParam('mediaType', 'video');
   const handleSubmit = navigation.getParam('handleSubmit');
 
   return (
@@ -54,7 +58,6 @@ export default function NewPostScreen({ navigation }) {
           userId={userID}
           postId={postID}
           collection={collection}
-          mediaType={mediaType}
         />
         )}
       </View>
