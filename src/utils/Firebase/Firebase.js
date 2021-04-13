@@ -1,33 +1,33 @@
 import Firestore, { firebase } from '@react-native-firebase/firestore';
 
 const db = {
-  FEEDBACK: 'evaluations',
+  FEEDBACK: 'feedback',
+  SUBMISSIONS: 'submissions',
 };
-async function createEval({
-  teacherId, recording, studentId, submissionComment,
+
+async function createFeedback({
+  submissionID, studentID, teacherID,
 }) {
   const newEval = {
-    teacherId,
+    submissionID,
+    studentID,
+    teacherID,
     createdAt: Firestore.Timestamp.now(),
     updatedAt: Firestore.Timestamp.now(),
-    recording,
-    evaluations: [],
-    submissionComment,
-    studentId,
   };
+  await Firestore().collection(db.SUBMISSIONS).doc(submissionID)
+    .update({ hasReceivedFeedback: true });
   return Firestore().collection(db.FEEDBACK).add(newEval);
 }
 
-async function createTimestampFeedback(evalId, feedback) {
+async function submitFeedbackComment(feedbackID, feedback) {
   const data = {
     ...feedback,
-    startTime: Number(feedback.startTime),
-    endTime: Number(feedback.endTime),
   };
 
-  return Firestore().collection(db.FEEDBACK).doc(evalId).update({
+  return Firestore().collection(db.FEEDBACK).doc(feedbackID).update({
     evaluations: firebase.firestore.FieldValue.arrayUnion(data),
   });
 }
 
-export { createEval, createTimestampFeedback };
+export { createFeedback, submitFeedbackComment };

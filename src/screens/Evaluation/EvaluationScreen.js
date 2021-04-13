@@ -9,7 +9,7 @@ import {
 // import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
-import { createEval, createTimestampFeedback } from '../../utils/Firebase';
+import { createFeedback, submitFeedbackComment } from '../../utils/Firebase';
 import EvalVideo from './EvalVideo';
 import TimestampedFeedbackList from './TimestampedFeedbackList';
 
@@ -28,13 +28,13 @@ export default function EvaluationScreen({ navigation }) {
   const videoPlayer = useRef(null);
 
   /**
-   * evaluationDoc - A document in the evaluations collection that corresponds to a single
+   * evalDoc - A document in the evaluations collection that corresponds to a single
    * evaluation screen
    *
-   * setEvaluationDoc - A function called after the evaluation document has been retrieved
+   * setEvalDoc - A function called after the evaluation document has been retrieved
    * from Firebase
    */
-  const [evaluationDoc, setEvaluationDoc] = useState({});
+  const [evalDoc, setEvalDoc] = useState({});
 
   /**
    * range - {startTime, endTime} (in seconds) of timestamped feedback
@@ -45,9 +45,8 @@ export default function EvaluationScreen({ navigation }) {
    * docId - (In the future, this should be retrieved from navigation, etc. rather than being
    * "hardcoded") Is the document ID of an example evaluation scrren in Firestore
    */
-  const placeholderRecording = 'https://firebasestorage.googleapis.com/v0/b/la-blueprint-harmony-project.appspot.com/o/images%2FVID_20200310_193940847.mp4?alt=media&token=9651b6e5-a82e-4578-91c3-0b261c609e52';
-  const placeholderId = 'bTzLmdl03mDOYwsZMyCP';
-  const [evalId, setEvalId] = useState(navigation.getParam('evalId', placeholderId));
+  const submissionID = navigation.getParam('submissionID', null);
+  const [feedbackID, setFeedbackID] = useState(null);
 
   const [newComment, setNewComment] = useState({});
   const [submittingComment, setSubmittingComment] = useState(false);
@@ -57,44 +56,34 @@ export default function EvaluationScreen({ navigation }) {
    * Uses the docId to retrieve a particular evaluation document.
    */
   useEffect(() => {
-    // TODO: refactor this to utils, add to assignment list view
-    // async function createEval({
-    //   teacherId, recording, studentId, submissionComment,
-    // }) {
-    //   const newEval = {
-    //     teacherId,
-    //     createdAt: Firestore.Timestamp.now(),
-    //     updatedAt: Firestore.Timestamp.now(),
-    //     recording,
-    //     evaluations: [],
-    //     submissionComment,
-    //     studentId,
-    //   };
-    //   return Firestore().collection('evaluations').add(newEval);
-    // }
-    async function fetchOrCreateEval() {
-      if (submittingComment) return;
-      let evalDoc = await Firestore().collection('evaluations').doc(evalId).get();
-      if (evalDoc.exists) {
-        setEvaluationDoc(evalDoc.data());
+    async function fetchOrCreateFeedback() {
+      const submission = await Firestore().collection('submissions').doc(submissionID).get();
+      if (submission.exists && submission.data().hasReceivedFeedback) {
+        const querySnapshot = await Firestore().collection('feedback').where('submissionID', '==', submissionID)
+          .get();
+        if (querySnapshot.size > 0) { // should only be one match
+          setEvalDoc(querySnapshot.docs[0].data());
+          setFeedbackID(querySnapshot.docs[0].id);
+        }
       } else {
-        evalDoc = await createEval({
-          teacherId: 'testTeacher',
-          studentId: 'testStudent',
-          recording: placeholderRecording,
-          submissionComment: 'testComment',
+        const newDoc = await createFeedback({ // will also update hasReceivedFeedback on submission
+          submissionID,
+          studentID: navigation.getParam('studentID'),
+          teacherID: navigation.getParam('teacherID'),
+          createdAt: Firestore.Timestamp.now(),
+          updatedAt: Firestore.Timestamp.now(),
         });
-        setEvalId(evalDoc.id);
+        setFeedbackID(newDoc.id);
       }
     }
-    fetchOrCreateEval();
-  }, [evalId, submittingComment]);
+    fetchOrCreateFeedback();
+  }, [submittingComment]);
   async function handleAddTimestampFeedback() {
     Keyboard.dismiss();
     setModalVisible(false);
     try {
       setSubmittingComment(true);
-      await createTimestampFeedback(evalId, newComment);
+      await submitFeedbackComment(feedbackID, newComment);
       setNewComment({});
       setSubmittingComment(false);
     } catch (err) {
@@ -102,7 +91,7 @@ export default function EvaluationScreen({ navigation }) {
         'Your feedback could not be added.',
         err,
         [
-          { text: 'OK', onPress: () => console.log('OK Pressed') },
+          { text: 'OK' },
         ],
         { cancelable: false },
       );
@@ -110,20 +99,17 @@ export default function EvaluationScreen({ navigation }) {
       setSubmittingComment(false);
     }
   }
+  // TODO: check media type and display accordingly
   return (
     <>
-      {evaluationDoc.recording
-      && (
-      // Stop autoplay?
       <View style={{ flex: 3 }}>
         <EvalVideo
-          videoLink={evaluationDoc.recording}
+          videoLink={navigation.getParam('attachment')}
           range={range}
           setRange={setRange}
           videoPlayer={videoPlayer}
         />
       </View>
-      )}
       {/* TODO: convert to modal */}
       <View style={{
         flex: 1,
@@ -167,13 +153,6 @@ export default function EvaluationScreen({ navigation }) {
               elevation: 2,
             }}
             >
-              <TextInput
-                style={{ width: '100%' }}
-                editable={!submittingComment}
-                placeholder="Title"
-                value={newComment.title}
-                onChangeText={(title) => setNewComment({ ...newComment, title })}
-              />
               <TextInput
                 style={{ width: '100%', textAlignVertical: 'top' }}
                 editable={!submittingComment}
@@ -245,9 +224,9 @@ export default function EvaluationScreen({ navigation }) {
       </View>
       <View style={{ flex: 6 }}>
         <View>
-          {evaluationDoc.evaluations && (
+          {evalDoc.evaluations && (
           <TimestampedFeedbackList
-            evaluations={evaluationDoc.evaluations}
+            evaluations={evalDoc.evaluations}
             videoPlayer={videoPlayer}
             setRange={setRange}
           />
