@@ -44,6 +44,8 @@ export default function TimestampedFeedbackList({
   const listItems = evaluations.map((evaluationsListItem, index) => (
     // eslint-disable-next-line react/no-array-index-key
     <View style={styles.container} key={index}>
+      {evaluationsListItem.startTime
+      && (
       <TouchableWithoutFeedback
         onPress={() => {
           videoPlayer.current.seek(evaluationsListItem.startTime);
@@ -57,12 +59,14 @@ export default function TimestampedFeedbackList({
         }}
         style={styles.timestamp}
       >
-        <Text style={styles.text}>{`${convertToMinSec(evaluationsListItem.startTime)}-${convertToMinSec(evaluationsListItem.endTime)}`}</Text>
+        <Text style={styles.text}>{`${convertToMinSec(evaluationsListItem.startTime)}`}</Text>
       </TouchableWithoutFeedback>
+      )}
       <Post
         title={evaluationsListItem.title}
         body={evaluationsListItem.body}
         style={styles.comment}
+        collection="fixme"
       />
     </View>
   ));
