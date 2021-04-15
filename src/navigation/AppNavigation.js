@@ -1,5 +1,6 @@
 import { createStackNavigator } from 'react-navigation-stack';
-import HomeScreen from '../screens/Home';
+import LinearGradient from 'react-native-linear-gradient';
+import React from 'react';
 import EditProfileScreen from '../screens/EditProfile';
 import { PostScreen, NewPostScreen, NewCommentScreen } from '../components/Post';
 import ChatroomsScreen from '../screens/Messaging/Chatrooms';
@@ -16,10 +17,32 @@ import NewAssignmentScreen from '../screens/AssignmentList/NewAssignmentScreen';
 import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
 import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
 import ClassroomSelectScreen from '../screens/Landing';
+import BottomTabNavigation from './BottomTabNavigation';
 
+/* Container to hold default navigation options so that App Navigation
+doesn't look too messy. Currently holds gradient and title text color.
+*/
+const defaultNavOptions = {
+  headerBackground: () => (
+    <LinearGradient
+      colors={['#C95748', '#984A9C']}
+      style={{ flex: 1 }}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
+    />
+  ),
+  title: '',
+};
+
+/* Initial route must stay 'Home' in order to properly integrate
+with bottom tab navigation
+*/
 const AppNavigation = createStackNavigator(
   {
-    Home: HomeScreen,
+    Home: {
+      screen: BottomTabNavigation,
+      navigationOptions: defaultNavOptions,
+    },
     EditProfile: EditProfileScreen,
     Post: PostScreen,
     NewPost: NewPostScreen,
