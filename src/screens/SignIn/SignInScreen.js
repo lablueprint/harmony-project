@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Text, Alert,
+  StyleSheet, ActivityIndicator, View, Text, Alert, Image,
 } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
+import Logo from '../../components/hp_circleLogo.png';
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
+    display: 'flex',
     alignItems: 'center',
   },
   formContainer: {
@@ -17,6 +17,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   subContainer: {
+    display: 'flex',
+    alignItems: 'center',
     marginBottom: 20,
     padding: 10,
   },
@@ -33,6 +35,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     margin: 5,
     width: 200,
+  },
+  logoImg: {
+    height: 100,
+    width: 100,
   },
 });
 
@@ -60,7 +66,8 @@ export default function SignInScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={styles.subContainer}>
+          <Image style={styles.logoImg} source={Logo} />
           <Text style={{ fontSize: 28, height: 50 }}>Please Sign In!</Text>
         </View>
         <View style={styles.subContainer}>

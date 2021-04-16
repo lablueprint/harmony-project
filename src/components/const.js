@@ -33,11 +33,17 @@ const classDays = {
 
 const INITIAL_USER_STATE = {
   email: '',
-  name: '',
   role: roles.default,
   createdAt: '',
   updatedAt: '',
-  address: '',
+  isVerified: false,
+  hpID: '',
+  firstName: '',
+  lastName: '',
+  displayName: '',
+  dob: '',
+  gradeLevel: 0, // 0 counts as kindergarten
+  instruments: [],
 };
 
 const INITIAL_CLASSROOM_STATE = {
