@@ -145,6 +145,7 @@ export default function HomeScreen({ navigation }) {
             navigation.navigate('Post');
           }}
         />
+
       </View>
 
       <View style={styles.subContainer}>
