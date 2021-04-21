@@ -44,6 +44,7 @@ const INITIAL_USER_STATE = {
   dob: '',
   gradeLevel: 0, // 0 counts as kindergarten
   instruments: [],
+  profilePic: '',
 };
 
 const INITIAL_CLASSROOM_STATE = {

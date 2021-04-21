@@ -9,8 +9,10 @@ import { Picker } from '@react-native-picker/picker';
 import CheckBox from '@react-native-community/checkbox';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
+import storage from '@react-native-firebase/storage';
 import { INITIAL_USER_STATE } from '../../components';
 import DatePicker from '../../components/DatePicker';
+import UploadFile from '../../components/UploadFile/UploadFile';
 
 const styles = StyleSheet.create({
   container: {
@@ -58,6 +60,8 @@ export default function EditProfileScreen({ navigation }) {
   const [instruments, setInsts] = useState([]);
   const [showLoading, setShowLoading] = useState(false);
   const [dob, setDob] = useState({});
+  const [imgPath, setPath] = useState('');
+  const [uploadRdy, setReady] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -150,9 +154,18 @@ export default function EditProfileScreen({ navigation }) {
     }
   };
 
-  /* function cancel() {
-    setNewState(userState);
-  } */
+  function cancel() {
+    if (imgPath !== '') {
+      const pfpRef = storage().ref(imgPath);
+      pfpRef.delete()
+        .catch((error) => {
+          Alert.alert(error.message);
+        });
+      console.log('hi');
+      console.log(imgPath);
+    }
+    navigation.navigate('Profile', { uid });
+  }
 
   if (initializing) return null;
 
@@ -163,6 +176,21 @@ export default function EditProfileScreen({ navigation }) {
       </View>
       <SafeAreaView style={styles.formContainer}>
         <ScrollView>
+          <UploadFile
+            setAttachment={(uri) => {
+              setUserState({
+                ...userState,
+                profilePic: uri,
+              });
+            }}
+            setPath={(path) => {
+              setPath(path);
+            }}
+            setReady={setReady}
+            postId={uid}
+            collection="users/profilepics"
+            mediaType="photo"
+          />
           <View style={styles.subContainer}>
             <Input
               style={styles.textInput}
@@ -310,7 +338,13 @@ export default function EditProfileScreen({ navigation }) {
         <Button
           style={styles.textInput}
           title="Save Changes"
-          onPress={() => submitProfile()}
+          onPress={() => {
+            if (!uploadRdy) {
+              Alert.alert('Photo is uploading. Please wait.');
+            } else {
+              submitProfile();
+            }
+          }}
         />
       </View>
       {/* <View style={styles.subContainer}>
@@ -325,7 +359,11 @@ export default function EditProfileScreen({ navigation }) {
           style={styles.textInput}
           title="Back to Profile"
           onPress={() => {
-            navigation.navigate('Profile', { uid });
+            if (!uploadRdy) {
+              Alert.alert('Photo is uploading. Please wait.');
+            } else {
+              cancel();
+            }
           }}
         />
       </View>

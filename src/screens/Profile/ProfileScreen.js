@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, View, Alert,
+  StyleSheet, View, Alert, Image,
 } from 'react-native';
 import { Button, Text } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
@@ -11,12 +11,11 @@ import { INITIAL_USER_STATE } from '../../components';
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
+    display: 'flex',
     alignItems: 'center',
   },
   formContainer: {
-    height: 550,
+    height: 400,
     padding: 50,
   },
   subContainerText: {
@@ -86,7 +85,6 @@ export default function ProfileScreen({ navigation }) {
           .then((data) => {
             setUserState(data);
             // setNewState(data);
-
             if (loading) setLoading(false);
           })
           .catch((e) => {
@@ -118,6 +116,9 @@ export default function ProfileScreen({ navigation }) {
       <View style={styles.formContainer}>
         {/* profile pic */}
         {/* edit ? input fields : texts */}
+        {console.log(userState)}
+        {userState.profilePic !== ''
+        && <Image style={{ display: 'flex', height: 100, width: 100 }} source={{ uri: userState.profilePic }} />}
         <View style={styles.subContainerText}>
           <Text h4>{`${userState.firstName} ${userState.lastName}`}</Text>
         </View>

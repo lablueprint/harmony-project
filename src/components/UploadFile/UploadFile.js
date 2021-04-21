@@ -15,7 +15,7 @@ import UploadFileToFirebase from '../../utils/FileManipulation';
 
 const UploadFile = (props) => {
   const {
-    setAttachment, postId, collection, mediaType,
+    setPath, setAttachment, setReady, postId, collection, mediaType,
   } = props;
 
   const imagePickerOptions = {
@@ -36,9 +36,15 @@ const UploadFile = (props) => {
           break;
         case 'success':
           snapshot.ref.getDownloadURL().then((downloadURL) => {
-            setAttachment(downloadURL);
+            if (setAttachment) {
+              setAttachment(downloadURL);
+            }
             Alert.alert(`${mediaType} upload succeeded! ${downloadURL}`);
           });
+          if (setPath) {
+            setPath(snapshot.ref.fullPath);
+          }
+          setReady(true);
           break;
         default:
           break;
@@ -49,10 +55,12 @@ const UploadFile = (props) => {
   const uploadFile = () => {
     ImagePicker.launchImageLibrary(imagePickerOptions, (imagePickerResponse) => {
       const { didCancel, error } = imagePickerResponse;
-
+      setReady(false);
       if (didCancel) {
+        setReady(true);
         Alert.alert('Post canceled');
       } else if (error) {
+        setReady(true);
         Alert.alert('An error occurred: ', imagePickerResponse.error);
       } else {
         const localPath = getFileLocalPath(imagePickerResponse);
@@ -77,10 +85,18 @@ const UploadFile = (props) => {
 // - postId: String, Required - Id of document to add as a record of upload (in Firestore)
 // - collection: String, Optional - Collection to add to as a record of the upload
 UploadFile.propTypes = {
-  setAttachment: PropTypes.string.isRequired,
+  setPath: PropTypes.func,
+  setAttachment: PropTypes.func,
+  setReady: PropTypes.func,
   postId: PropTypes.string.isRequired,
   collection: PropTypes.string.isRequired,
   mediaType: PropTypes.string.isRequired,
+};
+
+UploadFile.defaultProps = {
+  setPath: null,
+  setAttachment: null,
+  setReady: null,
 };
 
 /*
