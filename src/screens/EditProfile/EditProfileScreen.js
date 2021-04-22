@@ -161,8 +161,6 @@ export default function EditProfileScreen({ navigation }) {
         .catch((error) => {
           Alert.alert(error.message);
         });
-      console.log('hi');
-      console.log(imgPath);
     }
     navigation.navigate('Profile', { uid });
   }

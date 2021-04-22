@@ -116,7 +116,6 @@ export default function ProfileScreen({ navigation }) {
       <View style={styles.formContainer}>
         {/* profile pic */}
         {/* edit ? input fields : texts */}
-        {console.log(userState)}
         {userState.profilePic !== ''
         && <Image style={{ display: 'flex', height: 100, width: 100 }} source={{ uri: userState.profilePic }} />}
         <View style={styles.subContainerText}>
