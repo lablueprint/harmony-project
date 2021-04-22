@@ -27,7 +27,7 @@ export default function DatePicker({
   currDay, currMonth, currYear, onChange,
 }) {
   const [day, setDay] = useState(currDay);
-  const [month, setMonth] = useState(currMonth);
+  const [month, setMonth] = useState(currMonth - 1);
   const [year, setYear] = useState(currYear);
 
   const [monthsDays, setDays] = useState([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]);
