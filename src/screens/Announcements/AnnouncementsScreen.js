@@ -35,9 +35,12 @@ const styles = StyleSheet.create({
 Announcements Screen function
 */
 export default function AnnouncementsScreen({ navigation }) {
+  const uid = navigation.getParam('uid', null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [announcementsList, setAnnouncementsList] = useState([]);
   const [rerender, setRerender] = useState(false);
+  const [loadingNewComment, setLoadingNewComment] = useState(false);
+  const [loadingNewPost, setLoadingNewPost] = useState(false);
   /*
 this will only run one time when the component is mounted
 */
@@ -91,7 +94,14 @@ this will only run one time when the component is mounted
         <Button
           title="Make a Post"
           onPress={() => {
-            navigation.navigate('NewPost');
+            navigation.navigate('NewAnnouncement', {
+                  setLoad: setLoadingNewPost,
+                  currentLoad: loadingNewPost,
+                  uid,
+                  title: '',
+                  body: '',
+                  attachments: '',
+                });
           }}
         />
         {errorMessage && <Text>{errorMessage}</Text>}

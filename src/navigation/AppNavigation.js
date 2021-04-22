@@ -8,7 +8,8 @@ import ProfileScreen from '../screens/Profile';
 import EvaluationScreen from '../screens/Evaluation';
 import CreateEvaluationScreen from '../screens/CreateEvaluation';
 import GenericFormDemoScreen from '../screens/GenericFormDemo';
-import AnnouncementsScreen from '../screens/Announcements';
+import AnnouncementsScreen from '../screens/Announcements/AnnouncementsScreen';
+import NewAnnouncementScreen from '../screens/Announcements/NewAnnouncementScreen';
 import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
 import StudentsNamesScreen from '../screens/AssignmentList/StudentsNamesScreen';
 import AssignmentScreen from '../screens/AssignmentList/AssignmentScreen';
@@ -36,6 +37,7 @@ const AppNavigation = createStackNavigator(
     CreateEvaluation: CreateEvaluationScreen,
     GenericFormDemo: GenericFormDemoScreen,
     Announcements: AnnouncementsScreen,
+    NewAnnouncement: NewAnnouncementScreen,
     AssignmentList: AssignmentListScreen,
     CreateClassroom: CreateClassroomScreen,
     Classroom: ClassroomHome,

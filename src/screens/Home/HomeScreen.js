@@ -153,7 +153,7 @@ export default function HomeScreen({ navigation }) {
           style={styles.textInput}
           title="Announcements"
           onPress={() => {
-            navigation.navigate('Announcements');
+            navigation.navigate('Announcements', { uid });
           }}
         />
       </View>

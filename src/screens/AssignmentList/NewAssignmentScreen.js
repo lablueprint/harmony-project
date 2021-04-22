@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
 import { Calendar } from 'react-native-calendars';
+import {notifyStudents} from '../Notifications/NotificationsScreen';
 
 const styles = StyleSheet.create({
   container: {
@@ -53,23 +54,10 @@ export default function NewAssignmentScreen({ navigation }) {
     }
   }, []);
 
-  /* Get the list of students in this class to notify when the assignment has been created */
-  useEffect(() => {
-    Firestore().collection('classrooms').doc(classroom).get()
-    .then((doc) => {
-      const data = doc.data(); 
-      if (data) {
-        setStudentIDs(data.studentIDs)
-      }
-    })
-    .catch((e) => {
-      console.warn(e);
-    })
-  }, [classroom])
-
   if (initializing) return null;
 
   /* When an assignment has been created, create a notification for every student in the class */
+  /*
   const notifyStudents = () => {
     if(studentIDs.length > 0 && teacherName !== '') {
       studentIDs.forEach(async (studentID) => {
@@ -83,6 +71,7 @@ export default function NewAssignmentScreen({ navigation }) {
       })
     }
   }
+  */
 
   const handleSubmit = () => {
     setLoading(true);
@@ -111,7 +100,7 @@ export default function NewAssignmentScreen({ navigation }) {
         setErrorMessage(error.message);
       });
 
-      notifyStudents();
+      notifyStudents(classroom, teacherName + " has created a new To Do '" + title + "'", "TODO");
   };
 
   return (
