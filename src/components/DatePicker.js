@@ -20,11 +20,16 @@ const styles = StyleSheet.create({
   },
 });
 
-// required props: onChange, a function that receives the date string as a parameter
-export default function DatePicker(props) {
-  const [day, setDay] = useState(1);
-  const [month, setMonth] = useState(0);
-  const [year, setYear] = useState(2021);
+
+// props:
+// currDay, currMonth, currYear: current date of birth (default to 1, 1, 2021; used in EditProfile)
+// onChange (required): a function that receives the date string as a parameter
+export default function DatePicker({
+  currDay, currMonth, currYear, onChange,
+}) {
+  const [day, setDay] = useState(currDay);
+  const [month, setMonth] = useState(currMonth - 1);
+  const [year, setYear] = useState(currYear);
 
   const [monthsDays, setDays] = useState([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]);
   const pickerDays = [];
@@ -71,7 +76,7 @@ export default function DatePicker(props) {
 
     date = `${y}-${monthString}-${dayString}`;
 
-    props.onChange(date);
+    onChange(date);
   }
 
   return (
@@ -109,4 +114,13 @@ export default function DatePicker(props) {
 
 DatePicker.propTypes = {
   onChange: PropTypes.func.isRequired,
+  currDay: PropTypes.number,
+  currMonth: PropTypes.number,
+  currYear: PropTypes.number,
+};
+
+DatePicker.defaultProps = {
+  currDay: 1,
+  currMonth: 1,
+  currYear: 2021,
 };
