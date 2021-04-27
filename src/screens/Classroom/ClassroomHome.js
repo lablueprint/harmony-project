@@ -116,7 +116,7 @@ export default function ClassroomHome({ navigation }) {
               style={styles.textInput}
               title="Back to Landing"
               onPress={() => {
-                navigation.navigate('Landing', uid);
+                navigation.navigate('Load');
               }}
             />
           </View>
