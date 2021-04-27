@@ -183,6 +183,7 @@ export default function AssignmentScreen({ navigation }) {
                           navigation.navigate('Submissions', {
                             assignment: post.id,
                             classroom: post.classroomID,
+                            uid,
                           });
                         }}
                       >

@@ -41,12 +41,15 @@ export default function SubmissionsList({ navigation }) {
   // const [errorMessage, setErrorMessage] = useState(null);
   const [assignmentID, setAssignmentID] = useState(null);
   const [classroomID, setClassroomID] = useState(null);
+  const teacherID = navigation.getParam('uid', null);
   // const [initializing, setInitializing] = useState(true);
+  // TODO: refactor all this to just use the original submission object
   const [studentIDsList, setStudentIDsList] = useState([]);
   const [studentNames, setStudentNames] = useState([]);
   const [submissionIDs, setSubmissionIDs] = useState([]);
   const [submissionFeedback, setSubmissionFeedback] = useState([]);
-  const [studentsList, setStudentList] = useState([]);
+  const [submissionAttachments, setSubmissionAttachments] = useState([]);
+  const [studentsList, setStudentList] = useState([]); // using this as a hacky obj array in the meantime
   const [displayMissing, setDisplayMissing] = useState([]);
   const [displaySubmitted, setDisplaySubmitted] = useState([]);
   const [displayEvaluated, setDisplayEvaluated] = useState([]);
@@ -151,6 +154,7 @@ export default function SubmissionsList({ navigation }) {
                 if (doc) {
                   const data = doc.data();
                   // eslint-disable-next-line no-shadow
+                  setSubmissionAttachments((submissionAttachments) => [...submissionAttachments, data.attachment]);
                   setSubmissionIDs((submissionIDs) => [...submissionIDs, doc.id]);
                   setSubmissionFeedback(
                     // eslint-disable-next-line no-shadow
@@ -176,7 +180,9 @@ export default function SubmissionsList({ navigation }) {
     console.log('six');
 
     const zipping = async () => {
-      const zipped = studentNames.map((x, i) => [x, submissionIDs[i], submissionFeedback[i]]);
+      // hacky, needs reworking
+      const zipped = studentNames.map((x, i) => [x, submissionIDs[i],
+        submissionFeedback[i], studentIDsList[i], submissionAttachments[i]]);
       console.log(zipped);
       setStudentList(zipped);
       return true;
@@ -211,23 +217,28 @@ export default function SubmissionsList({ navigation }) {
 
     const submitted = studentsList.filter((e) => (e[1] !== null && !e[2]));
     setDisplaySubmitted(submitted.map((obj) => {
-      const submission = obj[1];
+      // ..this needs to be rewritten
+      const submissionID = obj[1];
       const name = obj[0];
       const evaluated = obj[2];
+      const studentID = obj[3];
+      const attachment = obj[4];
       return (
         <View style={styles.container}>
 
           <Text style={styles.name}>{name}</Text>
 
-          {(submission !== null && !evaluated)
+          {(submissionID !== null && !evaluated)
             ? (
               <Text
                 style={styles.evaluate}
                 onPress={() => {
-                  navigation.navigate('CreateEvaluation', { submissionID: submission });
+                  navigation.navigate('Evaluation', {
+                    submissionID, teacherID, studentID, attachment,
+                  });
                 }}
               >
-                Evaluate Assignment
+                Leave Feedback
 
               </Text>
             ) : []}
@@ -238,23 +249,34 @@ export default function SubmissionsList({ navigation }) {
 
     const evaluated = studentsList.filter((e) => (e[1] !== null && e[2]));
     setDisplayEvaluated(evaluated.map((obj) => {
-      const submission = obj[1];
+      const submissionID = obj[1];
       const name = obj[0];
       const e = obj[2];
+      const studentID = obj[3];
+      const attachment = obj[4];
       return (
         <View style={styles.container}>
 
           <Text style={styles.name}>{name}</Text>
 
-          {(submission !== null && e)
+          {(submissionID !== null && e)
             ? (
               // TODO: take teacher to a screen with the evaluation found via the given submissionID
-              <Text>Student has submitted assignment</Text>
+              <Text
+                style={styles.evaluate}
+                onPress={() => {
+                  navigation.navigate('Evaluation', {
+                    submissionID, teacherID, studentID, attachment,
+                  });
+                }}
+              >
+                View/Add Feedback
+              </Text>
             ) : []}
         </View>
       );
     }));
-  }, [navigation, finished4]);
+  }, [navigation, finished4, studentsList, teacherID]);
 
   return (
     <View>
