@@ -1,17 +1,11 @@
-import { createSwitchNavigator, createAppContainer } from 'react-navigation';
-import AuthNavigation from './AuthNavigation';
-import AppNavigation from './AppNavigation';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import BottomTabNavigator from './BottomTabNavigation';
 
-const SwitchNavigator = createSwitchNavigator(
-  {
-    Auth: AuthNavigation,
-    App: AppNavigation,
-  },
-  {
-    initialRouteName: 'App',
-  },
+const AppContainer = () => (
+  <NavigationContainer>
+    <BottomTabNavigator />
+  </NavigationContainer>
 );
-
-const AppContainer = createAppContainer(SwitchNavigator);
 
 export default AppContainer;

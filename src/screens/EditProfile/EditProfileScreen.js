@@ -39,9 +39,9 @@ const styles = StyleSheet.create({
 });
 
 // navigation MUST INCLUDE: uid
-export default function EditProfileScreen({ navigation }) {
+export default function EditProfileScreen({ route, navigation }) {
   const [initializing, setInitializing] = useState(true);
-  const uid = navigation.getParam('uid', null);
+  const { uid } = route.params;
   const ref = Firestore().collection('users');
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
 
@@ -178,6 +178,9 @@ EditProfileScreen.navigationOptions = ({ navigation }) => ({
 EditProfileScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-    getParam: PropTypes.func.isRequired,
+  }).isRequired,
+
+  route: PropTypes.shape({
+    params: PropTypes.isRequired,
   }).isRequired,
 };

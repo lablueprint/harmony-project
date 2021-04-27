@@ -203,6 +203,5 @@ ProfileScreen.navigationOptions = ({ navigation }) => ({
 ProfileScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-    getParam: PropTypes.func.isRequired,
   }).isRequired,
 };

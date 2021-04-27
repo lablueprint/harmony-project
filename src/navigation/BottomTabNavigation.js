@@ -1,28 +1,28 @@
-import { createBottomTabNavigator } from 'react-navigation-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
-import HomeScreen from '../screens/Home';
 import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
 import ProfileScreen from '../screens/Profile';
+import MainStackNavigator from './StackNavigation';
 
 /* These are wrapper functions that are used to display bottom tab icons
 These needed to be abstracted in order to properly validate the props
 */
-const HomeIcon = ({ tintColor }) => (
-  <Icon name="home" color={tintColor} size={25} />
+const HomeIcon = ({ color }) => (
+  <Icon name="home" color={color} size={25} />
 );
 
-const TodoIcon = ({ tintColor }) => (
-  <Icon name="clipboard" color={tintColor} size={25} />
+const TodoIcon = ({ color }) => (
+  <Icon name="clipboard" color={color} size={25} />
 );
 
-const NotificationIcon = ({ tintColor }) => (
-  <Icon name="notifications" color={tintColor} size={25} />
+const NotificationIcon = ({ color }) => (
+  <Icon name="notifications" color={color} size={25} />
 );
 
-const ProfileIcon = ({ tintColor }) => (
-  <Icon name="person" color={tintColor} size={25} />
+const ProfileIcon = ({ color }) => (
+  <Icon name="person" color={color} size={25} />
 );
 
 /* Function is just here to route to an empty screen since notification
@@ -35,57 +35,59 @@ function blankScreen() {
   );
 }
 
-const BottomTabNavigation = createBottomTabNavigator(
-  {
-    Home: {
-      screen: HomeScreen,
-      navigationOptions: {
-        tabBarLabel: 'Home',
+const Tab = createBottomTabNavigator();
+
+const BottomTabNavigator = () => (
+  <Tab.Navigator>
+    <Tab.Screen
+      name="Bulletin"
+      component={MainStackNavigator}
+      options={{
         tabBarIcon: HomeIcon,
-      },
-    },
-    Todo: {
-      screen: AssignmentListScreen,
-      navigationOptions: {
-        tabBarLabel: 'To-do',
+      }}
+    />
+
+    <Tab.Screen
+      name="To-do"
+      component={AssignmentListScreen}
+      options={{
         tabBarIcon: TodoIcon,
-      },
-    },
-    Notifications: {
-      screen: blankScreen,
-      navigationOptions: {
-        tabBarLabel: 'Notifications',
+      }}
+    />
+
+    <Tab.Screen
+      name="Notifications"
+      component={blankScreen}
+      options={{
         tabBarIcon: NotificationIcon,
-      },
-    },
-    Profile: {
-      screen: ProfileScreen,
-      navigationOptions: {
-        tabBarLabel: 'Profile',
+      }}
+    />
+
+    <Tab.Screen
+      name="Profile"
+      component={ProfileScreen}
+      options={{
         tabBarIcon: ProfileIcon,
-      },
-    },
-  },
-  {
-    initialRouteName: 'Home',
-  },
+      }}
+    />
+  </Tab.Navigator>
 );
 
 // Validate Icon Props
 HomeIcon.propTypes = {
-  tintColor: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
 };
 
 TodoIcon.propTypes = {
-  tintColor: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
 };
 
 NotificationIcon.propTypes = {
-  tintColor: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
 };
 
 ProfileIcon.propTypes = {
-  tintColor: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
 };
 
-export default BottomTabNavigation;
+export default BottomTabNavigator;
