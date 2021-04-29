@@ -38,8 +38,13 @@ const styles = StyleSheet.create({
 const loadAmount = 1;
 
 function CommentLoader({
-  postID, loadingNewComment, numCommentsLoaded, setloadedLastComment, loadedLastComment,
-  setNoComments, noComments,
+  postID, 
+  loadingNewComment, 
+  numCommentsLoaded, 
+  setloadedLastComment, 
+  loadedLastComment,
+  setNoComments, 
+  noComments,
 }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [commentList, setCommentList] = useState([]);
@@ -300,7 +305,11 @@ function LoadCommentButton({
 }
 
 function PinPost({
-  postID, initialValue, collection, rerender, setRerender,
+  postID, 
+  initialValue, 
+  collection, 
+  rerender, 
+  setRerender,
 }) {
   return (
     <Button
@@ -330,7 +339,7 @@ export default function Post({
   id, 
   loadingNewComment, 
   collection, 
-  pin, 
+  pin,
   rerender,
   setRerender,
 }) {
@@ -342,7 +351,7 @@ export default function Post({
   const [isAuthor, setIsAuthor] = useState(false);
   const [hasDeleted, setHasDeleted] = useState(false);
   const userID = Firebase.auth().currentUser.uid;
-
+  
   const [showMore, setShowMore] = useState(true);
   const [buttons, setButtons] = useState(true);
 
@@ -465,13 +474,13 @@ export default function Post({
           </View>
         )}
         {isAuthor && (
-        <PinPost
-          postID={id}
-          initialValue={pin}
-          collection={collection}
-          rerender={rerender}
-          setRerender={setRerender}
-        />
+          <PinPost
+            postID={id}
+            initialValue={pin}
+            collection={collection}
+            rerender={rerender}
+            setRerender={setRerender}
+          />
         )}
         {isAuthor ? (
           <Button

@@ -75,6 +75,7 @@ export default function ProfileScreen({ navigation }) {
 
   useEffect(() => {
     getUserData();
+    
   });
 
   // const submitProfile = async () => {
