@@ -54,6 +54,9 @@ export default function ClassSelections({
   }
 
   useEffect(() => {
+    // resets to empty so that on every load it refills the state variables
+    setCurr([]);
+    setPast([]);
     classroomData.forEach((c) => {
       const classroomInfo = c;
       const classCode = c.code;
@@ -82,7 +85,7 @@ export default function ClassSelections({
         }
       }
     });
-  }, []);
+  }, [classroomData]);
 
   return (
     <View>
