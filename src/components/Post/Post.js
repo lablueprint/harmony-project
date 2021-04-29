@@ -17,6 +17,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#ffffff',
     borderRadius: 10,
+    width: '90%',
   },
   contentContainer: {
     paddingTop: 20,
@@ -398,7 +399,6 @@ export default function Post({
   attachments.filter((x) => x) removes all non-empty strings.
   */
 
-
   const images = attachments.filter((x) => x).map((image) => ({ source: { uri: image } }));
   const hasImages = (images.length > 0);
 
@@ -578,6 +578,7 @@ Post.defaultProps = {
   createdAt: '',
   date: '',
   id: '',
+  attachment: '',
   loadingNewComment: false,
   attachments: [],
 };
