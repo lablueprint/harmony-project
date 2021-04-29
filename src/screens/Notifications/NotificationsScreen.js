@@ -8,6 +8,35 @@ import { INITIAL_USER_STATE } from '../../components';
 import Firestore from '@react-native-firebase/firestore';
 import moment from 'moment';
 
+/**
+Get the list of students in this class to notify when the assignment has been created
+ */
+export async function notifyStudents(classroomID, message, page) {
+    let studentIDs = [];
+    await Firestore().collection('classrooms').doc(classroomID).get()
+    .then((doc) => {
+      const data = doc.data(); 
+      if (data) {
+        studentIDs = data.studentIDs;
+      }
+    })
+    .catch((e) => {
+      console.warn(e);
+    })  
+
+    if(studentIDs.length > 0) {
+      studentIDs.forEach(async (studentID) => {
+        await Firestore().collection('notifications').add({
+          classroomID, 
+          createdAt: Firestore.Timestamp.now(), 
+          message, 
+          page, 
+          userID: studentID
+        })
+      })
+    }
+  }
+
 export default function NotificationsScreen({ navigation }) {
     const uid = navigation.getParam('uid', null);
     const [classroomList, setClassroomList] = useState([]);
