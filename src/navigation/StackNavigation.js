@@ -1,6 +1,5 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import LinearGradient from 'react-native-linear-gradient';
 import HomeScreen from '../screens/Home';
 import ProfileScreen from '../screens/Profile';
 import EditProfileScreen from '../screens/EditProfile';
@@ -19,26 +18,19 @@ import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
 import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
 import ClassroomSelectScreen from '../screens/Landing';
 
-/* Container to hold default navigation options so that App Navigation
-doesn't look too messy. Currently holds gradient and title text color.
-*/
-const defaultNavOptions = {
-  headerBackground: () => (
-    <LinearGradient
-      colors={['#984A9C', '#C95748']}
-      style={{ flex: 1 }}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-    />
-  ),
-  title: '',
-};
-
 const Stack = createStackNavigator();
 
 const MainStackNavigator = () => (
-  <Stack.Navigator>
-    <Stack.Screen name="Home" component={HomeScreen} options={defaultNavOptions} />
+  <Stack.Navigator
+  /* MainStackNavigatior's header MUST be hidden so that the Root's header
+  options (linear gradient) can be applied to all screen with no weird
+  overlaps/cutoffs
+  */
+    screenOptions={{
+      headerShown: false,
+    }}
+  >
+    <Stack.Screen name="Home" component={HomeScreen} />
     <Stack.Screen name="Profile" component={ProfileScreen} />
     <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     <Stack.Screen name="Post" component={PostScreen} />
@@ -54,7 +46,7 @@ const MainStackNavigator = () => (
     <Stack.Screen name="CreateEvaluation" component={CreateEvaluationScreen} />
     <Stack.Screen name="GenericFormDemo" component={GenericFormDemoScreen} />
     <Stack.Screen name="Announcements" component={AnnouncementsScreen} />
-    <Stack.Screen name="AssignmentList" component={AssignmentListScreen} options={defaultNavOptions} />
+    <Stack.Screen name="AssignmentList" component={AssignmentListScreen} />
     <Stack.Screen name="CreateClassroom" component={CreateClassroomScreen} />
     <Stack.Screen name="Classroom" component={ClassroomHome} />
     <Stack.Screen name="Landing" component={ClassroomSelectScreen} />
