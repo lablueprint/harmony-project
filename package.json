@@ -1,17 +1,13 @@
 {
-  "name": "my-webpack-project",
-  "version": "1.0.0",
+  "name": "harmony-project",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "android": "cd android && gradlew clean && cd .. && react-native run-android",
     "ios": "cd ios && pod install && cd .. && react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint .",
-    "build": "webpack --mode=production",
-    "build:dev": "webpack --mode=development",
-    "build:prod": "webpack --mode=production",
-    "watch": "webpack --watch"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@react-native-community/checkbox": "^0.5.7",
@@ -53,32 +49,22 @@
     "@babel/core": "^7.10.5",
     "@babel/runtime": "^7.10.5",
     "@react-native-community/eslint-config": "^0.0.5",
-    "@webpack-cli/generators": "^2.0.0",
     "babel-jest": "^24.9.0",
-    "css-loader": "^5.2.0",
-    "docdash": "^1.2.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^2.5.1",
-    "html-webpack-plugin": "^5.3.1",
     "jest": "^24.9.0",
-    "jsdoc": "^3.6.6",
     "jsdoc-to-markdown": "^7.0.1",
     "metro-react-native-babel-preset": "^0.56.0",
-    "react-styleguidist": "^11.1.6",
-    "react-test-renderer": "16.9.0",
-    "style-loader": "^2.0.0",
-    "webpack": "^5.28.0",
-    "webpack-cli": "^4.6.0"
+    "react-test-renderer": "16.9.0"
   },
   "jest": {
     "preset": "react-native"
   },
   "resolutions": {
     "@react-native-community/cli-platform-android": "2.9.0"
-  },
-  "description": "My webpack project"
+  }
 }

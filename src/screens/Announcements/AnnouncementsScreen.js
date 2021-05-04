@@ -95,13 +95,13 @@ this will only run one time when the component is mounted
           title="Make a Post"
           onPress={() => {
             navigation.navigate('NewAnnouncement', {
-                  setLoad: setLoadingNewPost,
-                  currentLoad: loadingNewPost,
-                  uid,
-                  title: '',
-                  body: '',
-                  attachments: '',
-                });
+              setLoad: setLoadingNewPost,
+              currentLoad: loadingNewPost,
+              uid,
+              title: '',
+              body: '',
+              attachments: '',
+            });
           }}
         />
         {errorMessage && <Text>{errorMessage}</Text>}
