@@ -74,7 +74,7 @@ this will only run one time when the component is mounted
                 styles={styles.container}
                 title="Comment on Post"
                 onPress={() => {
-                  navigation.navigate('NewComment', { ID: announcement.id });
+                  navigation.navigate('NewComment', { uid, postid: announcement.id, setLoad: setLoadingNewComment });
                 }}
               />
 

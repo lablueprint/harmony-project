@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
 import { Calendar } from 'react-native-calendars';
-import {notifyStudents} from '../Notifications/NotificationsScreen';
+import { notifyStudents } from '../Notifications/NotificationsScreen';
 
 const styles = StyleSheet.create({
   container: {
@@ -42,8 +42,10 @@ export default function NewAssignmentScreen({ navigation }) {
     try {
       Firestore().collection('users').doc(uid).get().then((doc) => {
         const data = doc.data();
-        setClassroomID(data.classroomIds[0]);
-        setTeacherName(data.name);
+        if(data) {
+          setClassroomID(data.classroomIds[0]);
+          setTeacherName(data.name);
+        }
       });
       if (initializing) setInitializing(false);
     } catch (e) {
