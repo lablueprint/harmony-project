@@ -138,10 +138,7 @@ export default function HomeScreen({ navigation }) {
             navigation.navigate('Post');
           }}
         />
-        <UploadFile
-          docId="example"
-          collection="posts"
-        />
+
       </View>
 
       <View style={styles.subContainer}>
@@ -149,7 +146,7 @@ export default function HomeScreen({ navigation }) {
           style={styles.textInput}
           title="Announcements"
           onPress={() => {
-            navigation.navigate('Announcements');
+            navigation.navigate('Announcements', { uid });
           }}
         />
       </View>
@@ -159,6 +156,15 @@ export default function HomeScreen({ navigation }) {
           title="Assignment List"
           onPress={() => {
             navigation.navigate('AssignmentList', { uid });
+          }}
+        />
+      </View>
+      <View style={styles.subContainer}>
+        <Button
+          style={styles.textInput}
+          title="Notifications"
+          onPress={() => {
+            navigation.navigate('Notifications', { uid });
           }}
         />
       </View>

@@ -57,6 +57,13 @@ const styles = StyleSheet.create({
 //     });
 // });
 
+/**
+ * The AssignmentListScreen is where the students and teachers can view all the class to-do's.
+ * @public
+ * @memberOf Screens
+ * @param {string} navigation - The stack navigator that allows the app to transition between screens
+ * @returns The AssignmentListScreen
+ */
 export default function AssignmentListScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const uid = navigation.getParam('uid', null);

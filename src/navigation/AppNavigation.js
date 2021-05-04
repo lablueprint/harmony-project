@@ -8,13 +8,15 @@ import ProfileScreen from '../screens/Profile';
 import EvaluationScreen from '../screens/Evaluation';
 import CreateEvaluationScreen from '../screens/CreateEvaluation';
 import GenericFormDemoScreen from '../screens/GenericFormDemo';
-import AnnouncementsScreen from '../screens/Announcements';
+import AnnouncementsScreen from '../screens/Announcements/AnnouncementsScreen';
+import NewAnnouncementScreen from '../screens/Announcements/NewAnnouncementScreen';
 import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
 import StudentsNamesScreen from '../screens/AssignmentList/StudentsNamesScreen';
 import AssignmentScreen from '../screens/AssignmentList/AssignmentScreen';
 import NewAssignmentScreen from '../screens/AssignmentList/NewAssignmentScreen';
 import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
 import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
+import NotificationsScreen from '../screens/Notifications';
 import { ClassroomSelectScreen, LoadClasses } from '../screens/Landing';
 
 const AppNavigation = createStackNavigator(
@@ -35,10 +37,12 @@ const AppNavigation = createStackNavigator(
     CreateEvaluation: CreateEvaluationScreen,
     GenericFormDemo: GenericFormDemoScreen,
     Announcements: AnnouncementsScreen,
+    NewAnnouncement: NewAnnouncementScreen,
     AssignmentList: AssignmentListScreen,
     CreateClassroom: CreateClassroomScreen,
     Classroom: ClassroomHome,
     Landing: ClassroomSelectScreen,
+    Notifications: NotificationsScreen,
     Load: LoadClasses,
   },
   {
