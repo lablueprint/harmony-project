@@ -3,43 +3,77 @@ import React, { useState, useEffect } from 'react';
 import {
   StyleSheet, View, Alert, Image,
 } from 'react-native';
-import { Button, Text } from 'react-native-elements';
+import { Icon, Text, ListItem } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import { INITIAL_USER_STATE } from '../../components';
+import LinearGradient from 'react-native-linear-gradient';
 
 const styles = StyleSheet.create({
-  container: {
+  banner: {
+    height: '20%',
+    zIndex: 1, 
+  },
+  screenContainer: {
+    display: 'flex', 
+    backgroundColor: '#ffffff',
+    zIndex: 2
+  },
+  top: {
+    top: -120,
+    zIndex: 2
+  },
+  bottom: {
+    top:-120, 
+    zIndex:3
+  },
+  profilePicture: {
+    height: 150, 
+    width: 150,
+    borderRadius: 150, 
+    borderWidth: 6,
+    borderColor: '#ffffff'
+  }, 
+  parentCenter: {
     display: 'flex',
-    alignItems: 'center',
+    flexDirection: 'column',
+    justifyContent: 'flex-end'
   },
-  formContainer: {
-    height: 400,
-    padding: 50,
+  childCenter: {
+    alignSelf: 'center'
   },
-  subContainerText: {
-    marginBottom: 5,
-    padding: 5,
+  pageName: {
+    color: '#ffffff', 
+    fontSize: 25,
+    marginBottom: 20
   },
-  subContainerButton: {
-    marginBottom: 15,
-    padding: 5,
+  subtextContainer: {
+    backgroundColor: '#f1f3f4', 
+    padding: 6, 
+    color: '#6c6c6c', 
+    borderRadius: 8
   },
-  activity: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
+  horizontalListContainer: {
+    backgroundColor: '#ffffff',
+    display: 'flex',
+    flexDirection: 'row',
   },
-  text: {
-    fontSize: 18,
-    margin: 5,
-    width: 200,
+  gradeLevelContainer: {
+    marginLeft: 8,
+    color: '#4391d8'
   },
+  instrumentContainer: {
+    marginBottom: -10
+  },
+  instrumentListContainer: {
+    paddingBottom: 15,
+    paddingLeft: 15,
+    flexWrap: 'wrap', 
+  },
+  instrumentTextContainer: { 
+    marginRight: 8
+  }, 
 });
 
 // navigation MUST INCLUDE: uid
@@ -49,8 +83,8 @@ export default function ProfileScreen({ navigation }) {
   // const [edit, toggleEdit] = useState(false);
   const [user, setUser] = useState();
   const uid = navigation.getParam('uid', null);
-  const ref = Firestore().collection('users');
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
+  const [instrumentList, setInstrumentList] = useState([]);
   // const [newState, setNewState] = useState(INITIAL_USER_STATE);
 
   // if i do edit profile on this page --> do newState, setNewState thing to keep track
@@ -72,10 +106,10 @@ export default function ProfileScreen({ navigation }) {
   }, []);
 
   useEffect(() => {
-    // if the user is signed in, then fetch its data
+    // if the user is signed in, then fetch their data
     function fetchData() {
       if (user && uid) {
-        ref.doc(uid).get()
+        Firestore().collection('users').doc(uid).get()
           .then((document) => {
             if (document.exists) {
               return document.data();
@@ -84,6 +118,12 @@ export default function ProfileScreen({ navigation }) {
           })
           .then((data) => {
             setUserState(data);
+
+            const temp = data.instruments.map((instrument, index) => {
+              return <Text key={index} style={[styles.subtextContainer, styles.instrumentTextContainer]}> {instrument} </Text>
+              });
+            setInstrumentList(temp);
+
             // setNewState(data);
             if (loading) setLoading(false);
           })
@@ -112,90 +152,100 @@ export default function ProfileScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.formContainer}>
-        {/* profile pic */}
-        {/* edit ? input fields : texts */}
-        {userState.profilePic !== ''
-        && <Image style={{ display: 'flex', height: 100, width: 100 }} source={{ uri: userState.profilePic }} />}
-        <View style={styles.subContainerText}>
-          <Text h4>{`${userState.firstName} ${userState.lastName}`}</Text>
-        </View>
-        <View style={styles.subContainerText}>
-          <Text>{`Date of Birth: ${userState.dob}`}</Text>
-        </View>
-        <View style={styles.subContainerText}>
-          <Text>{`Grade: ${userState.gradeLevel}`}</Text>
-        </View>
-        <View style={styles.subContainerText}>
-          <Text>{`Instruments: ${userState.instruments}`}</Text>
-        </View>
-        {/* edit ? (
-          <View style={styles.subContainerButton}>
-            <Button
-              style={styles.textInput}
-              title="Save"
-              onPress={() => {
-                saveProfile();
-              }}
-            />
+    <View>
+      <LinearGradient style={styles.banner} start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#aa7bb1', '#cd857a']}></LinearGradient>
+      <View style={styles.screenContainer}>
+        <View style={[styles.parentCenter, styles.top]}>
+          <Text style={[styles.childCenter, styles.pageName]} >My Profile</Text>
+          <Image style={[styles.childCenter, styles.profilePicture]} source={{ uri: userState.profilePic }} />
+          <View style={[styles.childCenter]}>
+            <Text h4>{`${userState.firstName} ${userState.lastName}`}</Text>
           </View>
-        ) : (
-          <View style={styles.subContainerButton}>
-            <Button
-              style={styles.textInput}
-              title="Edit Profile"
-              onPress={() => {
-                toggleEdit(true);
-              }}
-            />
+          <View style={[styles.childCenter, styles.horizontalListContainer]}>
+            <Text style={[styles.subtextContainer]}>Student</Text>
+            <Text style={[styles.subtextContainer, styles.gradeLevelContainer]}>{`Grade ${userState.gradeLevel}`}</Text>
           </View>
-        ) */}
-        <View style={styles.subContainerButton}>
-          <Button
-            style={styles.textInput}
-            title="Edit Profile"
-            onPress={() => {
-              navigation.navigate('EditProfile', { uid });
-              setLoading(true);
-            }}
-          />
         </View>
-        <View style={styles.subContainerButton}>
-          <Button
-            style={styles.textInput}
-            title="Settings"
-            onPress={() => {
-              // route to notification settings page
-            }}
-          />
+      </View>
+      <View style={styles.bottom}>
+      <ListItem
+          leftIcon={
+            <Icon 
+              name='music'
+              type='feather'
+              containerStyle={styles.instrumentContainer}
+            />
+        }
+          title="Instrument List"
+        />
+        <View style={[styles.horizontalListContainer, styles.instrumentListContainer]}>
+            {instrumentList}
         </View>
-        <View style={styles.subContainerButton}>
-          <Button
-            title="Sign Out"
-            onPress={() => { Auth().signOut(); }}
-            style={styles.textInput}
-          />
-        </View>
-        {/* REMOVE THESE LATER ONCE WE HAVE NAVBAR */}
-        <View style={styles.subContainerButton}>
-          <Button
-            style={styles.textInput}
-            title="Back to Home"
-            onPress={() => {
-              navigation.navigate('Home');
-            }}
-          />
-        </View>
-        <View style={styles.subContainerButton}>
-          <Button
-            style={styles.textInput}
-            title="Back to Landing"
-            onPress={() => {
-              navigation.navigate('Load');
-            }}
-          />
-        </View>
+        <ListItem
+          leftIcon={
+            <Icon 
+              name='bell'
+              type='feather'
+            />
+          }
+          title="Notification Settings"
+          chevron={
+            <Icon 
+              name='chevron-right'
+              type='feather'
+            />
+          }
+          onPress={() => {
+            navigation.navigate('Notifications', { uid });
+          }}
+          topDivider
+          bottomDivider
+        />
+        <ListItem
+          leftIcon={
+            <Icon 
+              name='edit-3'
+              type='feather'
+            />
+          }
+          title="Edit Profile"
+          chevron={
+            <Icon 
+              name='chevron-right'
+              type='feather'
+            />
+          }
+          onPress={() => {
+            navigation.navigate('EditProfile', { uid });
+            setLoading(true);
+          }}
+          bottomDivider
+        />
+        <ListItem
+          leftIcon={
+            <Icon 
+              name='log-out'
+              type='feather'
+            />
+          }
+          title="Log Out"
+          onPress={() => { Auth().signOut(); }}
+          bottomDivider
+        />
+        <ListItem
+          title="Home"
+          onPress={() => {
+            navigation.navigate('Home');
+          }}
+          bottomDivider
+        />
+        <ListItem
+          title="Landing"
+          onPress={() => {
+            navigation.navigate('Load');
+          }}
+          bottomDivider
+        />
       </View>
     </View>
   );
