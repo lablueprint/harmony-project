@@ -162,8 +162,8 @@ export default function ProfileScreen({ navigation }) {
             <Text h4>{`${userState.firstName} ${userState.lastName}`}</Text>
           </View>
           <View style={[styles.childCenter, styles.horizontalListContainer]}>
-            <Text style={[styles.subtextContainer]}>Student</Text>
-            <Text style={[styles.subtextContainer, styles.gradeLevelContainer]}>{`Grade ${userState.gradeLevel}`}</Text>
+            <Text style={[styles.subtextContainer]}>{userState.role}</Text>
+            {userState.gradeLevel && <Text style={[styles.subtextContainer, styles.gradeLevelContainer]}>{`Grade ${userState.gradeLevel}`}</Text>}
           </View>
         </View>
       </View>

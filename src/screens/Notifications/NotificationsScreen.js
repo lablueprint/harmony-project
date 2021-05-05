@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import {
-  ScrollView,
+  StyleSheet, View, ScrollView,
 } from 'react-native';
-import { ListItem } from 'react-native-elements';
+import { Icon, ListItem } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import moment from 'moment';
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    backgroundColor: '#d0e6f5', 
+    padding: 6, 
+    borderRadius: 25
+  }
+});
 
 /**
  * Get the list of students in this class, then reate a notification for each student.
@@ -121,7 +129,15 @@ export default function NotificationsScreen({ navigation }) {
       const ListItems = notificationList.map((element, index) => (
         <ListItem
           key={element.id}
-          leftAvatar={{ source: { uri: classroomList[index].profilePicture } }}
+          leftIcon={
+            <View style={styles.iconContainer}>
+              <Icon 
+              name={element.page == 'TODO' ? 'clipboard' : 'home'}
+              type='feather'
+              color='#439ad8'
+              />
+            </View>
+          }
           title={classroomList[index].name}
           subtitle={element.message}
           rightTitle={moment(element.createdAt.toDate()).fromNow().toString()}
