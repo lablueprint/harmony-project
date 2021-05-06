@@ -54,5 +54,5 @@ buck-out/
 ios/GoogleService-Info.plist
 android/app/google-services.json
 
-package-lock.json
+
 .vscode/settings.json

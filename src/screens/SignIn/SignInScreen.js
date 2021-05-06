@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext} from 'react';
 import {
   StyleSheet, ActivityIndicator, View, Text, Alert, Image,
 } from 'react-native';
@@ -7,6 +7,7 @@ import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import Logo from '../../components/hp_circleLogo.png';
 import LinearGradient from 'react-native-linear-gradient';
+import AuthContext from '../../navigation/AuthContext';
 
 const styles = StyleSheet.create({
   screen: {
@@ -93,6 +94,7 @@ export default function SignInScreen({ navigation }) {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [showLoading, setShowLoading] = useState(false);
+  const [authState, setAuthState] = useContext(AuthContext);
 
   useEffect(() => {
     setEmailError('');
@@ -122,7 +124,11 @@ export default function SignInScreen({ navigation }) {
       setShowLoading(false);
       // if valid signin, navigate to landing
       if (doSignIn.user) {
+<<<<<<< HEAD
         navigation.navigate('Load');
+=======
+        setAuthState(!authState);
+>>>>>>> 68ea6869ed88031c676083664d5ab2f6f99a3ead
       }
     } catch (e) {
       const errorCode = e.code; 
@@ -210,5 +216,7 @@ SignInScreen.navigationOptions = ({ navigation }) => ({
 SignInScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
+    goBack: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
   }).isRequired,
 };

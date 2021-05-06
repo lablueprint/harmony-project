@@ -7,6 +7,7 @@ import { Icon, Text, ListItem } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
+import Firebase from '@react-native-firebase/app';
 import { INITIAL_USER_STATE } from '../../components';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -79,10 +80,15 @@ const styles = StyleSheet.create({
 // navigation MUST INCLUDE: uid
 export default function ProfileScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
+<<<<<<< HEAD
   const [loading, setLoading] = useState(true);
   // const [edit, toggleEdit] = useState(false);
   const [user, setUser] = useState();
   const uid = navigation.getParam('uid', null);
+=======
+  const { uid } = Firebase.auth().currentUser;
+  const ref = Firestore().collection('users');
+>>>>>>> 68ea6869ed88031c676083664d5ab2f6f99a3ead
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
   const [instrumentList, setInstrumentList] = useState([]);
   // const [newState, setNewState] = useState(INITIAL_USER_STATE);
@@ -260,7 +266,5 @@ ProfileScreen.navigationOptions = ({ navigation }) => ({
 ProfileScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-    getParam: PropTypes.func.isRequired,
-    addListener: PropTypes.func.isRequired,
   }).isRequired,
 };
