@@ -14,6 +14,9 @@ import { INITIAL_USER_STATE, roles } from '../../components/const';
 import DatePicker from '../../components/DatePicker';
 
 const styles = StyleSheet.create({
+  screen: {
+    backgroundColor: '#f6f6f6'
+  }, 
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -26,8 +29,9 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   subContainer: {
-    marginBottom: 20,
-    padding: 5,
+    display: 'flex',
+    alignItems: 'center',
+    paddingBottom: 10,
   },
   activity: {
     position: 'absolute',
@@ -49,6 +53,33 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     alignItems: 'center',
   },
+  
+  buttonText_1: {
+    color: '#828282'
+  }, 
+  buttonText_2: {
+    color: '#ffffff'
+  }, 
+  buttonText_3: {
+    color: '#8e4f97'
+  },
+  button_1 : {
+    backgroundColor: 'transparent', 
+    borderRadius: 40, 
+    width: 250
+  }, 
+  button_2 : {
+    backgroundColor: '#8e4f97', 
+    borderRadius: 40, 
+    width: 250
+  }, 
+  button_3: {
+    backgroundColor: '#ffffff', 
+    borderColor: '#8e4f97', 
+    borderWidth: 3, 
+    borderRadius: 40, 
+    width: 250
+  }
 });
 
 const numbers = /\d/; // regex that tests numbers
@@ -174,11 +205,8 @@ export default function SignUpScreen({ navigation }) {
   if (initializing) return null;
 
   return (
-    <View style={styles.container}>
+    <View style={styles.screen}>
       <View style={styles.formContainer}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontSize: 28, height: 50 }}>Sign Up Here!</Text>
-        </View>
         {!next && (
         <>
           <View style={styles.subContainer}>
@@ -195,19 +223,6 @@ export default function SignUpScreen({ navigation }) {
               <Picker.Item label="Student" value={roles.student} />
               <Picker.Item label="Teacher" value={roles.teacher} />
             </Picker>
-          </View>
-          <View style={styles.subContainer}>
-            <Input
-              style={styles.textInput}
-              placeholder="Email"
-              value={userState.email}
-              onChangeText={(text) => {
-                setUserState({
-                  ...userState,
-                  email: text,
-                });
-              }}
-            />
           </View>
           <View style={styles.subContainer}>
             <Input
@@ -266,6 +281,19 @@ export default function SignUpScreen({ navigation }) {
                 />
               </View>
             )}
+            <View style={styles.subContainer}>
+            <Input
+              style={styles.textInput}
+              placeholder="Email"
+              value={userState.email}
+              onChangeText={(text) => {
+                setUserState({
+                  ...userState,
+                  email: text,
+                });
+              }}
+            />
+          </View>
           <View style={styles.subContainer}>
             <Input
               style={styles.textInput}
@@ -277,7 +305,7 @@ export default function SignUpScreen({ navigation }) {
           </View>
           <View style={styles.subContainer}>
             <Button
-              style={styles.textInput}
+              buttonStyle={styles.button_2}
               title="Next"
               onPress={goNext}
             />
@@ -373,12 +401,10 @@ export default function SignUpScreen({ navigation }) {
             </View>
           </>
         )}
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text>Already a user?</Text>
-        </View>
         <View style={styles.subContainer}>
           <Button
-            style={styles.textInput}
+            titleStyle={styles.buttonText_3}
+            buttonStyle={styles.button_3}
             title="Login"
             onPress={() => {
               navigation.navigate('SignIn');

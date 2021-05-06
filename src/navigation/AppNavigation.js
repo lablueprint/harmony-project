@@ -17,6 +17,7 @@ import NewAssignmentScreen from '../screens/AssignmentList/NewAssignmentScreen';
 import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
 import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
 import NotificationsScreen from '../screens/Notifications';
+import NotificationsSettingsScreen from '../screens/NotificationsSettings';
 import { ClassroomSelectScreen, LoadClasses } from '../screens/Landing';
 
 const AppNavigation = createStackNavigator(
@@ -43,6 +44,7 @@ const AppNavigation = createStackNavigator(
     Classroom: ClassroomHome,
     Landing: ClassroomSelectScreen,
     Notifications: NotificationsScreen,
+    NotificationsSettings: NotificationsSettingsScreen,
     Load: LoadClasses,
   },
   {

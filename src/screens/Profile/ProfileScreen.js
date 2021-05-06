@@ -153,7 +153,7 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <View>
-      <LinearGradient style={styles.banner} start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#aa7bb1', '#cd857a']}></LinearGradient>
+      <LinearGradient style={styles.banner} start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#aa7bb1', '#cd857a']}/>
       <View style={styles.screenContainer}>
         <View style={[styles.parentCenter, styles.top]}>
           <Text style={[styles.childCenter, styles.pageName]} >My Profile</Text>
