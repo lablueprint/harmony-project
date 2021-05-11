@@ -322,6 +322,7 @@ function PinPost({
 }
 
 export default function Post({
+  // eslint-disable-next-line no-unused-vars
   title, createdAt, date, body, attachments, id, loadingNewComment, collection, pin, rerender,
   setRerender,
 }) {
