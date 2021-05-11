@@ -336,6 +336,7 @@ export default function Post({
 
   const [showMore, setShowMore] = useState(true);
   const [buttons, setButtons] = useState(true);
+  const [isPin, setPin] = useState(pin);
 
   const [lines, setLines] = useState(6);
 
@@ -380,7 +381,6 @@ export default function Post({
   attachments.filter((x) => x) removes all non-empty strings.
   */
 
-
   const images = attachments.filter((x) => x).map((image) => ({ source: { uri: image } }));
   const hasImages = (images.length > 0);
 
@@ -395,9 +395,6 @@ export default function Post({
       <View style={styles.container}>
         <Text style={styles.topicText}>
           {title}
-        </Text>
-        <Text style={styles.timeText}>
-          {createdAt}
         </Text>
         <Text style={styles.timeText}>
           {date}
@@ -453,15 +450,23 @@ export default function Post({
             />
           </View>
         )}
-        {isAuthor && (
-        <PinPost
-          postID={id}
-          initialValue={pin}
-          collection={collection}
-          rerender={rerender}
-          setRerender={setRerender}
+        <Button
+          title={isPin ? 'Unpin' : 'Pin'}
+          onPress={async () => {
+            await Firestore().collection(collection).doc(id).update({
+              doPin: !isPin,
+            })
+              .then(() => {
+                setRerender(!rerender);
+                console.log(`Successfully updated doPin to ${!isPin}`);
+              })
+              .catch((error) => {
+                console.log('Error updating doPin: ', error);
+              });
+            setPin(!isPin);
+          }}
         />
-        )}
+
         {isAuthor ? (
           <Button
             title="Delete"

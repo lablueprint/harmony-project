@@ -79,117 +79,117 @@ export default function AssignmentScreen({ navigation }) {
       </Post>
       <View style={styles.buttonsContainer}>
         {!isTeacher && !hasBeenEval && hasBeenSubmitted
-                    && (
-                      <>
-                        <Text
-                          style={styles.buttons}
-                          onPress={() => {
-                            navigation.navigate('NewComment', { id: post.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
-                          }}
-                        >
-                          Comment on Assignment
-                        </Text>
-                        <Text
-                          style={styles.buttons}
-                          onPress={() => {
-                            navigation.navigate('NewPost', {
-                              userID: uid,
-                              postID: post.id,
-                              collection: 'recordings',
-                              title: post.title,
-                              handleSubmit: createSubmission,
-                            });
-                          }}
-                        >
-                          Upload Submission
-                        </Text>
-                        {/* TODO: View submissions */}
-                        <Text
-                          style={styles.buttons}
-                          onPress={() => {
+              && (
+                <>
+                  <Text
+                    style={styles.buttons}
+                    onPress={() => {
+                      navigation.navigate('NewComment', { id: post.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
+                    }}
+                  >
+                    Comment on Assignment
+                  </Text>
+                  <Text
+                    style={styles.buttons}
+                    onPress={() => {
+                      navigation.navigate('NewPost', {
+                        userID: uid,
+                        postID: post.id,
+                        collection: 'recordings',
+                        title: post.title,
+                        handleSubmit: createSubmission,
+                      });
+                    }}
+                  >
+                    Upload Submission
+                  </Text>
+                  {/* TODO: View submissions */}
+                  <Text
+                    style={styles.buttons}
+                    onPress={() => {
 
-                          }}
-                        >
-                          View Submission
-                        </Text>
+                    }}
+                  >
+                    View Submission
+                  </Text>
 
-                      </>
-                    )}
+                </>
+              )}
         {!isTeacher && !hasBeenEval && !hasBeenSubmitted
-                  && (
-                    <>
-                      <Text
-                        style={styles.buttons}
-                        onPress={() => {
-                          navigation.navigate('NewComment', { id: post.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
-                        }}
-                      >
-                        Comment
-                      </Text>
-                      <Text
-                        style={styles.buttons}
-                        onPress={() => {
-                          navigation.navigate('NewPost', {
-                            userID: uid,
-                            postID: post.id,
-                            collection: 'recordings',
-                            title: post.title,
-                            handleSubmit: createSubmission,
-                          });
-                        }}
-                      >
-                        Upload Submission
-                      </Text>
-                    </>
-                  )}
+              && (
+                <>
+                  <Text
+                    style={styles.buttons}
+                    onPress={() => {
+                      navigation.navigate('NewComment', { id: post.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
+                    }}
+                  >
+                    Comment
+                  </Text>
+                  <Text
+                    style={styles.buttons}
+                    onPress={() => {
+                      navigation.navigate('NewPost', {
+                        userID: uid,
+                        postID: post.id,
+                        collection: 'recordings',
+                        title: post.title,
+                        handleSubmit: createSubmission,
+                      });
+                    }}
+                  >
+                    Upload Submission
+                  </Text>
+                </>
+              )}
         {!isTeacher && hasBeenEval
-                  && (
-                    <>
-                      <Text
-                        style={styles.buttons}
-                        onPress={() => {
-                          navigation.navigate('NewComment', { id: post.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
-                        }}
-                      >
-                        Comment
-                      </Text>
-                      <Text
-                        style={styles.buttons}
-                        onPress={() => {
-                          navigation.navigate('Evaluation', {
-                            uid: hasBeenEval,
-                          });
-                        }}
-                      >
-                        View Evaluation
-                      </Text>
+            && (
+              <>
+                <Text
+                  style={styles.buttons}
+                  onPress={() => {
+                    navigation.navigate('NewComment', { id: post.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
+                  }}
+                >
+                  Comment
+                </Text>
+                <Text
+                  style={styles.buttons}
+                  onPress={() => {
+                    navigation.navigate('Evaluation', {
+                      uid: hasBeenEval,
+                    });
+                  }}
+                >
+                  View Evaluation
+                </Text>
 
-                    </>
-                  )}
+              </>
+            )}
         {isTeacher
-                  && (
-                    <>
-                      <Text
-                        style={styles.buttons}
-                        onPress={() => {
-                          navigation.navigate('NewComment', { id: post.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
-                        }}
-                      >
-                        Comment
-                      </Text>
-                      <Text
-                        style={styles.buttons}
-                        onPress={() => {
-                          navigation.navigate('Submissions', {
-                            assignment: post.id,
-                            classroom: post.classroomID,
-                          });
-                        }}
-                      >
-                        View Submissions
-                      </Text>
-                    </>
-                  )}
+            && (
+              <>
+                <Text
+                  style={styles.buttons}
+                  onPress={() => {
+                    navigation.navigate('NewComment', { id: post.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
+                  }}
+                >
+                  Comment
+                </Text>
+                <Text
+                  style={styles.buttons}
+                  onPress={() => {
+                    navigation.navigate('Submissions', {
+                      assignment: post.id,
+                      classroom: post.classroomID,
+                    });
+                  }}
+                >
+                  View Submissions
+                </Text>
+              </>
+            )}
       </View>
     </ScrollView>
   );
