@@ -42,8 +42,20 @@ const AppContainer = () => {
       <NavigationContainer>
         <Root.Navigator>
           {isAuth
-            ? (<Root.Screen name="MainApp" component={BottomTabNavigator} options={defaultNavOptions} />)
-            : (<Root.Screen name="AuthStack" component={AuthNavigation} />)}
+            ? (
+              <Root.Screen
+                name="MainApp"
+                component={BottomTabNavigator}
+                options={defaultNavOptions}
+              />
+            )
+            : (
+              <Root.Screen
+                name="AuthStack"
+                component={AuthNavigation}
+                options={{ title: '' }}
+              />
+            )}
         </Root.Navigator>
       </NavigationContainer>
     </AuthContext.Provider>
