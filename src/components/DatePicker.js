@@ -20,7 +20,6 @@ const styles = StyleSheet.create({
   },
 });
 
-
 // props:
 // currDay, currMonth, currYear: current date of birth (default to 1, 1, 2021; used in EditProfile)
 // onChange (required): a function that receives the date string as a parameter
