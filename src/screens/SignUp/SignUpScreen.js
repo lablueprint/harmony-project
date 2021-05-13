@@ -103,27 +103,22 @@ export default function SignUpScreen({ navigation }) {
     // if everything valid, signup
     if (userInsts.length !== 0 && userState.dob.length !== 0) {
       setShowLoading(true);
-      try {
-        // user is signed up, then the appropriate firestore calls are made based on role
-        const doSignUp = await Auth().createUserWithEmailAndPassword(userState.email, password);
-        const { user } = doSignUp;
-        setShowLoading(false);
-        if (user) {
+      // user is signed up, then the appropriate firestore calls are made based on role
+      Auth().createUserWithEmailAndPassword(userState.email, password)
+        .then((userCredential) => {
+          const { user } = userCredential;
           user.sendEmailVerification();
           Firestore().collection('users').doc(user.uid).set({
             ...userState,
             createdAt: Firestore.FieldValue.serverTimestamp(),
             updatedAt: Firestore.FieldValue.serverTimestamp(),
           });
-          // sign in and navigate to home screen upon signup
-          navigation.navigate('Load');
-        }
-      } catch (e) {
-        setShowLoading(false);
-        Alert.alert(
-          e.message,
-        );
-      }
+        }).catch((e) => {
+          setShowLoading(false);
+          Alert.alert(
+            e.message,
+          );
+        });
     } else {
       let error = '';
       if (userInsts.length === 0) {
@@ -161,11 +156,9 @@ export default function SignUpScreen({ navigation }) {
       if (initializing) setInitializing(false);
     }
 
-    const focusListener = navigation.addListener('didFocus', () => {
+    navigation.addListener('didFocus', () => {
       fetchInsts();
     });
-
-    return () => focusListener.remove();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
