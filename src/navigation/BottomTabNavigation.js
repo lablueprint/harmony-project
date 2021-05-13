@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
 import ProfileScreen from '../screens/Profile';
 import MainStackNavigator from './StackNavigation';
+import NotificationsScreen from '../screens/Notifications';
 
 /* These are wrapper functions that are used to display bottom tab icons
 These needed to be abstracted in order to properly validate the props
@@ -57,7 +58,7 @@ const BottomTabNavigator = () => (
 
     <Tab.Screen
       name="Notifications"
-      component={blankScreen}
+      component={NotificationsScreen}
       options={{
         tabBarIcon: NotificationIcon,
       }}
