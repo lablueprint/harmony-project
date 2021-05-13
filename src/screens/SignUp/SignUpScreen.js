@@ -134,29 +134,31 @@ export default function SignUpScreen({ navigation }) {
   };
 
   useEffect(() => {
-    async function fetchInsts() {
-      const { user } = await Auth().signInAnonymously();
-      if (user) {
-        // fetch instruments from Firestore and place them into the instruments state var
-        // each object in the instruments state var hold the name and
-        // whether or not they've been chosen (toggle)
-        await Firestore().collection('instruments').orderBy('name', 'asc').get()
-          .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-              setInsts((insts) => [...insts, { name: doc.data().name, toggle: false }]);
-            });
-          })
-          .catch((e) => {
-            Alert.alert(e.message);
-          });
+    function fetchInsts() {
+      Auth().signInAnonymously()
+        .then(() => {
+          // fetch instruments from Firestore and place them into the instruments state var
+          // each object in the instruments state var hold the name and
+          // whether or not they've been chosen (toggle)
+          Firestore().collection('instruments').orderBy('name', 'asc').get()
+            .then((querySnapshot) => {
+              querySnapshot.forEach((doc) => {
+                setInsts((insts) => [...insts, { name: doc.data().name, toggle: false }]);
+              });
+            })
+            .then(() => {
+              // delete anonymous user after fetching instruments from Firestore
+              Auth().currentUser.delete();
 
-        // delete anonymous user after fetching instruments from Firestore
-        Auth().currentUser.delete();
-      }
-      if (initializing) setInitializing(false);
+              if (initializing) setInitializing(false);
+            })
+            .catch((e) => {
+              Alert.alert(e.message);
+            });
+        });
     }
 
-    navigation.addListener('didFocus', () => {
+    navigation.addListener('focus', () => {
       fetchInsts();
     });
 

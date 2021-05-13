@@ -36,8 +36,8 @@ const AppContainer = () => {
 
   // Handle user state changes
   function onAuthStateChanged(authUser) {
-    if (user && !user.email) Auth().currentUser.delete(); // delete anonymous user
-    else setUser(authUser);
+    if (authUser && authUser.email) setUser(authUser); // only set if not anonymous
+    else setUser(null);
     if (initializing) setInitializing(false);
   }
 

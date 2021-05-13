@@ -64,9 +64,10 @@ export default function EditProfileScreen({ navigation }) {
   const [upload, setUpload] = useState(false);
 
   useEffect(() => {
-    async function fetchData() {
+    function fetchData() {
       // if the user is signed in, then fetch its data
       if (uid) {
+        setInsts([]);
         ref.doc(uid).get()
           .then((document) => {
             if (document.exists) {
@@ -74,7 +75,7 @@ export default function EditProfileScreen({ navigation }) {
             }
             return null;
           })
-          .then(async (data) => {
+          .then((data) => {
             setUserState(data);
             // setNewState(data);
             const date = data.dob.split('-'); // yyyy-mm-dd
@@ -88,7 +89,7 @@ export default function EditProfileScreen({ navigation }) {
             // fetch instruments from Firestore and place them into the instruments state var
             // each object in the instruments state var hold the name and
             // whether or not they've been chosen or were previously chosen (toggle)
-            await Firestore().collection('instruments').orderBy('name', 'asc').get()
+            Firestore().collection('instruments').orderBy('name', 'asc').get()
               .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
                   setInsts((insts) => [...insts, {
@@ -97,11 +98,12 @@ export default function EditProfileScreen({ navigation }) {
                   }]);
                 });
               })
+              .then(() => {
+                if (initializing) setInitializing(false);
+              })
               .catch((e) => {
                 Alert.alert(e.message);
               });
-
-            if (initializing) setInitializing(false);
           })
           .catch((e) => {
             Alert.alert(e.message);
@@ -174,7 +176,7 @@ export default function EditProfileScreen({ navigation }) {
   };
 
   function cancel() {
-    navigation.navigate('Profile', { uid });
+    navigation.navigate('Profile');
   }
 
   if (initializing) return null;
