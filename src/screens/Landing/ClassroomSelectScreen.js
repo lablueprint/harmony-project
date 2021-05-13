@@ -242,8 +242,10 @@ export default function ClassroomSelectScreen({ navigation }) {
       <View style={styles.subContainer}>
         <Button
           style={styles.textInput}
-          title="Settings"
+          title="Library"
           onPress={() => {
+            setToggle(false);
+            navigation.navigate('Library', { classrooms });
           }}
         />
       </View>
