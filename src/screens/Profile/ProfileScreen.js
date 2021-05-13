@@ -7,6 +7,7 @@ import { Button, Text } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
+import Firebase from '@react-native-firebase/app';
 import { INITIAL_USER_STATE } from '../../components';
 
 const styles = StyleSheet.create({
@@ -44,37 +45,17 @@ const styles = StyleSheet.create({
 
 // navigation MUST INCLUDE: uid
 export default function ProfileScreen({ navigation }) {
-  const [initializing, setInitializing] = useState(true);
   const [loading, setLoading] = useState(true);
   // const [edit, toggleEdit] = useState(false);
-  const [user, setUser] = useState();
-  const uid = navigation.getParam('uid', null);
+  const { uid } = Firebase.auth().currentUser;
   const ref = Firestore().collection('users');
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
   // const [newState, setNewState] = useState(INITIAL_USER_STATE);
 
-  // if i do edit profile on this page --> do newState, setNewState thing to keep track
-  // newState set to current userState upon edit click
-  // (probably still use original userState to display stuff)
-  // when you hit save profile itll change newState, and then send to firestore,
-  // and then save userState as newState
-  // if cancel, just reset newState back to userState
-
-  function onAuthStateChanged(authUser) {
-    setUser(authUser);
-    if (initializing) setInitializing(false);
-  }
-
-  // check signin on mount
-  useEffect(() => {
-    const subscriber = Auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-  }, []);
-
   useEffect(() => {
     // if the user is signed in, then fetch its data
     function fetchData() {
-      if (user && uid) {
+      if (uid) {
         ref.doc(uid).get()
           .then((document) => {
             if (document.exists) {
@@ -93,21 +74,19 @@ export default function ProfileScreen({ navigation }) {
       }
     }
 
-    const focusListener = navigation.addListener('didFocus', () => {
+    navigation.addListener('focus', () => {
       fetchData();
     });
-
-    return () => focusListener.remove();
-  }, [user, uid]);
+  }, [uid]);
 
   /* function saveProfile() {
 
   } */
 
-  if (initializing || loading) return null;
+  if (loading) return null;
 
   // if not logged in, unmount and go to signin page
-  if (!user) {
+  if (!uid) {
     return navigation.navigate('SignIn');
   }
 
@@ -210,7 +189,6 @@ ProfileScreen.navigationOptions = ({ navigation }) => ({
 ProfileScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-    getParam: PropTypes.func.isRequired,
     addListener: PropTypes.func.isRequired,
   }).isRequired,
 };
