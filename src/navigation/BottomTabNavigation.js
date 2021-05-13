@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
 import ProfileScreen from '../screens/Profile';
@@ -11,19 +11,19 @@ import NotificationsScreen from '../screens/Notifications';
 These needed to be abstracted in order to properly validate the props
 */
 const HomeIcon = ({ color }) => (
-  <Icon name="home" color={color} size={25} />
+  <Icon name="home" type="feather" color={color} size={25} />
 );
 
 const TodoIcon = ({ color }) => (
-  <Icon name="clipboard" color={color} size={25} />
+  <Icon name="clipboard" type="feather" color={color} size={25} />
 );
 
 const NotificationIcon = ({ color }) => (
-  <Icon name="notifications" color={color} size={25} />
+  <Icon name="bell" type="feather" color={color} size={25} />
 );
 
 const ProfileIcon = ({ color }) => (
-  <Icon name="person" color={color} size={25} />
+  <Icon name="user" type="feather" color={color} size={25} />
 );
 
 /* Function is just here to route to an empty screen since notification
