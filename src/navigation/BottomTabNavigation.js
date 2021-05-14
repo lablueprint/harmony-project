@@ -4,7 +4,7 @@ import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
 import ProfileScreen from '../screens/Profile';
-import MainStackNavigator from './StackNavigation';
+import { MainStackNavigator, LibraryNavigator } from './StackNavigation';
 
 /* These are wrapper functions that are used to display bottom tab icons
 These needed to be abstracted in order to properly validate the props
@@ -19,6 +19,10 @@ const TodoIcon = ({ color }) => (
 
 const NotificationIcon = ({ color }) => (
   <Icon name="bell" type="feather" color={color} size={25} />
+);
+
+const LibraryIcon = ({ color }) => (
+  <Icon name="folder" type="feather" color={color} size={25} />
 );
 
 const ProfileIcon = ({ color }) => (
@@ -64,6 +68,14 @@ const BottomTabNavigator = () => (
     />
 
     <Tab.Screen
+      name="Library"
+      component={LibraryNavigator}
+      options={{
+        tabBarIcon: LibraryIcon,
+      }}
+    />
+
+    <Tab.Screen
       name="Profile"
       component={ProfileScreen}
       options={{
@@ -83,6 +95,10 @@ TodoIcon.propTypes = {
 };
 
 NotificationIcon.propTypes = {
+  color: PropTypes.string.isRequired,
+};
+
+LibraryIcon.propTypes = {
   color: PropTypes.string.isRequired,
 };
 

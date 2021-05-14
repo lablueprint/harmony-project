@@ -5,7 +5,8 @@ import {
 } from 'react-native';
 import { SearchBar } from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
-// import Auth from '@react-native-firebase/auth';
+import Auth from '@react-native-firebase/auth';
+import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
@@ -63,14 +64,13 @@ const styles = StyleSheet.create({
 // search --> delineate search on this screen with text,
 // other page only search thru the specified file type
 
-export default function LibraryScreen({ navigation, route }) {
+export default function LibraryScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
 
   // if can't pass classrooms, need to fetch user data and check signin
   // const [user, setUser] = useState(null);
   // const userState = navigation.getParam('userState', null);
-  // const uid = navigation.getParam('uid', null);
-  const { classrooms } = route.params;
+  const { uid } = Auth().currentUser;
   const [classFiles, setFiles] = useState([]);
   const [searchText, setSearch] = useState('');
   const [searchFiles, setSearchFiles] = useState({});
@@ -88,47 +88,85 @@ export default function LibraryScreen({ navigation, route }) {
   }, []); */
 
   useEffect(() => {
-    // load stuff from storage
-    if (classrooms) {
-      classrooms.forEach((c) => {
-        const fileRef = storage().ref(`classrooms/${c.code}/files`);
-        const photoRef = storage().ref(`classrooms/${c.code}/photos`);
-        const videoRef = storage().ref(`classrooms/${c.code}/videos`);
+    Firestore().collection('users')
+      .doc(uid)
+      .get()
+      .then((document) => {
+        if (document.exists) {
+          return document.data();
+        }
+        return null;
+      })
+      .then((data) => {
+        Firestore().collection('classrooms').orderBy('endDate', 'desc').get()
+          .then((querySnapshot) => {
+            const classrooms = [];
+            querySnapshot.forEach((doc) => {
+              if (data.role === 'TEACHER') {
+                if (doc.id.length === 6) {
+                  doc.data().teacherIDs.forEach((element) => {
+                    if (element === uid) {
+                      classrooms.push({ ...doc.data(), code: doc.id });
+                    }
+                  });
+                }
+              } else if (data.role === 'STUDENT') {
+                if (doc.id.length === 6) {
+                  doc.data().studentIDs.forEach((element) => {
+                    if (element === uid) {
+                      classrooms.push({ ...doc.data(), code: doc.id });
+                    }
+                  });
+                }
+              }
+            });
 
-        const newClassFiles = {
-          code: c.code,
-          name: c.name,
-          videos: [],
-          photos: [],
-          files: [],
-        };
+            classrooms.forEach((c) => {
+              const fileRef = storage().ref(`classrooms/${c.code}/files`);
+              const photoRef = storage().ref(`classrooms/${c.code}/photos`);
+              const videoRef = storage().ref(`classrooms/${c.code}/videos`);
 
-        fileRef.list()
-          .then((res) => {
-            newClassFiles.files = res.items;
-          }).catch((e) => {
+              const newClassFiles = {
+                code: c.code,
+                name: c.name,
+                videos: [],
+                photos: [],
+                files: [],
+              };
+
+              fileRef.list()
+                .then((res) => {
+                  newClassFiles.files = res.items;
+                }).catch((e) => {
+                  Alert.alert(e.message);
+                });
+
+              photoRef.list()
+                .then((res) => {
+                  newClassFiles.photos = res.items;
+                }).catch((e) => {
+                  Alert.alert(e.message);
+                });
+
+              videoRef.list()
+                .then((res) => {
+                  newClassFiles.videos = res.items;
+                }).catch((e) => {
+                  Alert.alert(e.message);
+                });
+              setFiles((f) => [...f, newClassFiles]);
+            });
+
+            setInitializing(false);
+          })
+          .catch((e) => {
             Alert.alert(e.message);
           });
-
-        photoRef.list()
-          .then((res) => {
-            newClassFiles.photos = res.items;
-          }).catch((e) => {
-            Alert.alert(e.message);
-          });
-
-        videoRef.list()
-          .then((res) => {
-            newClassFiles.videos = res.items;
-          }).catch((e) => {
-            Alert.alert(e.message);
-          });
-        setFiles((f) => [...f, newClassFiles]);
+      })
+      .catch((e) => {
+        Alert.alert(e.message);
       });
-
-      setInitializing(false);
-    }
-  }, [classrooms]);
+  }, []);
 
   // search function
   useEffect(() => {
@@ -253,10 +291,5 @@ export default function LibraryScreen({ navigation, route }) {
 LibraryScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-  }).isRequired,
-
-  route: PropTypes.shape({
-    // eslint-disable-next-line react/forbid-prop-types
-    params: PropTypes.object.isRequired,
   }).isRequired,
 };
