@@ -40,7 +40,10 @@ const AppContainer = () => {
   return (
     <AuthContext.Provider value={authToken}>
       <NavigationContainer>
-        <Root.Navigator>
+        <Root.Navigator screenOptions={{
+          headerShown: false,
+        }}
+        >
           {isAuth
             ? (
               <Root.Screen

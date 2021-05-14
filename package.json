@@ -7,7 +7,8 @@
     "ios": "cd ios && pod install && cd .. && react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "postinstall": "rm ./node_modules/react-native/local-cli/core/__fixtures__/files/package.json"
   },
   "dependencies": {
     "@react-native-community/checkbox": "^0.5.7",
