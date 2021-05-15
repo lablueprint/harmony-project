@@ -3,9 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React, { useState, useContext } from 'react';
 import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
-import { Text, Button, SafeAreaView } from 'react-native';
 import ClassroomContext from './ClassroomContext';
 import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
+import NotificationsScreen from '../screens/Notifications/NotificationsScreen';
 import ProfileScreen from '../screens/Profile';
 import { MainStackNavigator, LibraryNavigator } from './StackNavigation';
 import ClassroomSelector from '../components/ClassroomSelector';
@@ -25,7 +25,6 @@ const NotificationIcon = ({ color }) => (
   <Icon name="bell" type="feather" color={color} size={25} />
 );
 
-
 const LibraryIcon = ({ color }) => (
   <Icon name="folder" type="feather" color={color} size={25} />
 );
@@ -39,27 +38,10 @@ screen is currently not made and the navigator breaksdown without something
 present.
 */
 
-
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
   const [classroom, setClassroom] = useState('');
-
-  const dummyClassroomResetScreen = () => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { selectedClassroom, setSelectedClassroom } = useContext(ClassroomContext);
-    return (
-      <SafeAreaView>
-        <Text style={{ margin: 5, paddingVertical: 10 }}>
-          {selectedClassroom ? `Selected classroom: ${selectedClassroom}` : 'No classroom selected.'}
-        </Text>
-        <Button
-          onPress={() => setSelectedClassroom('')}
-          title="Reset classroom"
-        />
-      </SafeAreaView>
-    );
-  };
 
   return (
     <ClassroomContext.Provider value={{ classroom, setClassroom }}>
@@ -83,19 +65,19 @@ const BottomTabNavigator = () => {
 
         <Tab.Screen
           name="Notifications"
-          component={dummyClassroomResetScreen}
+          component={NotificationsScreen}
           options={{
             tabBarIcon: NotificationIcon,
           }}
         />
 
-      <Tab.Screen
-            name="Library"
-            component={LibraryNavigator}
-            options={{
-              tabBarIcon: LibraryIcon,
-            }}
-          />
+        <Tab.Screen
+          name="Library"
+          component={LibraryNavigator}
+          options={{
+            tabBarIcon: LibraryIcon,
+          }}
+        />
 
         <Tab.Screen
           name="Profile"
@@ -108,7 +90,6 @@ const BottomTabNavigator = () => {
     </ClassroomContext.Provider>
   );
 };
-
 
 // Validate Icon Props
 HomeIcon.propTypes = {
@@ -123,11 +104,9 @@ NotificationIcon.propTypes = {
   color: PropTypes.string.isRequired,
 };
 
-
 LibraryIcon.propTypes = {
   color: PropTypes.string.isRequired,
 };
-
 
 ProfileIcon.propTypes = {
   color: PropTypes.string.isRequired,

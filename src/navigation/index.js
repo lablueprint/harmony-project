@@ -1,10 +1,9 @@
-
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 // import Firebase from '@react-native-firebase/app';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import LinearGradient from 'react-native-linear-gradient';
+// import LinearGradient from 'react-native-linear-gradient';
 import Auth from '@react-native-firebase/auth';
 import AuthNavigation from './AuthNavigation';
 import BottomTabNavigator from './BottomTabNavigation';
@@ -15,21 +14,11 @@ APPLICATION. Currently, it will display the linear gradient at the
 top of the app for every single page.
 */
 const defaultNavOptions = {
-  headerBackground: () => (
-    <LinearGradient
-      colors={['#984A9C', '#C95748']}
-      style={{ flex: 1 }}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-    />
-  ),
   title: '',
 };
 
 const AppContainer = () => {
   const Root = createStackNavigator();
-  // const [isAuth, setAuth] = useState(null);
-  // const authToken = useState(false);
 
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
@@ -61,7 +50,10 @@ const AppContainer = () => {
   return (
   // <AuthContext.Provider value={authToken}>
     <NavigationContainer>
-      <Root.Navigator>
+      <Root.Navigator screenOptions={{
+        headerShown: false,
+      }}
+      >
         {user
           ? (
             <Root.Screen
