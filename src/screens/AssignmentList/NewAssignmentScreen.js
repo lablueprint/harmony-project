@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
 import { Calendar } from 'react-native-calendars';
+import { notifyStudents } from '../Notifications/NotificationsScreen';
 
 const styles = StyleSheet.create({
   container: {
@@ -30,18 +31,21 @@ export default function NewAssignmentScreen({ navigation }) {
   const mainScreenLoadStatus = navigation.getParam('currentLoad');
   const reloadMainScreen = navigation.getParam('setLoad');
   const [classroom, setClassroomID] = useState('');
+  const [teacherName, setTeacherName] = useState('');
+  const [studentIDs, setStudentIDs] = useState([]);
 
   const [initializing, setInitializing] = useState(true);
   const uid = navigation.getParam('uid', null);
 
-  const ref = Firestore().collection('users');
-
   useEffect(() => {
     console.log('ONE');
     try {
-      ref.doc(uid).get().then((doc) => {
+      Firestore().collection('users').doc(uid).get().then((doc) => {
         const data = doc.data();
-        setClassroomID(data.classroomIds[0]);
+        if(data) {
+          setClassroomID(data.classroomIds[0]);
+          setTeacherName(data.name);
+        }
       });
       if (initializing) setInitializing(false);
     } catch (e) {
@@ -53,6 +57,23 @@ export default function NewAssignmentScreen({ navigation }) {
   }, []);
 
   if (initializing) return null;
+
+  /* When an assignment has been created, create a notification for every student in the class */
+  /*
+  const notifyStudents = () => {
+    if(studentIDs.length > 0 && teacherName !== '') {
+      studentIDs.forEach(async (studentID) => {
+        await Firestore().collection('notifications').add({
+          classroomID: classroom, 
+          createdAt: Firestore.Timestamp.now(), 
+          message: teacherName + " has created a new To Do '" + title + "'", 
+          page: "TODO", 
+          userID: studentID
+        })
+      })
+    }
+  }
+  */
 
   const handleSubmit = () => {
     setLoading(true);
@@ -80,6 +101,8 @@ export default function NewAssignmentScreen({ navigation }) {
       .catch((error) => {
         setErrorMessage(error.message);
       });
+
+      notifyStudents(classroom, teacherName + " has created a new To Do '" + title + "'", "TODO");
   };
 
   return (

@@ -6,9 +6,8 @@ import {
 import { Button, Text, Icon } from 'react-native-elements';
 import Drawer from 'react-native-drawer';
 import Firestore from '@react-native-firebase/firestore';
-import Auth from '@react-native-firebase/auth';
+import Auth from '@react-native-firebase/auth'; // https://rnfirebase.io/auth/usage
 import PropTypes from 'prop-types';
-import { INITIAL_USER_STATE } from '../../components';
 import ClassSelections from './ClassSelections';
 
 const styles = StyleSheet.create({
@@ -114,17 +113,27 @@ const drawerStyles = StyleSheet.create({
   main: { paddingLeft: 3 },
 });
 
-// navigation MUST INCLUDE: uid
+// navigation MUST INCLUDE: userState, uid, classrooms
 export default function ClassroomSelectScreen({ navigation }) {
-  const [initializing, setInitializing] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState();
-  const [userState, setUserState] = useState(INITIAL_USER_STATE);
-  const [uid, setUid] = useState(navigation.getParam('uid', null));
   const [code, setCode] = useState('');
   const [toggleMenu, setToggle] = useState(false); // toggle drawer
 
-  const [classrooms, setClasses] = useState([]);
+  const [user, setUser] = useState(null);
+  const userState = navigation.getParam('userState', null);
+  const uid = navigation.getParam('uid', null);
+  const classes = navigation.getParam('classrooms', []);
+  const [classrooms, setClassrooms] = useState([]);
+
+  function onAuthStateChanged(authUser) {
+    setUser(authUser);
+  }
+
+  // check signin on mount
+  useEffect(() => {
+    const subscriber = Auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber; // unsubscribe on unmount
+  }, []);
 
   // input code, join
   async function joinClassroom() {
@@ -139,138 +148,53 @@ export default function ClassroomSelectScreen({ navigation }) {
       // if user is a student or teacher, add their id to the classroom
       if (userState.role === 'STUDENT') {
         classRef.doc(code.toLowerCase()).update({
-          studentIDs: Firestore.FieldValue.arrayUnion(user.uid),
+          studentIDs: Firestore.FieldValue.arrayUnion(uid),
         });
       }
       if (userState.role === 'TEACHER') {
         classRef.doc(code.toLowerCase()).update({
-          teacherIDs: Firestore.FieldValue.arrayUnion(user.uid),
+          teacherIDs: Firestore.FieldValue.arrayUnion(uid),
         });
       }
+      // close the drawer
       setToggle(false);
+
+      // navigate to the classroom page
       navigation.navigate('Classroom', { code, classroomInfo, uid });
     }
   }
 
-  function onAuthStateChanged(authUser) {
-    setUser(authUser);
-    if (initializing) setInitializing(false);
-  }
-
-  // check signin on mount
   useEffect(() => {
-    const subscriber = Auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-  }, []);
-
-  // if signed in, set uid
-  useEffect(() => {
-    if (user && !uid) setUid(user.uid);
+    if (user && user.emailVerified) {
+      // set a user to verified if they are verified
+      Firestore().collection('users').doc(uid).update({
+        isVerified: true,
+      });
+    }
   }, [user]);
 
   useEffect(() => {
-    function fetch() {
-      setLoading(true);
-      setClasses([]);
-      // if the user is signed in, then fetch its data and fetch classrooms
-      if (uid) {
-        Firestore().collection('users')
-          .doc(uid)
-          .get()
-          .then((document) => {
-            if (document.exists) {
-              return document.data();
-            }
-            return null;
-          })
-          .then(async (data) => {
-            setUserState(data);
-            await Firestore().collection('classrooms').orderBy('endDate', 'desc').get()
-              .then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                  if (data.role === 'TEACHER') {
-                    if (doc.id.length === 6) {
-                      doc.data().teacherIDs.forEach((element) => {
-                        if (element === uid) {
-                          setClasses((c) => [...c, { ...doc.data(), code: doc.id }]);
-                        }
-                      });
-                    }
-                  } else if (data.role === 'STUDENT') {
-                    if (doc.id.length === 6) {
-                      doc.data().studentIDs.forEach((element) => {
-                        if (element === uid) {
-                          setClasses((c) => [...c, { ...doc.data(), code: doc.id }]);
-                        }
-                      });
-                    }
-                  }
-                });
-              });
+    async function setClasses() {
+      if (user && uid && userState) {
+        // set the classooms state variable on every load
+        // simply setting a normal variable doesn't cause a reload after joining a class,
+        // which is why this setup is necessary
+        await setClassrooms(classes);
 
-            if (loading) setLoading(false);
-          })
-          .catch((e) => {
-            Alert.alert(e.message);
-          });
-        // force teacher to create classroom on login
-        /* if (userState && userState.role && userState.role === 'TEACHER'
-        && userState.classroomIds.length === 0) {
-          navigation.navigate('CreateClassroom', { uid });
-        } */
+        if (loading) setLoading(false);
       }
     }
-    fetch();
 
-    const focusListener = navigation.addListener('didFocus', () => {
-      fetch();
-    });
+    setClasses();
+  }, [classes]);
 
-    return () => focusListener.remove();
-  }, [uid]);
-
-  // if signing in, return null
-  if (initializing) return null;
-
-  // if not logged in, unmount and go to signin page
-  if (!user) {
-    return navigation.navigate('SignIn');
+  // info not fully loaded, go back to load screen
+  if (!user || !uid || !userState) {
+    return navigation.navigate('Load');
   }
 
-  // if loading user data, return the base views
-  if (loading) {
-    return (
-      <SafeAreaView>
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <Icon
-              name="menu"
-              size={36}
-              color="#000000"
-            />
-          </View>
-          <View style={styles.headerText}>
-            <Text style={styles.headerTextText}>
-              Home
-            </Text>
-          </View>
-          <View style={styles.headerRight}>
-            <Button
-              title="Sign Out"
-              buttonStyle={{ padding: 5, marginRight: 20 }}
-              style={styles.button}
-            />
-          </View>
-        </View>
-        <Text style={styles.topicText}>
-          {`Welcome ${user.email}!`}
-        </Text>
-        <Text style={styles.topicText}>
-          LOADING...
-        </Text>
-      </SafeAreaView>
-    );
-  }
+  // still loading classrooms, show blank screen
+  if (loading) return null;
 
   const menu = (
     <View style={styles.sideMenu}>
@@ -318,8 +242,10 @@ export default function ClassroomSelectScreen({ navigation }) {
       <View style={styles.subContainer}>
         <Button
           style={styles.textInput}
-          title="Settings"
+          title="Library"
           onPress={() => {
+            setToggle(false);
+            navigation.navigate('Library', { classrooms });
           }}
         />
       </View>
@@ -406,6 +332,5 @@ ClassroomSelectScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
     getParam: PropTypes.func.isRequired,
-    addListener: PropTypes.func.isRequired,
   }).isRequired,
 };

@@ -1,16 +1,17 @@
-import React, { useState, useContext } from 'react';
+
+import React, { useState /* useContext */ } from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Text, Alert,
+  StyleSheet, ActivityIndicator, View, Text, Alert, Image,
 } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
-import AuthContext from '../../navigation/AuthContext';
+import Logo from '../../components/hp_circleLogo.png';
+// import AuthContext from '../../navigation/AuthContext';
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
+    display: 'flex',
     alignItems: 'center',
   },
   formContainer: {
@@ -18,6 +19,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   subContainer: {
+    display: 'flex',
+    alignItems: 'center',
     marginBottom: 20,
     padding: 10,
   },
@@ -35,34 +38,35 @@ const styles = StyleSheet.create({
     margin: 5,
     width: 200,
   },
+  logoImg: {
+    height: 100,
+    width: 100,
+  },
 });
 
 export default function SignInScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showLoading, setShowLoading] = useState(false);
-  const [authState, setAuthState] = useContext(AuthContext);
+  // const [authState, setAuthState] = useContext(AuthContext);
 
   // signin
   const signin = async () => {
     setShowLoading(true);
-    try {
-      const doSignIn = await Auth().signInWithEmailAndPassword(email, password);
-      setShowLoading(false);
-      // if valid signin, navigate to landing
-      if (doSignIn.user) {
-        setAuthState(!authState);
-      }
-    } catch (e) {
-      setShowLoading(false);
-      Alert.alert(e.message);
-    }
+    Auth().signInWithEmailAndPassword(email, password)
+      .then(() => {
+        setShowLoading(false);
+      })
+      .catch((e) => {
+        setShowLoading(false);
+        Alert.alert(e.message);
+      });
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={styles.subContainer}>
           <Text style={{ fontSize: 28, height: 50 }}>Please Sign In!</Text>
         </View>
         <View style={styles.subContainer}>

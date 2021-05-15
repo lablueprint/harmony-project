@@ -9,16 +9,16 @@ import MessageScreen from '../screens/Messaging/Messages';
 import EvaluationScreen from '../screens/Evaluation';
 import CreateEvaluationScreen from '../screens/CreateEvaluation';
 import GenericFormDemoScreen from '../screens/GenericFormDemo';
-import AnnouncementsScreen from '../screens/Announcements';
+import { Announcements } from '../screens/Announcements';
 import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
 import StudentsNamesScreen from '../screens/AssignmentList/StudentsNamesScreen';
 import AssignmentScreen from '../screens/AssignmentList/AssignmentScreen';
 import NewAssignmentScreen from '../screens/AssignmentList/NewAssignmentScreen';
 import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
 import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
-import ClassroomSelectScreen from '../screens/Landing';
 import FeedbackScreen from '../screens/Feedback';
-
+import { ClassroomSelectScreen, LoadClasses } from '../screens/Landing';
+import { LibraryScreen, LibraryFilesScreen } from '../screens/Library';
 const Stack = createStackNavigator();
 
 const MainStackNavigator = () => (
@@ -46,13 +46,26 @@ const MainStackNavigator = () => (
     <Stack.Screen name="Evaluation" component={EvaluationScreen} />
     <Stack.Screen name="CreateEvaluation" component={CreateEvaluationScreen} />
     <Stack.Screen name="GenericFormDemo" component={GenericFormDemoScreen} />
-    <Stack.Screen name="Announcements" component={AnnouncementsScreen} />
+    <Stack.Screen name="Announcements" component={Announcements} />
     <Stack.Screen name="AssignmentList" component={AssignmentListScreen} />
     <Stack.Screen name="CreateClassroom" component={CreateClassroomScreen} />
     <Stack.Screen name="Classroom" component={ClassroomHome} />
+    <Stack.Screen name="LoadClasses" component={LoadClasses} />
     <Stack.Screen name="Landing" component={ClassroomSelectScreen} />
     <Stack.Screen name="Feedback" component={FeedbackScreen} />
   </Stack.Navigator>
 );
 
-export default MainStackNavigator;
+
+const LibraryNavigator = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+    }}
+  >
+    <Stack.Screen name="Library" component={LibraryScreen} />
+    <Stack.Screen name="LibraryFiles" component={LibraryFilesScreen} />
+  </Stack.Navigator>
+);
+
+export { MainStackNavigator, LibraryNavigator };

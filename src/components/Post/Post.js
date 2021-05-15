@@ -17,6 +17,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#ffffff',
     borderRadius: 10,
+    width: '90%',
   },
   contentContainer: {
     paddingTop: 20,
@@ -29,7 +30,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   bodyText: {
-    fontSize: 14,
+    fontSize: 18,
   },
 });
 
@@ -38,8 +39,13 @@ const styles = StyleSheet.create({
 const loadAmount = 1;
 
 function CommentLoader({
-  postID, loadingNewComment, numCommentsLoaded, setloadedLastComment, loadedLastComment,
-  setNoComments, noComments,
+  postID, 
+  loadingNewComment, 
+  numCommentsLoaded, 
+  setloadedLastComment, 
+  loadedLastComment,
+  setNoComments, 
+  noComments,
 }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [commentList, setCommentList] = useState([]);
@@ -300,7 +306,11 @@ function LoadCommentButton({
 }
 
 function PinPost({
-  postID, initialValue, collection, rerender, setRerender,
+  postID, 
+  initialValue, 
+  collection, 
+  rerender, 
+  setRerender,
 }) {
   return (
     <Button
@@ -322,7 +332,16 @@ function PinPost({
 }
 
 export default function Post({
-  title, createdAt, date, body, attachments, id, loadingNewComment, collection, pin, rerender,
+  title, 
+  createdAt, 
+  date, 
+  body, 
+  attachments, 
+  id, 
+  loadingNewComment, 
+  collection, 
+  pin,
+  rerender,
   setRerender,
 }) {
   const [loading, setLoading] = useState(false);
@@ -333,7 +352,7 @@ export default function Post({
   const [isAuthor, setIsAuthor] = useState(false);
   const [hasDeleted, setHasDeleted] = useState(false);
   const userID = Firebase.auth().currentUser.uid;
-
+  
   const [showMore, setShowMore] = useState(true);
   const [buttons, setButtons] = useState(true);
 
@@ -380,7 +399,6 @@ export default function Post({
   attachments.filter((x) => x) removes all non-empty strings.
   */
 
-
   const images = attachments.filter((x) => x).map((image) => ({ source: { uri: image } }));
   const hasImages = (images.length > 0);
 
@@ -393,9 +411,11 @@ export default function Post({
   return (
     hasDeleted ? null : (
       <View style={styles.container}>
-        <Text style={styles.topicText}>
-          {title}
-        </Text>
+        {title !== '' && 
+          <Text style={styles.topicText}>
+            {title}
+          </Text>
+        }
         <Text style={styles.timeText}>
           {createdAt}
         </Text>
@@ -454,13 +474,13 @@ export default function Post({
           </View>
         )}
         {isAuthor && (
-        <PinPost
-          postID={id}
-          initialValue={pin}
-          collection={collection}
-          rerender={rerender}
-          setRerender={setRerender}
-        />
+          <PinPost
+            postID={id}
+            initialValue={pin}
+            collection={collection}
+            rerender={rerender}
+            setRerender={setRerender}
+          />
         )}
         {isAuthor ? (
           <Button
@@ -540,7 +560,7 @@ export default function Post({
 }
 
 Post.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   createdAt: PropTypes.string,
   date: PropTypes.string, // date object ?
   body: PropTypes.string.isRequired,
@@ -554,9 +574,11 @@ Post.propTypes = {
 };
 
 Post.defaultProps = {
+  title: '',
   createdAt: '',
   date: '',
   id: '',
+  attachment: '',
   loadingNewComment: false,
   attachments: [],
 };
