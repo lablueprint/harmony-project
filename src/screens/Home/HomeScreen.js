@@ -22,6 +22,7 @@ imports below.
 HomeScreen error is due to "relativePath.split() is not a function"
 */
 
+
 import React, { /* useContext */ } from 'react';
 import { Text, View } from 'react-native';
 import { Button } from 'react-native-elements';
@@ -42,6 +43,7 @@ import PropTypes from 'prop-types';
 // });
 
 export default function HomeScreen() {
+
   // const [authState, setAuthState] = useContext(AuthContext);
 
   return (

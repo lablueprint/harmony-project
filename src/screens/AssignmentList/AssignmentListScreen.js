@@ -210,7 +210,7 @@ export default function AssignmentListScreen({ navigation }) {
       // Only returns assignments with classroomIDs in classroomIDsList
       if (studentClassroomIDs.includes(assignment.classroomID)) {
         return (
-          <>
+          <View key={assignment.id}>
             <TouchableOpacity
               onPress={async () => {
                 if (!isTeacher && !studentsSeenTemp.includes(uid)) {
@@ -304,7 +304,7 @@ export default function AssignmentListScreen({ navigation }) {
               </Card>
             </TouchableOpacity>
 
-          </>
+          </View>
         );
       }
       return null;

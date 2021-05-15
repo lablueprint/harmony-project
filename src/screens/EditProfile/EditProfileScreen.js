@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
 });
 
 // navigation MUST INCLUDE: uid
-export default function EditProfileScreen({ navigation }) {
+export default function EditProfileScreen({ route, navigation }) {
   const [initializing, setInitializing] = useState(true);
   const { uid } = Firebase.auth().currentUser;
   const ref = Firestore().collection('users');

@@ -1,3 +1,4 @@
+
 import React, { useState /* useContext */ } from 'react';
 import {
   StyleSheet, ActivityIndicator, View, Text, Alert, Image,
@@ -66,7 +67,6 @@ export default function SignInScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.formContainer}>
         <View style={styles.subContainer}>
-          <Image style={styles.logoImg} source={Logo} />
           <Text style={{ fontSize: 28, height: 50 }}>Please Sign In!</Text>
         </View>
         <View style={styles.subContainer}>
