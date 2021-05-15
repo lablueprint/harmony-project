@@ -80,7 +80,7 @@ function CreateFeedback({
 
   /* If the user moves the slider, then UsedSlider will be set to true
   in order to remove the helper message. The floor function is used to
-  account for the delay between the acctual current time and the saved
+  account for the delay between the actual current time and the saved
   initial time. Basically, currentTime could be 5.003 seconds but the
   saved initialTime could be 5.002 seconds. Basically the same but code
   sees it as different.
@@ -258,14 +258,25 @@ export default function FeedbackScreen({ route }) {
             />
           )));
         }
+      })
+      .then(() => {
+        /* Firebase is weird and we need to load it an extra time. This
+        could simply be due to the server's latency.
+        */
+        if (loadCounter < 1 && !loadingVideo) {
+          setLoadCounter(loadCounter + 1);
+        }
       });
 
-    // Firebase is weird and we need to reload a few times
-    if (loadCounter < 3 && !loadingVideo) {
-      setLoadCounter(loadCounter + 1);
-    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addFeedback, submissionID, loadCounter, loadingVideo]);
+
+  /* Resets loadcounter everytime feedback is added. This will allow the
+  new feedback (if it's made) to be rendered on the feedback screen.
+  */
+  useEffect(() => {
+    setLoadCounter(0);
+  }, [addFeedback]);
 
   return (
     <ScrollView>
