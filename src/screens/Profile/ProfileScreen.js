@@ -79,38 +79,21 @@ const styles = StyleSheet.create({
 
 // navigation MUST INCLUDE: uid
 export default function ProfileScreen({ navigation }) {
-  const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState();
+  //const [initializing, setInitializing] = useState(true);
+  //const [user, setUser] = useState();
   const [loading, setLoading] = useState(false);
+
   const { uid } = Firebase.auth().currentUser;
   const ref = Firestore().collection('users');
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
   const [instrumentList, setInstrumentList] = useState([]);
   // const [newState, setNewState] = useState(INITIAL_USER_STATE);
 
-  // if i do edit profile on this page --> do newState, setNewState thing to keep track
-  // newState set to current userState upon edit click
-  // (probably still use original userState to display stuff)
-  // when you hit save profile itll change newState, and then send to firestore,
-  // and then save userState as newState
-  // if cancel, just reset newState back to userState
-
-  function onAuthStateChanged(authUser) {
-    setUser(authUser);
-    if (initializing) setInitializing(false);
-  }
-
-  // check signin on mount
-  useEffect(() => {
-    const subscriber = Auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-  }, []);
-
   useEffect(() => {
     // if the user is signed in, then fetch their data
     function fetchData() {
-      if (user && uid) {
-        Firestore().collection('users').doc(uid).get()
+      if (uid) {
+        ref.doc(uid).get()
           .then((document) => {
             if (document.exists) {
               return document.data();
@@ -134,21 +117,20 @@ export default function ProfileScreen({ navigation }) {
       }
     }
 
-    // const focusListener = navigation.addListener('didFocus', () => {
-    //   fetchData();
-    // });
 
-    // return () => focusListener.remove();
-  }, [user, uid]);
+    navigation.addListener('focus', () => {
+      fetchData();
+    });
+  }, [uid]);
 
   /* function saveProfile() {
 
   } */
 
-  if (initializing || loading) return null;
+  if (loading) return null;
 
   // if not logged in, unmount and go to signin page
-  if (!user) {
+  if (!uid) {
     return navigation.navigate('SignIn');
   }
 
@@ -261,5 +243,6 @@ ProfileScreen.navigationOptions = ({ navigation }) => ({
 ProfileScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
+    addListener: PropTypes.func.isRequired,
   }).isRequired,
 };

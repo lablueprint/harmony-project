@@ -22,12 +22,13 @@ imports below.
 HomeScreen error is due to "relativePath.split() is not a function"
 */
 
-import React, { useContext } from 'react';
-import { SafeAreaView } from 'react-native';
+
+import React, { /* useContext */ } from 'react';
+import { Text, View } from 'react-native';
 import { Button } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
-import AuthContext from '../../navigation/AuthContext';
+// import AuthContext from '../../navigation/AuthContext';
 
 // const styles = StyleSheet.create({
 //   subContainer: {
@@ -42,17 +43,22 @@ import AuthContext from '../../navigation/AuthContext';
 // });
 
 export default function HomeScreen() {
-  const { authenticated, setAuthenticated } = useContext(AuthContext);
+
+  // const [authState, setAuthState] = useContext(AuthContext);
 
   return (
-    // TODO: Change to React Navigation's SafeAreaView
-    <SafeAreaView>
+    <View>
+      <Text>Hi!</Text>
+      {/* PROPERLY WORKING SIGNOUT BUTTON USING CONTEXT ! */ }
       <Button
         title="Sign Out"
         buttonStyle={{ padding: 5, marginRight: 30, marginLeft: 30 }}
-        onPress={() => { Auth().signOut().then(() => { setAuthenticated(!authenticated); }); }}
+        onPress={() => {
+          // Auth().signOut().then(() => { setAuthState(!authState); });
+          Auth().signOut();
+        }}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 

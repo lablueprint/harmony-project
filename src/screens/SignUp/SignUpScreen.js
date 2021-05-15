@@ -103,27 +103,22 @@ export default function SignUpScreen({ navigation }) {
     // if everything valid, signup
     if (userInsts.length !== 0 && userState.dob.length !== 0) {
       setShowLoading(true);
-      try {
-        // user is signed up, then the appropriate firestore calls are made based on role
-        const doSignUp = await Auth().createUserWithEmailAndPassword(userState.email, password);
-        const { user } = doSignUp;
-        setShowLoading(false);
-        if (user) {
+      // user is signed up, then the appropriate firestore calls are made based on role
+      Auth().createUserWithEmailAndPassword(userState.email, password)
+        .then((userCredential) => {
+          const { user } = userCredential;
           user.sendEmailVerification();
           Firestore().collection('users').doc(user.uid).set({
             ...userState,
             createdAt: Firestore.FieldValue.serverTimestamp(),
             updatedAt: Firestore.FieldValue.serverTimestamp(),
           });
-          // sign in and navigate to home screen upon signup
-          navigation.navigate('Load');
-        }
-      } catch (e) {
-        setShowLoading(false);
-        Alert.alert(
-          e.message,
-        );
-      }
+        }).catch((e) => {
+          setShowLoading(false);
+          Alert.alert(
+            e.message,
+          );
+        });
     } else {
       let error = '';
       if (userInsts.length === 0) {
@@ -139,33 +134,33 @@ export default function SignUpScreen({ navigation }) {
   };
 
   useEffect(() => {
-    async function fetchInsts() {
-      const { user } = await Auth().signInAnonymously();
-      if (user) {
-        // fetch instruments from Firestore and place them into the instruments state var
-        // each object in the instruments state var hold the name and
-        // whether or not they've been chosen (toggle)
-        await Firestore().collection('instruments').orderBy('name', 'asc').get()
-          .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-              setInsts((insts) => [...insts, { name: doc.data().name, toggle: false }]);
-            });
-          })
-          .catch((e) => {
-            Alert.alert(e.message);
-          });
+    function fetchInsts() {
+      Auth().signInAnonymously()
+        .then(() => {
+          // fetch instruments from Firestore and place them into the instruments state var
+          // each object in the instruments state var hold the name and
+          // whether or not they've been chosen (toggle)
+          Firestore().collection('instruments').orderBy('name', 'asc').get()
+            .then((querySnapshot) => {
+              querySnapshot.forEach((doc) => {
+                setInsts((insts) => [...insts, { name: doc.data().name, toggle: false }]);
+              });
+            })
+            .then(() => {
+              // delete anonymous user after fetching instruments from Firestore
+              Auth().currentUser.delete();
 
-        // delete anonymous user after fetching instruments from Firestore
-        Auth().currentUser.delete();
-      }
-      if (initializing) setInitializing(false);
+              if (initializing) setInitializing(false);
+            })
+            .catch((e) => {
+              Alert.alert(e.message);
+            });
+        });
     }
 
-    const focusListener = navigation.addListener('didFocus', () => {
+    navigation.addListener('focus', () => {
       fetchInsts();
     });
-
-    return () => focusListener.remove();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
