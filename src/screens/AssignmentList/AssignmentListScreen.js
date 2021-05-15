@@ -57,6 +57,13 @@ const styles = StyleSheet.create({
 //     });
 // });
 
+/**
+ * The AssignmentListScreen is where the students and teachers can view all the class to-do's.
+ * @public
+ * @memberOf Screens
+ * @param {string} navigation - The stack navigator that allows the app to transition between screens
+ * @returns The AssignmentListScreen
+ */
 export default function AssignmentListScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const { uid } = Firebase.auth().currentUser;
@@ -309,7 +316,8 @@ export default function AssignmentListScreen({ navigation }) {
         const studentClassroomIDs = []; // array of all classrooms a student is in
         const classrooms = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
         for (let i = 0; i < classrooms.length; i += 1) {
-          if (classrooms[i].studentIDs.includes(uid)) {
+          // Needs rewriting/var renaming for supporting teachers, but this seems to work for now
+          if (classrooms[i].studentIDs.includes(uid) || classrooms[i].teacherIDs.includes(uid)) {
             studentClassroomIDs.push(classrooms[i].id);
           }
         }
