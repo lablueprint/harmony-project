@@ -80,6 +80,8 @@ const styles = StyleSheet.create({
 // navigation MUST INCLUDE: uid
 export default function ProfileScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState();
+  const [loading, setLoading] = useState(false);
   const { uid } = Firebase.auth().currentUser;
   const ref = Firestore().collection('users');
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
@@ -132,11 +134,11 @@ export default function ProfileScreen({ navigation }) {
       }
     }
 
-    const focusListener = navigation.addListener('didFocus', () => {
-      fetchData();
-    });
+    // const focusListener = navigation.addListener('didFocus', () => {
+    //   fetchData();
+    // });
 
-    return () => focusListener.remove();
+    // return () => focusListener.remove();
   }, [user, uid]);
 
   /* function saveProfile() {
