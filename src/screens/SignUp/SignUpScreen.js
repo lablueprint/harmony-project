@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import {
   StyleSheet, View, Text,
 } from 'react-native';
-import { Button } from 'react-native-elements';
+import { Overlay, Input, Button } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import Svg from 'react-native-svg';
+import { setFormikInitialValue } from 'react-native-formik';
 import SignInWave from '../SignIn/background.svg';
 
 const styles = StyleSheet.create({
@@ -15,6 +16,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#F6F6F6',
   },
   wavyBanner: {
     position: 'absolute',
@@ -24,6 +26,11 @@ const styles = StyleSheet.create({
   },
   h2: {
     fontSize: 30,
+    fontWeight: 'bold',
+    color: '#4F4F4F',
+  },
+  h3: {
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#4F4F4F',
   },
@@ -53,6 +60,11 @@ const styles = StyleSheet.create({
 });
 
 export default function SignUpScreen({ navigation }) {
+  let classCode = '';
+  let role = 'Student';
+
+  const [askClassCode, setAskClassCode] = useState(false);
+
   return (
     <View style={styles.screen}>
       <View style={styles.wavyBanner}>
@@ -61,19 +73,63 @@ export default function SignUpScreen({ navigation }) {
         </Svg>
       </View>
       <Text style={styles.h2}>Sign up as a...</Text>
+      <Overlay
+        isVisible={askClassCode}
+        borderRadius={10}
+        width={300}
+        height={160}
+      >
+        <View style={{ padding: 10 }}>
+          <Text style={styles.h3}>Enter classroom code: </Text>
+          <Input
+            placeholder="Classroom code"
+            onChangeText={(value) => { classCode = value; }}
+          />
+          <View style={{
+            display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', padding: 10,
+          }}
+          >
+            <Button
+              buttonStyle={{ backgroundColor: 'transparent' }}
+              title="Cancel"
+              titleStyle={{ color: '#828282' }}
+              onPress={() => { setAskClassCode(false); }}
+            />
+            <Button
+              buttonStyle={{
+                backgroundColor: '#8E4F97',
+                borderRadius: 40,
+                width: 100,
+              }}
+              title="Submit"
+              titleStyle={{ color: '#ffffff' }}
+              onPress={() => {
+                setAskClassCode(false);
+                navigation.navigate('UserInformation', { classCode, role });
+              }}
+            />
+          </View>
+        </View>
+      </Overlay>
       <Button
         titleStyle={styles.buttonText_1}
         buttonStyle={styles.button_1}
         containerStyle={styles.buttonContainer}
         title="Teacher"
-        onPress={() => navigation.navigate('UserInformation', { role: 'Teacher' })}
+        onPress={() => {
+          setAskClassCode(true);
+          role = 'Teacher';
+        }}
       />
       <Button
         titleStyle={styles.buttonText_2}
         buttonStyle={styles.button_2}
         containerStyle={styles.buttonContainer}
         title="Student"
-        onPress={() => navigation.navigate('UserInformation', { role: 'Student' })}
+        onPress={() => {
+          setAskClassCode(true);
+          role = 'Student';
+        }}
       />
     </View>
 

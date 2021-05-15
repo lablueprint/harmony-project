@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Text, Alert,
+  StyleSheet, ActivityIndicator, View, Text, ScrollView,
 } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
@@ -59,10 +59,13 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     padding: 20,
   },
+  inputLabel: {
+    color: '#BDBDBD',
+  },
   subContainer: {
     display: 'flex',
     alignItems: 'center',
-    paddingBottom: 10,
+    padding: 10,
   },
   buttonText_1: {
     color: '#828282',
@@ -82,6 +85,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#8e4f97',
     borderRadius: 40,
     width: 250,
+    borderColor: '#8e4f97',
+    borderWidth: 3,
   },
   button_3: {
     backgroundColor: '#ffffff',
@@ -94,25 +99,52 @@ const styles = StyleSheet.create({
 
 export default function SignInScreen({ navigation }) {
   const [email, setEmail] = useState('');
+  const [emailFocus, setEmailFocus] = useState(false);
   const [password, setPassword] = useState('');
-  const [emailLabel, setEmailLabel] = useState('');
-  const [passwordLabel, setPasswordLabel] = useState('');
+  const [passwordFocus, setPasswordFocus] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [showLoading, setShowLoading] = useState(false);
   // const [authState, setAuthState] = useContext(AuthContext);
 
-  // signin
+  useEffect(() => {
+    setEmailError('');
+  }, [email]);
+
+  useEffect(() => {
+    setPasswordError('');
+  }, [password]);
+
+  // login
   const login = async () => {
-    setShowLoading(true);
-    Auth().signInWithEmailAndPassword(email, password)
-      .then(() => {
-        setShowLoading(false);
-      })
-      .catch((e) => {
-        setShowLoading(false);
-        Alert.alert(e.message);
-      });
+    // setShowLoading(true);
+    try {
+      if (email === '' && password === '') {
+        setEmailError('*Invalid Email');
+        setPasswordError('*Invalid Password');
+        return;
+      } if (email === '') {
+        setEmailError('*Invalid Email');
+        return;
+      } if (password === '') {
+        setPasswordError('*Invalid Password');
+        return;
+      }
+
+      const doSignIn = await Auth().signInWithEmailAndPassword(email, password);
+      setShowLoading(false);
+      // if valid signin, navigate to landing
+      if (doSignIn.user) {
+        navigation.navigate('Load');
+      }
+    } catch (e) {
+      const errorCode = e.code;
+      if (errorCode === 'auth/invalid-email') {
+        setEmailError('*Invalid Email');
+      } else if (errorCode === 'auth/wrong-password') {
+        setPasswordError('*Wrong password');
+      }
+    }
   };
 
   return (
@@ -129,23 +161,29 @@ export default function SignInScreen({ navigation }) {
       <View style={styles.formContainer}>
         <View style={styles.subContainer}>
           <Input
+            onBlur={() => setEmailFocus(false)}
+            onFocus={() => setEmailFocus(true)}
             style={styles.textInput}
             placeholder="example@email.com"
             value={email}
             onChangeText={setEmail}
-            label={emailLabel}
+            label={emailFocus || email ? 'Email' : ''}
+            labelStyle={styles.labelStyle}
             errorMessage={emailError}
             errorStyle={styles.errorStyle}
           />
         </View>
         <View style={styles.subContainer}>
           <Input
+            onBlur={() => setPasswordFocus(false)}
+            onFocus={() => setPasswordFocus(true)}
             style={styles.textInput}
             placeholder="password"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
-            label={passwordLabel}
+            label={passwordFocus || password ? 'Password' : ''}
+            labelStyle={styles.labelStyle}
             errorMessage={passwordError}
             errorStyle={styles.errorStyle}
           />
