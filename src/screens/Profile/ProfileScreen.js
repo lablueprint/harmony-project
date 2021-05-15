@@ -7,6 +7,7 @@ import { Icon, Text, ListItem } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
+import Firebase from '@react-native-firebase/app';
 import { INITIAL_USER_STATE } from '../../components';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -79,10 +80,10 @@ const styles = StyleSheet.create({
 // navigation MUST INCLUDE: uid
 export default function ProfileScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
-  const [loading, setLoading] = useState(true);
-  // const [edit, toggleEdit] = useState(false);
   const [user, setUser] = useState();
-  const uid = navigation.getParam('uid', null);
+  const [loading, setLoading] = useState(false);
+  const { uid } = Firebase.auth().currentUser;
+  const ref = Firestore().collection('users');
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
   const [instrumentList, setInstrumentList] = useState([]);
   // const [newState, setNewState] = useState(INITIAL_USER_STATE);
@@ -133,11 +134,11 @@ export default function ProfileScreen({ navigation }) {
       }
     }
 
-    const focusListener = navigation.addListener('didFocus', () => {
-      fetchData();
-    });
+    // const focusListener = navigation.addListener('didFocus', () => {
+    //   fetchData();
+    // });
 
-    return () => focusListener.remove();
+    // return () => focusListener.remove();
   }, [user, uid]);
 
   /* function saveProfile() {
@@ -260,7 +261,5 @@ ProfileScreen.navigationOptions = ({ navigation }) => ({
 ProfileScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-    getParam: PropTypes.func.isRequired,
-    addListener: PropTypes.func.isRequired,
   }).isRequired,
 };
