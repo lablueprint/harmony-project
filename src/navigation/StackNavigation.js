@@ -55,7 +55,6 @@ const MainStackNavigator = () => (
   </Stack.Navigator>
 );
 
-
 const LibraryNavigator = () => (
   <Stack.Navigator
     screenOptions={{
