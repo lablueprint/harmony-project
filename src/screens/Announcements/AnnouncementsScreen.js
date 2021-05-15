@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { ScrollView } from 'react-native-gesture-handler';
 import Firestore from '@react-native-firebase/firestore';
 import Post from '../../components/Post/Post';
+import dateformat from 'dateformat';
 
 const styles = StyleSheet.create({
   headingTitle: {
@@ -15,6 +16,7 @@ const styles = StyleSheet.create({
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,
+    alignContent: 'center',
   },
   sectionTitle: {
     fontSize: 24,
@@ -44,6 +46,8 @@ export default function AnnouncementsScreen({ navigation }) {
   /*
 this will only run one time when the component is mounted
 */
+
+
   useEffect(() => {
     Firestore().collection('announcements')
       .orderBy('doPin', 'desc')
@@ -53,14 +57,18 @@ this will only run one time when the component is mounted
         const announcements = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
         setAnnouncementsList(announcements.map((announcement) => {
           const date = announcement.createdAt.toDate();
+          const dateFormat = require('dateformat');
+          const timeFormat = require('dateformat')
+          const dateForm = dateFormat(date, "mmmm d, yyyy");
+          const timeForm = timeFormat(date, "h:MM TT")
           return (
             <View style={styles.container} key={announcement.id}>
               <Post
                 id={announcement.id}
-                name={announcement.username}
+                author={announcement.author}
                 title={announcement.title}
-                createdAt={date.toTimeString()}
-                date={date.toDateString()}
+                createdAt={timeForm}
+                date={dateForm}
                 attachments={announcement.attachments}
                 body={announcement.body}
                 collection="announcements"
