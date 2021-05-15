@@ -1,35 +1,42 @@
-
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 // import Firebase from '@react-native-firebase/app';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import LinearGradient from 'react-native-linear-gradient';
+// import LinearGradient from 'react-native-linear-gradient';
 import Auth from '@react-native-firebase/auth';
 import AuthNavigation from './AuthNavigation';
 import BottomTabNavigator from './BottomTabNavigation';
+// import HeaderContext from './HeaderContext';
 // import AuthContext from './AuthContext';
 
 /* This contains the default navigation settings for the ENTIRE
 APPLICATION. Currently, it will display the linear gradient at the
 top of the app for every single page.
 */
-const defaultNavOptions = {
-  headerBackground: () => (
-    <LinearGradient
-      colors={['#984A9C', '#C95748']}
-      style={{ flex: 1 }}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-    />
-  ),
-  title: '',
-};
+// const backgroundGradient = () => (
+//   <LinearGradient
+//     colors={['#984A9C', '#C95748']}
+//     style={{ flex: 1 }}
+//     start={{ x: 0, y: 0 }}
+//     end={{ x: 1, y: 0 }}
+//   />
+// );
+
+// const defaultNavOptions = {
+//   headerBackground: backgroundGradient,
+//   title: '',
+// };
 
 const AppContainer = () => {
   const Root = createStackNavigator();
   // const [isAuth, setAuth] = useState(null);
   // const authToken = useState(false);
+  // const header = useState(true);
+  // const [defaultNavOptions, setOptions] = useState({
+  //   headerBackground: backgroundGradient,
+  //   title: '',
+  // });
 
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
@@ -47,6 +54,10 @@ const AppContainer = () => {
     return subscriber; // unsubscribe on unmount
   }, []);
 
+  // useEffect(() => {
+  //   console.log('hi');
+  // }, [header]);
+
   if (initializing) return null;
 
   // /* Check if user is logged in. If yes then isAuth is != null
@@ -60,6 +71,7 @@ const AppContainer = () => {
 
   return (
   // <AuthContext.Provider value={authToken}>
+  // <HeaderContext.Provider value={header}>
     <NavigationContainer>
       <Root.Navigator>
         {user
@@ -67,7 +79,9 @@ const AppContainer = () => {
             <Root.Screen
               name="MainApp"
               component={BottomTabNavigator}
-              options={defaultNavOptions}
+              options={{
+                headerShown: false,
+              }}
             />
           )
           : (
@@ -79,6 +93,7 @@ const AppContainer = () => {
           )}
       </Root.Navigator>
     </NavigationContainer>
+  // </HeaderContext.Provider>
   // </AuthContext.Provider>
   );
 };

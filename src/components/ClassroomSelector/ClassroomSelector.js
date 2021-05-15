@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-console */
 import React, { useState, useEffect, useContext } from 'react';
 import {
@@ -8,11 +9,10 @@ import Firebase from '@react-native-firebase/app';
 import { Avatar } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient';
 import ClassroomContext from '../../navigation/ClassroomContext';
-import AuthContext from '../../navigation/AuthContext';
 
 const styles = StyleSheet.create({
   headerContainer: {
-    height: 130,
+    height: 135,
     margin: 0,
   },
   classroomHeaderText: {
@@ -60,19 +60,36 @@ const ClassroomSelector = () => {
 
   useEffect(() => {
     async function fetchClassrooms(results = []) {
-      const user = Firebase.auth().currentUser.uid;
-      await Firestore().collection('classrooms')
-        .where('studentIDs', 'array-contains', user)
+      setClassrooms([]);
+      const { uid } = Firebase.auth().currentUser;
+      Firestore().collection('classrooms')
+        .where('teacherIDs', 'array-contains', uid)
         .get()
         .then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
             results.push(doc);
           });
         })
+        .then(() => {
+          Firestore().collection('classrooms')
+            .where('studentIDs', 'array-contains', uid)
+            .get()
+            .then((querySnapshot) => {
+              querySnapshot.forEach((doc) => {
+                results.push(doc);
+              });
+            })
+            .then(() => {
+              setClassrooms(results);
+              setSelectedClassroom(results[0].id);
+            })
+            .catch((error) => {
+              console.log('User not enrolled in any classrooms as Student: ', error);
+            });
+        })
         .catch((error) => {
-          console.log('User not enrolled in any classrooms: ', error);
+          console.log('User not enrolled in any classrooms as Teacher: ', error);
         });
-      setClassrooms(results);
     }
     fetchClassrooms();
   }, []);
@@ -83,7 +100,7 @@ const ClassroomSelector = () => {
 
   const classroomButtons = (
     classrooms.map((c) => (
-      <View style={styles.classroomIconGroup} key={c}>
+      <View style={styles.classroomIconGroup} key={c.id}>
         <Avatar
           size={60}
           rounded
@@ -120,6 +137,7 @@ const ClassroomSelector = () => {
           colors={['#984A9C', '#C95748']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: -0.5 }}
+          style={{ height: '100%' }}
         >
           <Text style={styles.classroomHeaderText}>My Classrooms</Text>
           <ScrollView horizontal indicatorStyle="white" style={{ paddingLeft: 10 }}>
