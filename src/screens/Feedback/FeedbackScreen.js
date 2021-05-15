@@ -198,7 +198,9 @@ function CreateFeedback({
   );
 }
 
-export default function FeedbackScreen({ submissionID }) {
+export default function FeedbackScreen({ route }) {
+  const { submissionID } = route.params;
+
   const [pause, setPause] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -346,7 +348,10 @@ export default function FeedbackScreen({ submissionID }) {
 }
 
 FeedbackScreen.propTypes = {
-  submissionID: PropTypes.string.isRequired,
+  route: PropTypes.shape({
+    // eslint-disable-next-line react/forbid-prop-types
+    params: PropTypes.object.isRequired,
+  }).isRequired,
 };
 
 CreateFeedback.propTypes = {
