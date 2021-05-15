@@ -1,54 +1,54 @@
-import React, { useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Text, 
+  StyleSheet, ActivityIndicator, View, Text,
 } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
+import Svg from 'react-native-svg';
 import AuthContext from '../../navigation/AuthContext';
 import SignInWave from './background.svg';
-import Svg from 'react-native-svg';
 
 const styles = StyleSheet.create({
   screen: {
     backgroundColor: '#f6f6f6',
-    width: "100%"
+    width: '100%',
   },
   bannerText: {
     display: 'flex',
     alignItems: 'center',
     marginTop: 70,
-    marginBottom: 50
-  }, 
-  wavyBanner:  {
-    position: "absolute",
+    marginBottom: 50,
+  },
+  wavyBanner: {
+    position: 'absolute',
     width: '100%',
-    height: '55%'
+    height: '55%',
   },
-  beforeBanner : { 
-    width: 100, 
-    height: 100, 
-    backgroundColor: '#ffffff'
+  beforeBanner: {
+    width: 100,
+    height: 100,
+    backgroundColor: '#ffffff',
   },
-  afterBanner : { 
-    width: 100, 
-    height: 100, 
-    backgroundColor: '#ffffff'
+  afterBanner: {
+    width: 100,
+    height: 100,
+    backgroundColor: '#ffffff',
   },
   whiteText: {
-    color: '#ffffff'
+    color: '#ffffff',
   },
   h1: {
-    fontSize: 28, 
-    fontWeight: 'bold'
+    fontSize: 28,
+    fontWeight: 'bold',
   },
   h2: {
-    padding: 15, 
-    fontSize: 22
+    padding: 15,
+    fontSize: 22,
   },
   errorStyle: {
-    color: '#bc5d4e', 
-    fontWeight: 'bold'
+    color: '#bc5d4e',
+    fontWeight: 'bold',
   },
   container: {
     display: 'flex',
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     height: 400,
-    paddingTop: 40, 
+    paddingTop: 40,
     padding: 20,
   },
   subContainer: {
@@ -65,31 +65,31 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   buttonText_1: {
-    color: '#828282'
-  }, 
-  buttonText_2: {
-    color: '#ffffff'
-  }, 
-  buttonText_3: {
-    color: '#8e4f97'
+    color: '#828282',
   },
-  button_1 : {
-    backgroundColor: 'transparent', 
-    borderRadius: 40, 
-    width: 250
-  }, 
-  button_2 : {
-    backgroundColor: '#8e4f97', 
-    borderRadius: 40, 
-    width: 250
-  }, 
+  buttonText_2: {
+    color: '#ffffff',
+  },
+  buttonText_3: {
+    color: '#8e4f97',
+  },
+  button_1: {
+    backgroundColor: 'transparent',
+    borderRadius: 40,
+    width: 250,
+  },
+  button_2: {
+    backgroundColor: '#8e4f97',
+    borderRadius: 40,
+    width: 250,
+  },
   button_3: {
-    backgroundColor: '#ffffff', 
-    borderColor: '#8e4f97', 
-    borderWidth: 3, 
-    borderRadius: 40, 
-    width: 250
-  }
+    backgroundColor: '#ffffff',
+    borderColor: '#8e4f97',
+    borderWidth: 3,
+    borderRadius: 40,
+    width: 250,
+  },
 });
 
 export default function SignInScreen({ navigation }) {
@@ -100,61 +100,36 @@ export default function SignInScreen({ navigation }) {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [showLoading, setShowLoading] = useState(false);
-  const [authState, setAuthState] = useContext(AuthContext);
+  // const [authState, setAuthState] = useContext(AuthContext);
 
-  useEffect(() => {
-    setEmailError('');
-  }, [email])
-
-  useEffect(() => {
-    setPasswordError('');
-  }, [password])
-
-  // login
-  const login = async () => {
-    //setShowLoading(true);
-    try {
-      if(email === '' && password === '') {
-        setEmailError("*Invalid Email");
-        setPasswordError("*Invalid Password");
-        return;
-      } else if (email === '' ) {
-        setEmailError("*Invalid Email");
-        return;
-      } else if (password === '') {
-        setPasswordError("*Invalid Password");
-        return;
-      }
-
-      const doSignIn = await Auth().signInWithEmailAndPassword(email, password);
-      setShowLoading(false);
-      // if valid signin, navigate to landing
-      if (doSignIn.user) {
-        navigation.navigate('Load');
-        setAuthState(!authState);
-      }
-    } catch (e) {
-      const errorCode = e.code; 
-      if(errorCode === 'auth/invalid-email') {
-        setEmailError("*Invalid Email");
-      } else if (errorCode === 'auth/wrong-password') {
-        setPasswordError('*Wrong password');
-      }
-    } 
+  // signin
+  const signin = async () => {
+    setShowLoading(true);
+    Auth().signInWithEmailAndPassword(email, password)
+      .then(() => {
+        setShowLoading(false);
+      })
+      .catch((e) => {
+        setShowLoading(false);
+        Alert.alert(e.message);
+      });
   };
 
   return (
     <View style={styles.screen}>
       <View style={styles.wavyBanner}>
         <Svg viewBox="0 0 375 450" width="100%" height="100%" preserveAspectRatio="none">
-          <SignInWave/>
+          <SignInWave />
         </Svg>
       </View>
       <View style={styles.bannerText}>
-        <Text style={[styles.whiteText, styles.h2, ]}>Welcome to</Text>
+        <Text style={[styles.whiteText, styles.h2]}>Welcome to</Text>
         <Text style={[styles.whiteText, styles.h1]}>Harmony Project</Text>
       </View>
       <View style={styles.formContainer}>
+        <View style={styles.subContainer}>
+          <Text style={{ fontSize: 28, height: 50 }}>Please Sign In!</Text>
+        </View>
         <View style={styles.subContainer}>
           <Input
             style={styles.textInput}

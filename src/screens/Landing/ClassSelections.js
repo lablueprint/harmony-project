@@ -58,14 +58,11 @@ export default function ClassSelections({
     setCurr([]);
     setPast([]);
     classroomData.forEach((c) => {
-      const classroomInfo = c;
-      const classCode = c.code;
-      delete classroomInfo.code;
       if (userState.role === 'TEACHER') {
         if (c.endDate > currDate) {
-          setCurr((cl) => [...cl, { info: classroomInfo, code: classCode }]);
+          setCurr((cl) => [...cl, c]);
         } else {
-          setPast((cl) => [...cl, { info: classroomInfo, code: classCode }]);
+          setPast((cl) => [...cl, c]);
         }
       } else if (userState.role === 'STUDENT') {
         const teacherNames = [];
@@ -79,9 +76,9 @@ export default function ClassSelections({
             });
         });
         if (c.endDate > currDate) {
-          setCurr((cl) => [...cl, { info: classroomInfo, code: classCode, teacherNames }]);
+          setCurr((cl) => [...cl, { ...c, teacherNames }]);
         } else {
-          setPast((cl) => [...cl, { info: classroomInfo, code: classCode, teacherNames }]);
+          setPast((cl) => [...cl, { ...c, teacherNames }]);
         }
       }
     });
@@ -97,13 +94,13 @@ export default function ClassSelections({
           <View style={styles.subContainer} key={c.code}>
             <View style={styles.subContainer}>
               <Text style={styles.topicText}>
-                {`Class Name: ${c.info.name}`}
+                {`Class Name: ${c.name}`}
               </Text>
             </View>
             {userState.role === 'TEACHER' && (
             <View style={styles.subContainer}>
               <Text style={styles.topicText}>
-                {`Number of Students: ${c.info.studentIDs.length}`}
+                {`Number of Students: ${c.studentIDs.length}`}
               </Text>
             </View>
             )}
@@ -123,7 +120,7 @@ export default function ClassSelections({
               style={styles.textInput}
               title="OPEN"
               onPress={() => {
-                navigation.navigate('Classroom', { code: c.code, classroomInfo: c.info, uid });
+                navigation.navigate('Classroom', { code: c.code, classroomInfo: c, uid });
               }}
             />
           </View>
@@ -152,13 +149,13 @@ export default function ClassSelections({
           <View style={styles.subContainer} key={c.code}>
             <View style={styles.subContainer}>
               <Text style={styles.topicText}>
-                {`Class Name: ${c.info.name}`}
+                {`Class Name: ${c.name}`}
               </Text>
             </View>
             {userState.role === 'TEACHER' && (
             <View style={styles.subContainer}>
               <Text style={styles.topicText}>
-                {`Number of Students: ${c.info.studentIDs.length}`}
+                {`Number of Students: ${c.studentIDs.length}`}
               </Text>
             </View>
             )}
@@ -178,7 +175,7 @@ export default function ClassSelections({
               style={styles.textInput}
               title="OPEN"
               onPress={() => {
-                navigation.navigate('Classroom', { code: c.code, classroomInfo: c.info, uid });
+                navigation.navigate('Classroom', { code: c.code, classroomInfo: c, uid });
               }}
             />
           </View>

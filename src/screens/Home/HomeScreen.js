@@ -22,12 +22,12 @@ imports below.
 HomeScreen error is due to "relativePath.split() is not a function"
 */
 
-import React, { useContext } from 'react';
+import React, { /* useContext */ } from 'react';
 import { Text, View } from 'react-native';
 import { Button } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
-import AuthContext from '../../navigation/AuthContext';
+// import AuthContext from '../../navigation/AuthContext';
 
 // const styles = StyleSheet.create({
 //   subContainer: {
@@ -42,7 +42,7 @@ import AuthContext from '../../navigation/AuthContext';
 // });
 
 export default function HomeScreen() {
-  const [authState, setAuthState] = useContext(AuthContext);
+  // const [authState, setAuthState] = useContext(AuthContext);
 
   return (
     <View>
@@ -51,7 +51,10 @@ export default function HomeScreen() {
       <Button
         title="Sign Out"
         buttonStyle={{ padding: 5, marginRight: 30, marginLeft: 30 }}
-        onPress={() => { Auth().signOut().then(() => { setAuthState(!authState); }); }}
+        onPress={() => {
+          // Auth().signOut().then(() => { setAuthState(!authState); });
+          Auth().signOut();
+        }}
       />
     </View>
   );
