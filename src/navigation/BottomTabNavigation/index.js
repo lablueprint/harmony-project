@@ -1,14 +1,14 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
 import React, { useState } from 'react';
 import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
-import ClassroomContext from '../context/ClassroomContext';
-import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
-import NotificationsScreen from '../screens/Notifications/NotificationsScreen';
-import ProfileScreen from '../screens/Profile';
-import { MainStackNavigator, LibraryNavigator } from './StackNavigation';
-import ClassroomSelector from '../components/ClassroomSelector';
+import ClassroomContext from '../../context/ClassroomContext';
+import ClassroomSelector from '../../components/ClassroomSelector';
+import BulletinStackNavigator from './BulletinStackNavigator';
+import ToDoStackNavigator from './ToDoStackNavigator';
+import NotificationStackNavigator from './NotificationStackNavigator';
+import LibraryStackNavigator from './LibraryStackNavigator';
+import ProfileStackNavigator from './ProfileStackNavigator';
 
 /* These are wrapper functions that are used to display bottom tab icons
 These needed to be abstracted in order to properly validate the props
@@ -33,11 +33,6 @@ const ProfileIcon = ({ color }) => (
   <Icon name="user" type="feather" color={color} size={25} />
 );
 
-/* Function is just here to route to an empty screen since notification
-screen is currently not made and the navigator breaksdown without something
-present.
-*/
-
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
@@ -49,7 +44,7 @@ const BottomTabNavigator = () => {
       <Tab.Navigator screenOptions={{ headerShown: false }}>
         <Tab.Screen
           name="Bulletin"
-          component={MainStackNavigator}
+          component={BulletinStackNavigator}
           options={{
             tabBarIcon: HomeIcon,
           }}
@@ -57,7 +52,7 @@ const BottomTabNavigator = () => {
 
         <Tab.Screen
           name="To-do"
-          component={AssignmentListScreen}
+          component={ToDoStackNavigator}
           options={{
             tabBarIcon: TodoIcon,
           }}
@@ -65,7 +60,7 @@ const BottomTabNavigator = () => {
 
         <Tab.Screen
           name="Notifications"
-          component={NotificationsScreen}
+          component={NotificationStackNavigator}
           options={{
             tabBarIcon: NotificationIcon,
           }}
@@ -73,7 +68,7 @@ const BottomTabNavigator = () => {
 
         <Tab.Screen
           name="Library"
-          component={LibraryNavigator}
+          component={LibraryStackNavigator}
           options={{
             tabBarIcon: LibraryIcon,
           }}
@@ -81,7 +76,7 @@ const BottomTabNavigator = () => {
 
         <Tab.Screen
           name="Profile"
-          component={ProfileScreen}
+          component={ProfileStackNavigator}
           options={{
             tabBarIcon: ProfileIcon,
           }}
