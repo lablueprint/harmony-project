@@ -16,9 +16,9 @@ import AssignmentScreen from '../screens/AssignmentList/AssignmentScreen';
 import NewAssignmentScreen from '../screens/AssignmentList/NewAssignmentScreen';
 import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
 import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
+import FeedbackScreen from '../screens/Feedback';
 import { ClassroomSelectScreen, LoadClasses } from '../screens/Landing';
 import { LibraryScreen, LibraryFilesScreen } from '../screens/Library';
-
 const Stack = createStackNavigator();
 
 const MainStackNavigator = () => (
@@ -52,6 +52,7 @@ const MainStackNavigator = () => (
     <Stack.Screen name="Classroom" component={ClassroomHome} />
     <Stack.Screen name="LoadClasses" component={LoadClasses} />
     <Stack.Screen name="Landing" component={ClassroomSelectScreen} />
+    <Stack.Screen name="Feedback" component={FeedbackScreen} />
   </Stack.Navigator>
 );
 
