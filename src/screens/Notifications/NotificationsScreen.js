@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
 import moment from 'moment';
-import ClassroomContext from '../../navigation/ClassroomContext';
+import ClassroomContext from '../../context/ClassroomContext';
 
 /**
  * Get the list of students in this class, then reate a notification for each student.
@@ -144,6 +144,7 @@ export default function NotificationsScreen({ navigation }) {
     />
   );
 }
+
 NotificationsScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,

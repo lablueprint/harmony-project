@@ -7,8 +7,7 @@ import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
 import { Avatar } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient';
-import ClassroomContext from '../../navigation/ClassroomContext';
-import AuthContext from '../../navigation/AuthContext';
+import ClassroomContext from '../../context/ClassroomContext';
 
 const styles = StyleSheet.create({
   headerContainer: {

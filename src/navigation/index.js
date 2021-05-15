@@ -7,7 +7,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Auth from '@react-native-firebase/auth';
 import AuthNavigation from './AuthNavigation';
 import BottomTabNavigator from './BottomTabNavigation';
-// import AuthContext from './AuthContext';
 
 /* This contains the default navigation settings for the ENTIRE
 APPLICATION. Currently, it will display the linear gradient at the
@@ -48,7 +47,6 @@ const AppContainer = () => {
   // }, [authToken]);
 
   return (
-  // <AuthContext.Provider value={authToken}>
     <NavigationContainer>
       <Root.Navigator screenOptions={{
         headerShown: false,
@@ -71,7 +69,6 @@ const AppContainer = () => {
           )}
       </Root.Navigator>
     </NavigationContainer>
-  // </AuthContext.Provider>
   );
 };
 

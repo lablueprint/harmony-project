@@ -1,9 +1,9 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
-import ClassroomContext from './ClassroomContext';
+import ClassroomContext from '../context/ClassroomContext';
 import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
 import NotificationsScreen from '../screens/Notifications/NotificationsScreen';
 import ProfileScreen from '../screens/Profile';

@@ -1,4 +1,3 @@
-
 import React, { useState /* useContext */ } from 'react';
 import {
   StyleSheet, ActivityIndicator, View, Text, Alert, Image,
@@ -7,7 +6,6 @@ import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import Logo from '../../components/hp_circleLogo.png';
-// import AuthContext from '../../navigation/AuthContext';
 
 const styles = StyleSheet.create({
   container: {
@@ -48,7 +46,6 @@ export default function SignInScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showLoading, setShowLoading] = useState(false);
-  // const [authState, setAuthState] = useContext(AuthContext);
 
   // signin
   const signin = async () => {
