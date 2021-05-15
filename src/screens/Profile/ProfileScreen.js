@@ -5,6 +5,7 @@ import {
 import { Button, Text } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
+import Firebase from '@react-native-firebase/app';
 import { INITIAL_USER_STATE } from '../../components';
 
 const styles = StyleSheet.create({
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
 // navigation MUST INCLUDE: uid
 export default function ProfileScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
-  const uid = navigation.getParam('uid', null);
+  const { uid } = Firebase.auth().currentUser;
   const ref = Firestore().collection('users');
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
 
@@ -202,6 +203,5 @@ ProfileScreen.navigationOptions = ({ navigation }) => ({
 ProfileScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-    getParam: PropTypes.func.isRequired,
   }).isRequired,
 };

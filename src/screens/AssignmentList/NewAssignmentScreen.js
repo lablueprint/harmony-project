@@ -89,24 +89,34 @@ const styles = StyleSheet.create({
 
 });
 
-export default function NewAssignmentScreen({ navigation }) {
-  const [title, setTitle] = useState(navigation.getParam('title'));
-  const [body, setBody] = useState(navigation.getParam('body'));
+export default function NewAssignmentScreen({ route, navigation }) {
+  const {
+    setLoad1,
+    currentLoad1,
+    title1,
+    body1,
+    attachments1,
+    mode1,
+    assign1,
+  } = route.params;
+
+  const [title, setTitle] = useState(title1);
+  const [body, setBody] = useState(body1);
   // eslint-disable-next-line no-unused-vars
-  const [attachment, setAttachment] = useState(navigation.getParam('attachments'));
+  const [attachment, setAttachment] = useState(attachments1);
   const [attachmentArr, setAttachmentArr] = useState([]);
 
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [date, setDueDate] = useState('');
-  const mainScreenLoadStatus = navigation.getParam('currentLoad');
-  const reloadMainScreen = navigation.getParam('setLoad');
+  const mainScreenLoadStatus = currentLoad1;
+  const reloadMainScreen = setLoad1;
   const [classroom, setClassroomID] = useState('');
-  const mode = navigation.getParam('mode');
-  const assignment = navigation.getParam('assign');
+  const mode = mode1;
+  const assignment = assign1;
 
   const [initializing, setInitializing] = useState(true);
-  const uid = navigation.getParam('uid', null);
+  const uid = Firebase.auth().currentUser;
   const ref = Firestore().collection('users');
   const [expanded0, setExpanded0] = useState(false);
   const [expanded1, setExpanded1] = useState(false);
@@ -207,7 +217,7 @@ export default function NewAssignmentScreen({ navigation }) {
         .add(assignmentRecord)
         .then(() => {
           setLoading(false);
-          navigation.navigate('AssignmentList', { uid });
+          navigation.navigate('AssignmentList');
         })
         .catch((error) => {
           setErrorMessage(error.message);
@@ -223,7 +233,7 @@ export default function NewAssignmentScreen({ navigation }) {
         })
         .then(() => {
           setLoading(false);
-          navigation.navigate('AssignmentList', { uid });
+          navigation.navigate('AssignmentList');
         })
         .catch((error) => {
           setErrorMessage(error.message);
@@ -309,8 +319,7 @@ NewAssignmentScreen.propTypes = {
     getParam: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
   }).isRequired,
-};
-
-NewAssignmentScreen.navigationOptions = {
-  title: 'New Assignment',
+  route: PropTypes.shape({
+    params: PropTypes.func.isRequired,
+  }).isRequired,
 };

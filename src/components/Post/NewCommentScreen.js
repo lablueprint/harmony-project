@@ -16,13 +16,12 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function NewCommentScreen({ navigation }) {
+export default function NewCommentScreen({ route, navigation }) {
   const [body, setBody] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const postId = navigation.getParam('id', 'No id Found');
-  const mainScreenLoadStatus = navigation.getParam('currentLoad');
-  const reloadMainScreen = navigation.getParam('setLoad');
+
+  const { postId, mainScreenLoadStatus, reloadMainScreen } = route.params;
 
   const handleSubmit = () => {
     setLoading(true);
@@ -70,6 +69,9 @@ NewCommentScreen.propTypes = {
   navigation: PropTypes.shape({
     getParam: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
+  }).isRequired,
+  route: PropTypes.shape({
+    params: PropTypes.func.isRequired,
   }).isRequired,
 };
 

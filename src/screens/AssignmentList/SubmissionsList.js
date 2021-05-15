@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
 
 });
 
-export default function SubmissionsList({ navigation }) {
+export default function SubmissionsList({ route, navigation }) {
   // const [errorMessage, setErrorMessage] = useState(null);
   const [assignmentID, setAssignmentID] = useState(null);
   const [classroomID, setClassroomID] = useState(null);
@@ -57,8 +57,8 @@ export default function SubmissionsList({ navigation }) {
   const [finished3, setFinished3] = useState(false);
   const [finished4, setFinished4] = useState(false);
 
-  const a = navigation.getParam('assignment', null);
-  const c = navigation.getParam('classroom', null);
+  const { a, c } = route.params;
+
   const [expanded, setExpanded] = useState(false);
   const [expanded1, setExpanded1] = useState(false);
   const [expanded2, setExpanded2] = useState(false);
@@ -295,5 +295,8 @@ SubmissionsList.propTypes = {
   navigation: PropTypes.shape({
     getParam: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
+  }).isRequired,
+  route: PropTypes.shape({
+    params: PropTypes.func.isRequired,
   }).isRequired,
 };

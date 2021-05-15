@@ -15,19 +15,23 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function NewPostScreen({ navigation }) {
+export default function NewPostScreen({ route, navigation }) {
+  const {
+    userID,
+    postID,
+    collection,
+    title1,
+    handleSubmit,
+  } = route.params;
+
+  const displayTitle = true;
+  const displayUpload = true;
+  const buttonTitle = 'Submit';
+  const mediaType = 'video';
+
+  const [title, setTitle] = useState(title1);
   const [body, setBody] = useState('');
   const [attachment, setAttachment] = useState('');
-  const userID = navigation.getParam('userID');
-  const postID = navigation.getParam('postID');
-  const displayTitle = navigation.getParam('displayTitle', true);
-  const setTitle = navigation.getParam('setTitle');
-  const title = navigation.getParam('title', '');
-  const displayUpload = navigation.getParam('displayUpload', true);
-  const collection = navigation.getParam('collection');
-  const buttonTitle = navigation.getParam('buttonTitle', 'Submit');
-  const mediaType = navigation.getParam('mediaType', 'video');
-  const handleSubmit = navigation.getParam('handleSubmit');
 
   return (
     <View style={styles.container}>
@@ -73,6 +77,9 @@ NewPostScreen.propTypes = {
     getParam: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
     goBack: PropTypes.func.isRequired,
+  }).isRequired,
+  route: PropTypes.shape({
+    params: PropTypes.func.isRequired,
   }).isRequired,
 };
 

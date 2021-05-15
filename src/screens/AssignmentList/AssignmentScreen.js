@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
-
+import Firebase from '@react-native-firebase/app';
 import {
   // eslint-disable-next-line no-unused-vars
   View, Button, Text, StyleSheet,
@@ -47,17 +47,19 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function AssignmentScreen({ navigation }) {
-  const post = navigation.getParam('assignment', null);
-  const isTeacher = navigation.getParam('isTeacher', null);
-  const hasBeenEval = navigation.getParam('hasBeenEval', null);
-  const hasBeenSubmitted = navigation.getParam('hasBeenSubmitted', null);
-  const loadingNewComment = navigation.getParam('loadingNewComment', null);
-  const setLoadingNewComment = navigation.getParam('setLoadingNewComment', null);
-  const rerender = navigation.getParam('rerender', null);
-  const setRerender = navigation.getParam('setRerender', null);
-  const uid = navigation.getParam('uid', null);
-  const createSubmission = navigation.getParam('createSubmission', null);
+export default function AssignmentScreen({ route, navigation }) {
+  const {
+    post,
+    isTeacher,
+    hasBeenEval,
+    hasBeenSubmitted,
+    loadingNewComment,
+    setLoadingNewComment,
+    rerender,
+    setRerender,
+    createSubmission,
+  } = route.params;
+  const uid = Firebase.auth().currentUser;
   const date = post.createdAt.toDate();
 
   return (
@@ -96,7 +98,7 @@ export default function AssignmentScreen({ navigation }) {
                         userID: uid,
                         postID: post.id,
                         collection: 'recordings',
-                        title: post.title,
+                        title1: post.title,
                         handleSubmit: createSubmission,
                       });
                     }}
@@ -133,7 +135,7 @@ export default function AssignmentScreen({ navigation }) {
                         userID: uid,
                         postID: post.id,
                         collection: 'recordings',
-                        title: post.title,
+                        title1: `${post.title} Submission`,
                         handleSubmit: createSubmission,
                       });
                     }}
@@ -181,8 +183,8 @@ export default function AssignmentScreen({ navigation }) {
                   style={styles.buttons}
                   onPress={() => {
                     navigation.navigate('Submissions', {
-                      assignment: post.id,
-                      classroom: post.classroomID,
+                      a: post.id,
+                      c: post.classroomID,
                     });
                   }}
                 >
@@ -199,5 +201,9 @@ AssignmentScreen.propTypes = {
   navigation: PropTypes.shape({
     getParam: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
+  }).isRequired,
+
+  route: PropTypes.shape({
+    params: PropTypes.func.isRequired,
   }).isRequired,
 };

@@ -38,7 +38,7 @@
 		</dict>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
@@ -56,6 +56,7 @@
 		<string>SimpleLineIcons.ttf</string>
 		<string>Octicons.ttf</string>
 		<string>Zocial.ttf</string>
+		<string>Fontisto.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
@@ -72,19 +73,19 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>NSPhotoLibraryUsageDescription</key>
-    <string>
+	<string>
      $(PRODUCT_NAME) would like access to your photo gallery to let   you upload your pictures to the feed.
     </string>
-    <key>NSCameraUsageDescription</key>
-    <string>
+	<key>NSCameraUsageDescription</key>
+	<string>
      $(PRODUCT_NAME) would like to use your camera to take picture and share them on your feed.
     </string>
-    <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>
      $(PRODUCT_NAME) would like to save photos to your photo gallery to upload pictures to your feed.
     </string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>
      $(PRODUCT_NAME) would like to use your microphone for videos sharing on your feed.
     </string>
 </dict>

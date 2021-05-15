@@ -8,7 +8,7 @@ import { Card } from 'react-native-elements';
 import { List } from 'react-native-paper';
 
 import Firestore from '@react-native-firebase/firestore';
-import firebase from '@react-native-firebase/app';
+import Firebase from '@react-native-firebase/app';
 import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
 
 export default function AssignmentListScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
-  const uid = navigation.getParam('uid', null);
+  const { uid } = Firebase.auth().currentUser;
   const [assignmentsList, setAssignmentsList] = useState([]);
   const [rerender, setRerender] = useState(false);
   const [loadingNewComment, setLoadingNewComment] = useState(false);
@@ -118,7 +118,7 @@ export default function AssignmentListScreen({ navigation }) {
           // querySnapshot.forEach((doc) => console.log(doc));
             const docID = querySnapshot.docs[0].id;
             Firestore().collection('submissions').doc(docID).update({
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              updatedAt: Firebase.firestore.FieldValue.serverTimestamp(),
               body,
               attachment,
             })
@@ -133,8 +133,8 @@ export default function AssignmentListScreen({ navigation }) {
             Firestore().collection('submissions').add({
               authorID: userID,
               assignmentID: postID,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              createdAt: Firebase.firestore.FieldValue.serverTimestamp(),
+              updatedAt: Firebase.firestore.FieldValue.serverTimestamp(),
               body,
               attachment,
               hasReceivedFeedback: false,
@@ -231,7 +231,7 @@ export default function AssignmentListScreen({ navigation }) {
                   console.log('UPDATED');
                 }
                 navigation.navigate('Assignment', {
-                  assignment,
+                  post: assignment,
                   isTeacher,
                   hasBeenEval,
                   hasBeenSubmitted,
@@ -239,7 +239,6 @@ export default function AssignmentListScreen({ navigation }) {
                   setLoadingNewComment,
                   rerender,
                   setRerender,
-                  uid,
                   createSubmission,
                 });
               }}
@@ -271,7 +270,7 @@ export default function AssignmentListScreen({ navigation }) {
                     style={styles.buttonsContainer}
                     onPress={() => {
                       navigation.navigate('StudentNames', {
-                        students: studentsSeenTemp,
+                        studentIDs: studentsSeenTemp,
                       });
                     }}
                   >
@@ -286,7 +285,7 @@ export default function AssignmentListScreen({ navigation }) {
                     style={styles.buttonsContainer}
                     onPress={() => {
                       navigation.navigate('StudentNames', {
-                        students: studentsCompleted,
+                        studentIDs: studentsCompleted,
                       });
                     }}
                   >
@@ -301,7 +300,7 @@ export default function AssignmentListScreen({ navigation }) {
                     style={styles.buttonsContainer}
                     onPress={() => {
                       navigation.navigate('StudentNames', {
-                        students: studentsNotCompleted,
+                        studentIDs: studentsNotCompleted,
                       });
                     }}
                   >
@@ -317,14 +316,13 @@ export default function AssignmentListScreen({ navigation }) {
                     title="Edit"
                     onPress={() => {
                       navigation.navigate('NewAssignment', {
-                        setLoad: setLoadingNewPost,
-                        currentLoad: loadingNewPost,
-                        uid,
-                        title: assignment.title,
-                        body: assignment.body,
-                        attachments: assignment.attachments,
-                        assign: assignment,
-                        mode: 'Edit',
+                        setLoad1: setLoadingNewPost,
+                        currentLoad1: loadingNewPost,
+                        title1: assignment.title,
+                        body1: assignment.body,
+                        attachments1: assignment.attachments,
+                        assign1: assignment,
+                        mode1: 'Edit',
                       });
                     }}
                   />
@@ -466,7 +464,6 @@ export default function AssignmentListScreen({ navigation }) {
                 navigation.navigate('NewAssignment', {
                   setLoad: setLoadingNewPost,
                   currentLoad: loadingNewPost,
-                  uid,
                   title: '',
                   body: '',
                   attachments: [],
@@ -512,7 +509,5 @@ export default function AssignmentListScreen({ navigation }) {
 AssignmentListScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-    getParam: PropTypes.func.isRequired,
-
   }).isRequired,
 };
