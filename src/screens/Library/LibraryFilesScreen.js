@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
   StyleSheet, ScrollView, View, Alert, TouchableHighlight, Text,
 } from 'react-native';
-import { SearchBar, Icon } from 'react-native-elements';
+import { SearchBar } from 'react-native-elements';
 import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
   card: {
     height: 20,
     width: '100%',
+    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
     borderColor: '#BDBDBD',
     paddingVertical: 30,
@@ -52,18 +53,7 @@ const styles = StyleSheet.create({
     paddingLeft: 55,
   },
   cardContainer: {
-    backgroundColor: '#ffffff',
-  },
-  cardHeader: {
-    paddingTop: 8,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderColor: '#BDBDBD',
-  },
-  cardHeaderText: {
-    fontSize: 18,
-    color: 'black',
-    fontFamily: 'Inter-SemiBold',
+    height: '100%',
   },
   searchContainer: {
     display: 'flex',
@@ -95,55 +85,33 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 36,
   },
-  filesContainer: {
-    height: '100%',
-  },
 });
 
 export default function LibraryFilesScreen({ navigation, route }) {
   const { fileType, classFiles } = route.params; // fileType = 'Videos', 'Photos', or 'Files'
   const [searchText, setSearch] = useState('');
-  const [searchFiles, setSearchFiles] = useState({});
-  const [items, setItems] = useState([]);
-
-  useEffect(() => {
-    setItems([]);
-    if (fileType === 'Videos') {
-      classFiles.forEach((c) => {
-        setItems((f) => [...f, { code: c.code, name: c.name, files: c.videos }]);
-      });
-    } else if (fileType === 'Photos') {
-      classFiles.forEach((c) => {
-        setItems((f) => [...f, { code: c.code, name: c.name, files: c.photos }]);
-      });
-    } else if (fileType === 'Files') {
-      classFiles.forEach((c) => {
-        setItems((f) => [...f, { code: c.code, name: c.name, files: c.files }]);
-      });
-    }
-  }, []);
+  const [searchFiles, setSearchFiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const items = {
+    code: classFiles.code,
+    name: classFiles.name,
+    files: classFiles[fileType.toLowerCase()],
+  };
 
   // search function
   useEffect(() => {
+    setLoading(true);
     if (searchText) {
-      items.forEach((c) => {
-        // eslint-disable-next-line max-len
-        const files = c.files.filter((f) => f.name.toLowerCase().includes(searchText.toLowerCase()));
-        if (files.length) {
-          setSearchFiles({
-            ...searchFiles,
-            [c.code]: { name: c.name, files },
-          });
-        } else {
-          setSearchFiles((prev) => {
-            const tempFiles = { ...prev };
-            delete tempFiles[c.code];
-            return tempFiles;
-          });
-        }
-      });
+      // eslint-disable-next-line max-len
+      const files = items.files.filter((f) => f.name.toLowerCase().includes(searchText.toLowerCase()));
+      if (files.length) {
+        setSearchFiles(files);
+      } else {
+        setSearchFiles([]);
+      }
+      setLoading(false);
     } else {
-      setSearchFiles({});
+      setSearchFiles([]);
     }
   }, [searchText]);
 
@@ -158,7 +126,7 @@ export default function LibraryFilesScreen({ navigation, route }) {
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>
-          {text}
+          {`${items.name}'s ${text}`}
         </Text>
       </View>
       <View style={styles.searchContainer}>
@@ -173,37 +141,21 @@ export default function LibraryFilesScreen({ navigation, route }) {
           value={searchText}
         />
       </View>
-      {searchText ? (
+      {searchText && !loading ? (
         <>
-          {searchFiles && Object.keys(searchFiles).length ? (
-            <ScrollView style={styles.filesContainer}>
-              {Object.entries(searchFiles).map(([code, obj]) => (
-                <View style={styles.cardContainer} key={code}>
-                  <View style={styles.cardHeader}>
-                    <Text style={styles.cardHeaderText}>{obj.name}</Text>
-                  </View>
-                  {obj.files.map((f) => (
-                    <TouchableHighlight
-                      underlayColor="#EEEEEE"
-                      onPress={() => {}}
-                      style={styles.card}
-                      key={f.getDownloadURL()}
-                    >
-                      <View style={styles.subCard}>
-                        <Icon
-                          containerStyle={styles.cardIcon}
-                          name="film"
-                          type="feather"
-                          color="black"
-                          size={25}
-                        />
-                        <Text style={styles.cardText}>
-                          {f.name}
-                        </Text>
-                      </View>
-                    </TouchableHighlight>
-                  ))}
-                </View>
+          {searchFiles.length > 0 ? (
+            <ScrollView style={styles.cardContainer}>
+              {searchFiles.map((f) => (
+                <TouchableHighlight
+                  underlayColor="#EEEEEE"
+                  onPress={() => {}}
+                  style={styles.card}
+                  key={f.getDownloadURL()}
+                >
+                  <Text style={styles.cardText}>
+                    {f.name}
+                  </Text>
+                </TouchableHighlight>
               ))}
             </ScrollView>
           ) : (
@@ -213,38 +165,24 @@ export default function LibraryFilesScreen({ navigation, route }) {
           )}
         </>
       ) : (
-        <>
-          {items.length > 0 ? (
-            items.map((i) => (
-              <View style={styles.cardContainer} key={i.code}>
-                {i.files.length > 0 && i.files.map((f) => (
-                  <TouchableHighlight
-                    underlayColor="#EEEEEE"
-                    onPress={() => {}}
-                    style={styles.card}
-                    key={f.getDownloadURL()}
-                  >
-                    <View style={styles.subCard}>
-                      <Icon
-                        containerStyle={styles.cardIcon}
-                        name="film"
-                        type="feather"
-                        color="black"
-                        size={25}
-                      />
-                      <Text style={styles.cardText}>
-                        {f.name}
-                      </Text>
-                    </View>
-                  </TouchableHighlight>
-                ))}
-              </View>
-            ))) : (
-              <Text>
-                {`No ${text.toLowerCase()} yet! When your teacher uploads ${text.toLowerCase()}, they will show up here.`}
+        <ScrollView style={styles.cardContainer}>
+          {items.files.length > 0 ? items.files.map((f) => (
+            <TouchableHighlight
+              underlayColor="#EEEEEE"
+              onPress={() => {}}
+              style={styles.card}
+              key={f.getDownloadURL()}
+            >
+              <Text style={styles.cardText}>
+                {f.name}
               </Text>
+            </TouchableHighlight>
+          )) : (
+            <Text>
+              {`No ${text.toLowerCase()} yet! When your teacher uploads ${text.toLowerCase()}, they will show up here.`}
+            </Text>
           )}
-        </>
+        </ScrollView>
       )}
     </View>
   );

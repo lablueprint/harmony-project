@@ -1,15 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {
-  useState, useEffect, useRef, /* useContext, */
+  useState, useEffect, useRef, useContext,
 } from 'react';
 import {
   StyleSheet, View, Alert, TouchableHighlight, Text, ScrollView, Animated, useWindowDimensions,
 } from 'react-native';
 import { SearchBar, Icon } from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
-import Auth from '@react-native-firebase/auth';
+// import Auth from '@react-native-firebase/auth';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
+import ClassroomContext from '../../navigation/ClassroomContext';
 
 const styles = StyleSheet.create({
   container: {
@@ -42,6 +43,7 @@ const styles = StyleSheet.create({
   card: {
     height: 20,
     width: '100%',
+    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
     borderColor: '#BDBDBD',
     paddingVertical: 30,
@@ -60,18 +62,7 @@ const styles = StyleSheet.create({
     paddingLeft: 55,
   },
   cardContainer: {
-    backgroundColor: '#ffffff',
-  },
-  cardHeader: {
-    paddingTop: 8,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderColor: '#BDBDBD',
-  },
-  cardHeaderText: {
-    fontSize: 18,
-    color: 'black',
-    fontFamily: 'Inter-SemiBold',
+    height: '100%',
   },
   searchContainer: {
     display: 'flex',
@@ -103,166 +94,98 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 36,
   },
-  filesContainer: {
-    height: '100%',
-  },
 });
-// create list of file, image, whtv from each individual class of the user
-// sort using orderBy firebase command
-// upload file naming requires changing upload file to have an input line
-
-// search bar --> state variable linked to useEffect that constantly updates to change the list
-// when searching --> still do the same sorts i guess
-
-// for libraryfilesscreen --> just check which file type is null, and then change view based on that
-
-// search --> delineate search on this screen with text,
-// other page only search thru the specified file type
 
 export default function LibraryScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
 
-  // if can't pass classrooms, need to fetch user data and check signin
-  // const [user, setUser] = useState(null);
-  // const userState = navigation.getParam('userState', null);
-  const { uid } = Auth().currentUser;
-  const [classFiles, setFiles] = useState([]);
+  // const { uid } = Auth().currentUser;
+  const [classFiles, setFiles] = useState({});
   const [searchText, setSearch] = useState('');
   const [searchFiles, setSearchFiles] = useState({});
   const [loading, setLoading] = useState(true);
   const [focus, setFocus] = useState(false);
   const [animatedHeight, setHeight] = useState('auto');
+  const [searchRef, setRef] = useState();
+
+  const {
+    classroom: selectedClassroom,
+  } = useContext(ClassroomContext);
 
   const window = useWindowDimensions();
   const slide = useRef(new Animated.Value(0)).current;
 
-  // if can't pass classrooms, need to fetch user data and check signin
-  /*
-  function onAuthStateChanged(authUser) {
-    setUser(authUser);
-  }
-
-  // check signin on mount
-  useEffect(() => {
-    const subscriber = Auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-  }, []); */
-
   useEffect(() => {
     setFiles([]);
-    Firestore().collection('users')
-      .doc(uid)
-      .get()
-      .then((document) => {
-        if (document.exists) {
-          return document.data();
-        }
-        return null;
-      })
-      .then((data) => {
-        Firestore().collection('classrooms').orderBy('endDate', 'desc').get()
-          .then((querySnapshot) => {
-            const classrooms = [];
-            querySnapshot.forEach((doc) => {
-              if (data.role === 'TEACHER') {
-                if (doc.id.length === 6) {
-                  doc.data().teacherIDs.forEach((element) => {
-                    if (element === uid) {
-                      classrooms.push({ ...doc.data(), code: doc.id });
-                    }
-                  });
-                }
-              } else if (data.role === 'STUDENT') {
-                if (doc.id.length === 6) {
-                  doc.data().studentIDs.forEach((element) => {
-                    if (element === uid) {
-                      classrooms.push({ ...doc.data(), code: doc.id });
-                    }
-                  });
-                }
-              }
-            });
+    setSearch('');
+    if (searchRef) {
+      searchRef.clear();
+      searchRef.blur();
+    }
+    Firestore().collection('classrooms').doc(selectedClassroom).get()
+      .then((doc) => {
+        const fileRef = storage().ref(`classrooms/${doc.id}/files`);
+        const photoRef = storage().ref(`classrooms/${doc.id}/photos`);
+        const videoRef = storage().ref(`classrooms/${doc.id}/videos`);
+        const newClassFiles = {
+          code: doc.id,
+          name: doc.data().name,
+          videos: [],
+          photos: [],
+          files: [],
+        };
 
-            classrooms.forEach((c) => {
-              const fileRef = storage().ref(`classrooms/${c.code}/files`);
-              const photoRef = storage().ref(`classrooms/${c.code}/photos`);
-              const videoRef = storage().ref(`classrooms/${c.code}/videos`);
-
-              const newClassFiles = {
-                code: c.code,
-                name: c.name,
-                videos: [],
-                photos: [],
-                files: [],
-              };
-
-              fileRef.list()
-                .then((res) => {
-                  newClassFiles.files = res.items;
-                }).catch((e) => {
-                  Alert.alert(e.message);
-                });
-
-              photoRef.list()
-                .then((res) => {
-                  newClassFiles.photos = res.items;
-                }).catch((e) => {
-                  Alert.alert(e.message);
-                });
-
-              videoRef.list()
-                .then((res) => {
-                  newClassFiles.videos = res.items;
-                }).catch((e) => {
-                  Alert.alert(e.message);
-                });
-              setFiles((f) => [...f, newClassFiles]);
-            });
-
-            setInitializing(false);
-          })
-          .catch((e) => {
+        fileRef.list()
+          .then((res) => {
+            newClassFiles.files = res.items;
+          }).catch((e) => {
             Alert.alert(e.message);
           });
+
+        photoRef.list()
+          .then((res) => {
+            newClassFiles.photos = res.items;
+          }).catch((e) => {
+            Alert.alert(e.message);
+          });
+
+        videoRef.list()
+          .then((res) => {
+            newClassFiles.videos = res.items;
+          }).catch((e) => {
+            Alert.alert(e.message);
+          });
+        setFiles(newClassFiles);
+
+        setInitializing(false);
       })
       .catch((e) => {
         Alert.alert(e.message);
       });
-  }, []);
+  }, [selectedClassroom]);
 
   // search function
   useEffect(() => {
     setLoading(true);
     if (searchText) {
-      classFiles.forEach((c) => {
-        // eslint-disable-next-line max-len
-        const videos = c.videos.filter((f) => f.name.toLowerCase().includes(searchText.toLowerCase()));
-        // eslint-disable-next-line max-len
-        const photos = c.photos.filter((f) => f.name.toLowerCase().includes(searchText.toLowerCase()));
-        // eslint-disable-next-line max-len
-        const files = c.files.filter((f) => f.name.toLowerCase().includes(searchText.toLowerCase()));
-        const filteredFiles = {
-          name: c.name,
+      // eslint-disable-next-line max-len
+      const videos = classFiles.videos.filter((f) => f.name.toLowerCase().includes(searchText.toLowerCase()));
+      // eslint-disable-next-line max-len
+      const photos = classFiles.photos.filter((f) => f.name.toLowerCase().includes(searchText.toLowerCase()));
+      // eslint-disable-next-line max-len
+      const files = classFiles.files.filter((f) => f.name.toLowerCase().includes(searchText.toLowerCase()));
+      if (videos.length || photos.length || files.length) {
+        setSearchFiles({
           videos,
           photos,
           files,
-        };
-        if (videos.length || photos.length || files.length) {
-          setSearchFiles({
-            ...searchFiles,
-            [c.code]: filteredFiles,
-          });
-        } else {
-          setSearchFiles((prev) => {
-            const tempFiles = { ...prev };
-            delete tempFiles[c.code];
-            return tempFiles;
-          });
-        }
-        setLoading(false);
-      });
+        });
+      } else {
+        setSearchFiles(null);
+      }
+      setLoading(false);
     } else {
-      setSearchFiles({});
+      setSearchFiles(null);
     }
   }, [searchText]);
 
@@ -308,100 +231,83 @@ export default function LibraryScreen({ navigation }) {
           onClear={() => {
             if (!focus) setFocus(null);
           }}
+          ref={(search) => setRef(search)}
         />
       </View>
       {!loading && (
         <>
-          {searchFiles && Object.keys(searchFiles).length ? (
-            <ScrollView style={styles.filesContainer}>
+          {searchFiles ? (
+            <ScrollView style={styles.cardContainer}>
               {/* opening file preview: https://www.npmjs.com/package/react-native-file-viewer */}
-              {Object.entries(searchFiles).map(([code, obj]) => (
-                <View style={styles.cardContainer} key={code}>
-                  <View style={styles.cardHeader}>
-                    <Text style={styles.cardHeaderText}>{obj.name}</Text>
+              {searchFiles.videos.map((f) => (
+                // IN THE FUTURE: Have files be placed into some
+                // collection in Firestore as well, so we can
+                // have unique IDs or something...
+                // And also to give files actual names instead of
+                // their file name...?
+                <TouchableHighlight
+                  underlayColor="#EEEEEE"
+                  onPress={() => {}}
+                  style={styles.card}
+                  key={f.getDownloadURL()}
+                >
+                  <View style={styles.subCard}>
+                    <Icon
+                      containerStyle={styles.cardIcon}
+                      name="film"
+                      type="feather"
+                      color="black"
+                      size={25}
+                    />
+                    <Text style={styles.cardText}>
+                      {f.name}
+                    </Text>
                   </View>
-                  {obj.videos.length > 0 && (
-                  <>
-                    {obj.videos.map((f) => (
-                      // IN THE FUTURE: Have files be placed into some
-                      // collection in Firestore as well, so we can
-                      // have unique IDs or something...
-                      // And also to give files actual names instead of
-                      // their file name...?
-                      <TouchableHighlight
-                        underlayColor="#EEEEEE"
-                        onPress={() => {}}
-                        style={styles.card}
-                        key={f.getDownloadURL()}
-                      >
-                        <View style={styles.subCard}>
-                          <Icon
-                            containerStyle={styles.cardIcon}
-                            name="film"
-                            type="feather"
-                            color="black"
-                            size={25}
-                          />
-                          <Text style={styles.cardText}>
-                            {f.name}
-                          </Text>
-                        </View>
-                      </TouchableHighlight>
-                    ))}
-                  </>
-                  )}
-                  {obj.photos.length > 0 && (
-                  <>
-                    {obj.photos.map((f) => (
-                      <TouchableHighlight
-                        underlayColor="#EEEEEE"
-                        onPress={() => {}}
-                        style={styles.card}
-                        key={f.getDownloadURL()}
-                      >
-                        <View style={styles.subCard}>
-                          <Icon
-                            containerStyle={styles.cardIcon}
-                            name="film"
-                            type="feather"
-                            color="black"
-                            size={25}
-                          />
-                          <Text style={styles.cardText}>
-                            {f.name}
-                          </Text>
-                        </View>
-                      </TouchableHighlight>
-                    ))}
-                  </>
-                  )}
-                  {obj.files.length > 0 && (
-                  <>
-                    {obj.files.map((f) => (
-                      <TouchableHighlight
-                        underlayColor="#EEEEEE"
-                        onPress={() => {}}
-                        style={styles.card}
-                        key={f.getDownloadURL()}
-                      >
-                        <View style={styles.subCard}>
-                          <Icon
-                            containerStyle={styles.cardIcon}
-                            name="film"
-                            type="feather"
-                            color="black"
-                            size={25}
-                          />
-                          <Text style={styles.cardText}>
-                            {f.name}
-                          </Text>
-                        </View>
-                      </TouchableHighlight>
-                    ))}
-                  </>
-                  )}
-                </View>
+                </TouchableHighlight>
               ))}
+              {searchFiles.photos.map((f) => (
+                <TouchableHighlight
+                  underlayColor="#EEEEEE"
+                  onPress={() => {}}
+                  style={styles.card}
+                  key={f.getDownloadURL()}
+                >
+                  <View style={styles.subCard}>
+                    <Icon
+                      containerStyle={styles.cardIcon}
+                      name="image"
+                      type="feather"
+                      color="black"
+                      size={25}
+                    />
+                    <Text style={styles.cardText}>
+                      {f.name}
+                    </Text>
+                  </View>
+                </TouchableHighlight>
+              ))}
+              {searchFiles.files.map((f) => (
+                <TouchableHighlight
+                  underlayColor="#EEEEEE"
+                  onPress={() => {}}
+                  style={styles.card}
+                  key={f.getDownloadURL()}
+                >
+                  <View style={styles.subCard}>
+                    <Icon
+                      containerStyle={styles.cardIcon}
+                      name="file"
+                      type="feather"
+                      color="black"
+                      size={25}
+                    />
+                    <Text style={styles.cardText}>
+                      {f.name}
+                    </Text>
+                  </View>
+                </TouchableHighlight>
+              ))}
+
             </ScrollView>
           ) : (
             <Text>No matching files found.</Text>
