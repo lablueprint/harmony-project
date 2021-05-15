@@ -1,4 +1,3 @@
-
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 // import Firebase from '@react-native-firebase/app';
@@ -8,7 +7,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Auth from '@react-native-firebase/auth';
 import AuthNavigation from './AuthNavigation';
 import BottomTabNavigator from './BottomTabNavigation';
-// import AuthContext from './AuthContext';
+import AuthContext from './AuthContext';
 
 /* This contains the default navigation settings for the ENTIRE
 APPLICATION. Currently, it will display the linear gradient at the
@@ -28,8 +27,8 @@ const defaultNavOptions = {
 
 const AppContainer = () => {
   const Root = createStackNavigator();
-  // const [isAuth, setAuth] = useState(null);
-  // const authToken = useState(false);
+  const [isAuth, setAuth] = useState(null);
+  const authToken = useState(false);
 
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
@@ -74,7 +73,7 @@ const AppContainer = () => {
               <Root.Screen
                 name="AuthStack"
                 component={AuthNavigation}
-                options={{ title: '' }} to options={{ headerShown: false }}
+                options={{ headerShown: false }}
               />
             )}
         </Root.Navigator>

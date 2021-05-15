@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Text,
+  StyleSheet, ActivityIndicator, View, Text, Alert,
 } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
@@ -103,7 +103,7 @@ export default function SignInScreen({ navigation }) {
   // const [authState, setAuthState] = useContext(AuthContext);
 
   // signin
-  const signin = async () => {
+  const login = async () => {
     setShowLoading(true);
     Auth().signInWithEmailAndPassword(email, password)
       .then(() => {
@@ -127,9 +127,6 @@ export default function SignInScreen({ navigation }) {
         <Text style={[styles.whiteText, styles.h1]}>Harmony Project</Text>
       </View>
       <View style={styles.formContainer}>
-        <View style={styles.subContainer}>
-          <Text style={{ fontSize: 28, height: 50 }}>Please Sign In!</Text>
-        </View>
         <View style={styles.subContainer}>
           <Input
             style={styles.textInput}

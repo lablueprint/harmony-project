@@ -18,6 +18,8 @@ import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
 import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
 import { ClassroomSelectScreen, LoadClasses } from '../screens/Landing';
 import { LibraryScreen, LibraryFilesScreen } from '../screens/Library';
+import { SignUpScreen, UserInformationScreen } from '../screens/SignUp';
+import NotificationsScreen from '../screens/Notifications';
 
 const Stack = createStackNavigator();
 
@@ -57,7 +59,6 @@ const MainStackNavigator = () => (
     <Stack.Screen name="UserInformation" component={UserInformationScreen} />
   </Stack.Navigator>
 );
-
 
 const LibraryNavigator = () => (
   <Stack.Navigator

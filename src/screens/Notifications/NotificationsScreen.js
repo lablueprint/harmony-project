@@ -10,10 +10,10 @@ import moment from 'moment';
 
 const styles = StyleSheet.create({
   iconContainer: {
-    backgroundColor: '#d0e6f5', 
-    padding: 6, 
-    borderRadius: 25
-  }
+    backgroundColor: '#d0e6f5',
+    padding: 6,
+    borderRadius: 25,
+  },
 });
 
 /**
@@ -82,7 +82,7 @@ export async function notifyAuthor(announcementID, message, page) {
 }
 
 export default function NotificationsScreen({ navigation }) {
-  //const uid = navigation.getParam('uid', null);
+  // const uid = navigation.getParam('uid', null);
   const { uid } = Firebase.auth().currentUser;
   const [classroomList, setClassroomList] = useState([]);
   const [notificationList, setNotificationList] = useState([]);
@@ -127,19 +127,19 @@ export default function NotificationsScreen({ navigation }) {
 
   /* For each notification, create a list item */
   useEffect(() => {
-    if (notificationList.length > 0 && classroomList.length == notificationList.length) {
+    if (notificationList.length > 0 && classroomList.length === notificationList.length) {
       const ListItems = notificationList.map((element, index) => (
         <ListItem
           key={element.id}
-          leftIcon={
+          leftIcon={(
             <View style={styles.iconContainer}>
-              <Icon 
-              name={element.page == 'TODO' ? 'clipboard' : 'home'}
-              type='feather'
-              color='#439ad8'
+              <Icon
+                name={element.page === 'TODO' ? 'clipboard' : 'home'}
+                type="feather"
+                color="#439ad8"
               />
             </View>
-          }
+          )}
           title={classroomList[index].name}
           subtitle={element.message}
           rightTitle={moment(element.createdAt.toDate()).fromNow().toString()}
