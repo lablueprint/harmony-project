@@ -41,7 +41,7 @@ import AuthContext from '../../navigation/AuthContext';
 //   },
 // });
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const [authState, setAuthState] = useContext(AuthContext);
 
   return (
@@ -52,6 +52,13 @@ export default function HomeScreen() {
         title="Sign Out"
         buttonStyle={{ padding: 5, marginRight: 30, marginLeft: 30 }}
         onPress={() => { Auth().signOut().then(() => { setAuthState(!authState); }); }}
+      />
+      <Button
+        title="Feedback"
+        buttonStyle={{
+          padding: 5, marginRight: 30, marginLeft: 30, marginTop: 30,
+        }}
+        onPress={() => { navigation.navigate('Feedback'); }}
       />
     </View>
   );

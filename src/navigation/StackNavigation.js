@@ -17,6 +17,7 @@ import NewAssignmentScreen from '../screens/AssignmentList/NewAssignmentScreen';
 import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
 import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
 import ClassroomSelectScreen from '../screens/Landing';
+import FeedbackScreen from '../screens/Feedback';
 
 const Stack = createStackNavigator();
 
@@ -50,6 +51,7 @@ const MainStackNavigator = () => (
     <Stack.Screen name="CreateClassroom" component={CreateClassroomScreen} />
     <Stack.Screen name="Classroom" component={ClassroomHome} />
     <Stack.Screen name="Landing" component={ClassroomSelectScreen} />
+    <Stack.Screen name="Feedback" component={FeedbackScreen} />
   </Stack.Navigator>
 );
 
