@@ -74,6 +74,8 @@ export default function LibraryScreen({ navigation }) {
   const [classFiles, setFiles] = useState([]);
   const [searchText, setSearch] = useState('');
   const [searchFiles, setSearchFiles] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [focus, setFocus] = useState(false);
 
   // if can't pass classrooms, need to fetch user data and check signin
   /*
@@ -170,6 +172,7 @@ export default function LibraryScreen({ navigation }) {
 
   // search function
   useEffect(() => {
+    setLoading(true);
     if (searchText) {
       classFiles.forEach((c) => {
         // eslint-disable-next-line max-len
@@ -196,6 +199,7 @@ export default function LibraryScreen({ navigation }) {
             return tempFiles;
           });
         }
+        setLoading(false);
       });
     } else {
       setSearchFiles({});
@@ -221,45 +225,52 @@ export default function LibraryScreen({ navigation }) {
           placeholder="Search All Files"
           onChangeText={setSearch}
           value={searchText}
+          showLoading={loading}
+          onFocus={() => setFocus(true)}
+          onBlur={() => setFocus(false)}
         />
       </View>
-      {searchText ? (
+      {focus ? (
         <>
-          {searchFiles && Object.keys(searchFiles).length ? (
-            <>
-              {/* opening file preview: https://www.npmjs.com/package/react-native-file-viewer */}
-              {Object.entries(searchFiles).map(([code, obj]) => (
-                <View class={styles.card} key={code}>
-                  <Text>{obj.name}</Text>
-                  {obj.videos.length > 0 && (
+          {!loading && (
+          <>
+            {searchFiles && Object.keys(searchFiles).length ? (
+              <>
+                {/* opening file preview: https://www.npmjs.com/package/react-native-file-viewer */}
+                {Object.entries(searchFiles).map(([code, obj]) => (
+                  <View class={styles.card} key={code}>
+                    <Text>{obj.name}</Text>
+                    {obj.videos.length > 0 && (
                     <View>
                       <Text>Videos</Text>
                       {obj.videos.map((f) => (
                         <Text key={f.name}>{f.name}</Text>
                       ))}
                     </View>
-                  )}
-                  {obj.photos.length > 0 && (
+                    )}
+                    {obj.photos.length > 0 && (
                     <View>
                       <Text>Photos</Text>
                       {obj.photos.map((f) => (
                         <Text key={f.name}>{f.name}</Text>
                       ))}
                     </View>
-                  )}
-                  {obj.files.length > 0 && (
+                    )}
+                    {obj.files.length > 0 && (
                     <View>
                       <Text>Files</Text>
                       {obj.files.map((f) => (
                         <Text key={f.name}>{f.name}</Text>
                       ))}
                     </View>
-                  )}
-                </View>
-              ))}
-            </>
-          ) : (
-            <Text>No matching files found.</Text>
+                    )}
+                  </View>
+                ))}
+              </>
+            ) : (
+              <Text>No matching files found.</Text>
+            )}
+          </>
           )}
         </>
       ) : (
