@@ -37,7 +37,7 @@ export default function FeedbackPost({
   return (
     <View style={{ position: 'relative', top: 25 }}>
       <ListItem
-        leftIcon={(
+        leftIcon={time ? (
           <Avatar
             rounded
             icon={{ name: 'play-circle', type: 'feather' }}
@@ -47,11 +47,25 @@ export default function FeedbackPost({
             size="small"
             activeOpacity={0.7}
           />
-      )}
-        title={(
-          <View>
-            <Text style={styles.titleView}>{getTime(time)}</Text>
-          </View>
+        )
+          : (
+
+            <Avatar
+              rounded
+              icon={{ name: 'message-circle', type: 'feather' }}
+              size="small"
+            />
+          )}
+        title={time
+          ? (
+            <View>
+              <Text style={styles.titleView}>{getTime(time)}</Text>
+            </View>
+          )
+          : (
+            <View>
+              <Text style={styles.titleView}>General Feedback</Text>
+            </View>
           )}
         subtitle={(
           <View>
@@ -64,8 +78,12 @@ export default function FeedbackPost({
 }
 
 FeedbackPost.propTypes = {
-  time: PropTypes.number.isRequired,
+  time: PropTypes.number,
   message: PropTypes.string.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   videoPlayer: PropTypes.object.isRequired,
+};
+
+FeedbackPost.defaultProps = {
+  time: null,
 };

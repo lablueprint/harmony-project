@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Text, View, StyleSheet,
 } from 'react-native';
@@ -8,6 +8,8 @@ import {
 import { ScrollView } from 'react-native-gesture-handler';
 import Video from 'react-native-video';
 import PropTypes from 'prop-types';
+import Firestore from '@react-native-firebase/firestore';
+import Firebase from '@react-native-firebase/app';
 import FeedbackPost from './Feedback';
 
 const styles = StyleSheet.create({
@@ -59,10 +61,16 @@ const styles = StyleSheet.create({
     margin: 5,
     padding: 5,
   },
+  NoFeedback: {
+    textAlign: 'center',
+    fontSize: 35,
+    fontFamily: 'Thonburi-Light',
+    color: '#BDBDBD',
+  },
 });
 
 function CreateFeedback({
-  currentTime, setAddFeedback, setPause, addFeedback,
+  currentTime, setAddFeedback, setPause, addFeedback, submissionID, studentID,
 }) {
   const [content, setContent] = useState('');
   const [initialTime] = useState(Math.floor(currentTime));
@@ -90,6 +98,28 @@ function CreateFeedback({
     return `${minutes >= 10 ? minutes : `0${minutes}`}:${
       seconds >= 10 ? seconds : `0${seconds}`
     }`;
+  }
+
+  // Function to handle submitting feedback to Firestore
+
+  function handleSubmit() {
+    let timePin = null;
+    if (!generalFeedback) {
+      timePin = currentTime;
+    }
+
+    const FeedbackRecord = {
+      submissionID,
+      studentID,
+      teacherID: Firebase.auth().currentUser.uid,
+      createdAt: Firestore.Timestamp.now(),
+      updatedAt: Firestore.Timestamp.now(),
+      body: content,
+      time: timePin,
+    };
+
+    Firestore().collection('feedback')
+      .add(FeedbackRecord);
   }
 
   return (
@@ -161,19 +191,25 @@ function CreateFeedback({
         title="Post Feedback"
         titleStyle={{ fontFamily: 'Verdana-Bold' }}
         buttonStyle={styles.buttonContainer}
-        onPress={() => { setAddFeedback(!addFeedback); setPause(false); }}
+        onPress={() => { setAddFeedback(!addFeedback); setPause(false); handleSubmit(); }}
         style={styles.buttonPosition}
       />
     </View>
   );
 }
 
-export default function FeedbackScreen() {
-  // Handles Feedback screen itself
+export default function FeedbackScreen({ submissionID }) {
   const [pause, setPause] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [addFeedback, setAddFeedback] = useState(false);
+  const [videoURL, setVideoURL] = useState('');
+  const [studentID, setStudentID] = useState('');
+  const [loadingVideo, setLoadingVideo] = useState(true);
+  const [feedbackData, setFeedbackData] = useState(null);
+  const [feedbackPosts, setFeedbackPosts] = useState(null);
+  const [noFeedback, setNoFeedback] = useState(false);
+  const [loadCounter, setLoadCounter] = useState(0);
   const videoPlayer = useRef(null);
 
   // Gets a time value and outputs the appropripate minutes:seconds text
@@ -196,6 +232,55 @@ export default function FeedbackScreen() {
     setDuration(data.duration);
   };
 
+  // Get the video URL from Firestore
+  useEffect(() => {
+    Firestore().collection('submissions')
+      .doc(submissionID)
+      .get()
+      .then((snapshot) => {
+        const url = snapshot.get('attachment');
+        const studID = snapshot.get('authorID');
+        setVideoURL(url);
+        setStudentID(studID);
+        setLoadingVideo(false);
+      });
+  });
+
+  // Produce the list of feedback posts
+  useEffect(() => {
+    Firestore().collection('feedback')
+      .where('submissionID', '==', submissionID)
+      .orderBy('createdAt', 'desc')
+      .get()
+      .then((snapshot) => {
+        if (!snapshot.empty) {
+          const feedback = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+          setFeedbackData(feedback);
+          setNoFeedback(false);
+        } else {
+          setNoFeedback(true);
+        }
+      })
+      .then(() => {
+        if (feedbackData !== null) {
+          setFeedbackPosts(feedbackData.map((feedback) => (
+            <FeedbackPost
+              key={feedback.id}
+              time={feedback.time}
+              message={feedback.body}
+              videoPlayer={videoPlayer}
+            />
+          )));
+        }
+      });
+
+    // Firebase is weird and we need to reload a few times
+    if (loadCounter < 3 && !loadingVideo) {
+      setLoadCounter(loadCounter + 1);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addFeedback, submissionID, loadCounter, loadingVideo]);
+
   return (
     <ScrollView>
       <View>
@@ -209,20 +294,22 @@ export default function FeedbackScreen() {
           {' of '}
           {getTime(duration)}
         </Text>
-        <Video
-          source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/la-blueprint-harmony-project.appspot.com/o/recordings%2FSample%20Violin.mp4?alt=media&token=36b5a316-5d7b-4ba5-b51c-a36ec2fec79d' }}
-          style={{
-            aspectRatio: 1,
-            width: '100%',
-          }}
-          controls
-          resizeMode="contain"
-          paused={pause}
-          ref={videoPlayer}
-          onProgress={onProgress}
-          onLoad={onLoad}
-          onSeek={() => { setPause(!pause); }}
-        />
+        { loadingVideo ? null : (
+          <Video
+            source={{ uri: videoURL }}
+            style={{
+              aspectRatio: 1,
+              width: '100%',
+            }}
+            controls
+            resizeMode="contain"
+            paused={pause}
+            ref={videoPlayer}
+            onProgress={onProgress}
+            onLoad={onLoad}
+            onSeek={() => { setPause(!pause); }}
+          />
+        )}
         {addFeedback
           ? (
             <CreateFeedback
@@ -230,6 +317,8 @@ export default function FeedbackScreen() {
               setAddFeedback={setAddFeedback}
               addFeedback={addFeedback}
               setPause={setPause}
+              submissionID={submissionID}
+              studentID={studentID}
             />
           )
           : (
@@ -241,21 +330,34 @@ export default function FeedbackScreen() {
                 onPress={() => { setAddFeedback(!addFeedback); setPause(true); }}
                 style={styles.buttonPosition}
               />
-              <FeedbackPost
-                time={10}
-                message="Beautiful Form!"
-                videoPlayer={videoPlayer}
-              />
+              {feedbackPosts}
             </>
           )}
       </View>
+      {noFeedback ? (
+        <>
+          <View style={styles.space} />
+          <View style={styles.space} />
+          <Text style={styles.NoFeedback}>No Feedback Yet</Text>
+        </>
+      ) : null}
     </ScrollView>
   );
 }
 
+FeedbackScreen.propTypes = {
+  submissionID: PropTypes.string.isRequired,
+};
+
 CreateFeedback.propTypes = {
-  currentTime: PropTypes.number.isRequired,
+  currentTime: PropTypes.number,
   setAddFeedback: PropTypes.func.isRequired,
   addFeedback: PropTypes.bool.isRequired,
   setPause: PropTypes.func.isRequired,
+  submissionID: PropTypes.string.isRequired,
+  studentID: PropTypes.string.isRequired,
+};
+
+CreateFeedback.defaultProps = {
+  currentTime: null,
 };
