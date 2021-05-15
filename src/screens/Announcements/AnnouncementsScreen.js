@@ -5,6 +5,7 @@ import {
 import PropTypes from 'prop-types';
 import { ScrollView } from 'react-native-gesture-handler';
 import Firestore from '@react-native-firebase/firestore';
+import Firebase from '@react-native-firebase/app';
 import Post from '../../components/Post/Post';
 
 const styles = StyleSheet.create({
@@ -35,7 +36,7 @@ const styles = StyleSheet.create({
 Announcements Screen function
 */
 export default function AnnouncementsScreen({ navigation }) {
-  const uid = navigation.getParam('uid', null);
+  const { uid } = Firebase.auth().currentUser;
   const [errorMessage, setErrorMessage] = useState(null);
   const [announcementsList, setAnnouncementsList] = useState([]);
   const [rerender, setRerender] = useState(false);
@@ -114,7 +115,6 @@ this will only run one time when the component is mounted
 AnnouncementsScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-    getParam: PropTypes.func.isRequired,
   }).isRequired,
 
 };

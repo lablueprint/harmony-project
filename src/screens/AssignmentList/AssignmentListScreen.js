@@ -96,7 +96,6 @@ export default function AssignmentListScreen({ navigation }) {
       return;
     }
 
-    // const uid = navigation.getParam('uid', null);
     const createSubmission = ((userID, postID, body, attachment) => {
     // TODO: see if doc already exists. If it does, update the body, attachment, and updatedAt
       console.log(userID);
