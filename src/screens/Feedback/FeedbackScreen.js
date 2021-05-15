@@ -203,7 +203,6 @@ export default function FeedbackScreen({ route }) {
 
   const [pause, setPause] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const [addFeedback, setAddFeedback] = useState(false);
   const [videoURL, setVideoURL] = useState('');
   const [studentID, setStudentID] = useState('');
@@ -214,24 +213,9 @@ export default function FeedbackScreen({ route }) {
   const [loadCounter, setLoadCounter] = useState(0);
   const videoPlayer = useRef(null);
 
-  // Gets a time value and outputs the appropripate minutes:seconds text
-  function getTime(time) {
-    const minutes = time >= 60 ? Math.floor(time / 60) : 0;
-    const seconds = Math.floor(time - minutes * 60);
-
-    return `${minutes >= 10 ? minutes : `0${minutes}`}:${
-      seconds >= 10 ? seconds : `0${seconds}`
-    }`;
-  }
-
   // As the video progresses, updates the currentTime
   const onProgress = (data) => {
     setCurrentTime(data.currentTime);
-  };
-
-  // On loading the video, get the max video time
-  const onLoad = (data) => {
-    setDuration(data.duration);
   };
 
   // Get the video URL from Firestore
@@ -286,16 +270,6 @@ export default function FeedbackScreen({ route }) {
   return (
     <ScrollView>
       <View>
-        <Text style={{
-          padding: 5, marginRight: 30, marginLeft: 30, marginTop: 30,
-        }}
-        >
-          Time:
-          {' '}
-          {getTime(currentTime)}
-          {' of '}
-          {getTime(duration)}
-        </Text>
         { loadingVideo ? null : (
           <Video
             source={{ uri: videoURL }}
@@ -308,7 +282,6 @@ export default function FeedbackScreen({ route }) {
             paused={pause}
             ref={videoPlayer}
             onProgress={onProgress}
-            onLoad={onLoad}
             onSeek={() => { setPause(!pause); }}
           />
         )}
