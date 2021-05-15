@@ -27,7 +27,7 @@ export default function FeedbackPost({
   // Gets a time value and outputs the appropripate minutes:seconds text
   function getTime(unprocessedTime) {
     const minutes = unprocessedTime >= 60 ? Math.floor(unprocessedTime / 60) : 0;
-    const seconds = Math.floor(unprocessedTime - minutes * 60);
+    const seconds = Math.round(unprocessedTime - minutes * 60);
 
     return `${minutes >= 10 ? minutes : `0${minutes}`}:${
       seconds >= 10 ? seconds : `0${seconds}`

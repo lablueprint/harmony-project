@@ -93,7 +93,7 @@ function CreateFeedback({
   // Gets a time value and outputs the appropripate minutes:seconds text
   function getTime(time) {
     const minutes = time >= 60 ? Math.floor(time / 60) : 0;
-    const seconds = Math.floor(time - minutes * 60);
+    const seconds = Math.round(time - minutes * 60);
 
     return `${minutes >= 10 ? minutes : `0${minutes}`}:${
       seconds >= 10 ? seconds : `0${seconds}`
