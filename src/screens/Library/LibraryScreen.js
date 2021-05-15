@@ -1,9 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from 'react';
+import React, {
+  useState, useEffect, useRef, /* useContext, */
+} from 'react';
 import {
-  StyleSheet, View, Alert, TouchableHighlight, Text,
+  StyleSheet, View, Alert, TouchableHighlight, Text, ScrollView, Animated, useWindowDimensions,
 } from 'react-native';
-import { SearchBar } from 'react-native-elements';
+import { SearchBar, Icon } from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import Auth from '@react-native-firebase/auth';
 import Firestore from '@react-native-firebase/firestore';
@@ -12,16 +14,64 @@ import PropTypes from 'prop-types';
 const styles = StyleSheet.create({
   container: {
     marginBottom: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#F6F6F6',
+    height: '100%',
   },
   subContainer: {
-    marginBottom: 10,
-    padding: 10,
-  },
-  card: {
     height: 50,
     width: '100%',
     backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderColor: '#BDBDBD',
+    paddingLeft: 20,
+    paddingVertical: 40,
+  },
+  subText: {
+    fontSize: 18,
+    fontFamily: 'Inter-SemiBold',
+    paddingLeft: 40,
+  },
+  subCard: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  subIcon: {
+    position: 'absolute',
+  },
+  card: {
+    height: 20,
+    width: '100%',
+    borderBottomWidth: 1,
+    borderColor: '#BDBDBD',
+    paddingVertical: 30,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 20,
+  },
+  cardIcon: {
+    position: 'absolute',
+    left: 20,
+  },
+  cardText: {
+    fontFamily: 'Inter',
+    fontSize: 16,
+    paddingLeft: 55,
+  },
+  cardContainer: {
+    backgroundColor: '#ffffff',
+  },
+  cardHeader: {
+    paddingTop: 8,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderColor: '#BDBDBD',
+  },
+  cardHeaderText: {
+    fontSize: 18,
+    color: 'black',
+    fontFamily: 'Inter-SemiBold',
   },
   searchContainer: {
     display: 'flex',
@@ -31,6 +81,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F6F6F6',
     width: '100%',
     height: 72,
+    borderBottomWidth: 1,
+    borderColor: '#BDBDBD',
   },
   searchBar: {
     backgroundColor: 'rgba(0, 0, 0, 0)',
@@ -50,6 +102,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderRadius: 10,
     height: 36,
+  },
+  filesContainer: {
+    height: '100%',
   },
 });
 // create list of file, image, whtv from each individual class of the user
@@ -76,6 +131,10 @@ export default function LibraryScreen({ navigation }) {
   const [searchFiles, setSearchFiles] = useState({});
   const [loading, setLoading] = useState(true);
   const [focus, setFocus] = useState(false);
+  const [animatedHeight, setHeight] = useState('auto');
+
+  const window = useWindowDimensions();
+  const slide = useRef(new Animated.Value(0)).current;
 
   // if can't pass classrooms, need to fetch user data and check signin
   /*
@@ -90,6 +149,7 @@ export default function LibraryScreen({ navigation }) {
   }, []); */
 
   useEffect(() => {
+    setFiles([]);
     Firestore().collection('users')
       .doc(uid)
       .get()
@@ -206,6 +266,24 @@ export default function LibraryScreen({ navigation }) {
     }
   }, [searchText]);
 
+  useEffect(() => {
+    if (focus && !searchText) {
+      setHeight(0);
+      Animated.timing(slide, {
+        toValue: window.height,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    } else if (!searchText) {
+      Animated.timing(slide, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }).start();
+      setHeight('auto');
+    }
+  }, [focus]);
+
   function toFiles(fileType) {
     return navigation.navigate('LibraryFiles', { fileType, classFiles });
   }
@@ -214,7 +292,6 @@ export default function LibraryScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* add icons */}
       <View style={styles.searchContainer}>
         <SearchBar
           lightTheme
@@ -228,73 +305,166 @@ export default function LibraryScreen({ navigation }) {
           showLoading={loading}
           onFocus={() => setFocus(true)}
           onBlur={() => setFocus(false)}
+          onClear={() => {
+            if (!focus) setFocus(null);
+          }}
         />
       </View>
-      {focus ? (
+      {!loading && (
         <>
-          {!loading && (
-          <>
-            {searchFiles && Object.keys(searchFiles).length ? (
-              <>
-                {/* opening file preview: https://www.npmjs.com/package/react-native-file-viewer */}
-                {Object.entries(searchFiles).map(([code, obj]) => (
-                  <View class={styles.card} key={code}>
-                    <Text>{obj.name}</Text>
-                    {obj.videos.length > 0 && (
-                    <View>
-                      <Text>Videos</Text>
-                      {obj.videos.map((f) => (
-                        <Text key={f.name}>{f.name}</Text>
-                      ))}
-                    </View>
-                    )}
-                    {obj.photos.length > 0 && (
-                    <View>
-                      <Text>Photos</Text>
-                      {obj.photos.map((f) => (
-                        <Text key={f.name}>{f.name}</Text>
-                      ))}
-                    </View>
-                    )}
-                    {obj.files.length > 0 && (
-                    <View>
-                      <Text>Files</Text>
-                      {obj.files.map((f) => (
-                        <Text key={f.name}>{f.name}</Text>
-                      ))}
-                    </View>
-                    )}
+          {searchFiles && Object.keys(searchFiles).length ? (
+            <ScrollView style={styles.filesContainer}>
+              {/* opening file preview: https://www.npmjs.com/package/react-native-file-viewer */}
+              {Object.entries(searchFiles).map(([code, obj]) => (
+                <View style={styles.cardContainer} key={code}>
+                  <View style={styles.cardHeader}>
+                    <Text style={styles.cardHeaderText}>{obj.name}</Text>
                   </View>
-                ))}
-              </>
-            ) : (
-              <Text>No matching files found.</Text>
-            )}
-          </>
+                  {obj.videos.length > 0 && (
+                  <>
+                    {obj.videos.map((f) => (
+                      // IN THE FUTURE: Have files be placed into some
+                      // collection in Firestore as well, so we can
+                      // have unique IDs or something...
+                      // And also to give files actual names instead of
+                      // their file name...?
+                      <TouchableHighlight
+                        underlayColor="#EEEEEE"
+                        onPress={() => {}}
+                        style={styles.card}
+                        key={f.getDownloadURL()}
+                      >
+                        <View style={styles.subCard}>
+                          <Icon
+                            containerStyle={styles.cardIcon}
+                            name="film"
+                            type="feather"
+                            color="black"
+                            size={25}
+                          />
+                          <Text style={styles.cardText}>
+                            {f.name}
+                          </Text>
+                        </View>
+                      </TouchableHighlight>
+                    ))}
+                  </>
+                  )}
+                  {obj.photos.length > 0 && (
+                  <>
+                    {obj.photos.map((f) => (
+                      <TouchableHighlight
+                        underlayColor="#EEEEEE"
+                        onPress={() => {}}
+                        style={styles.card}
+                        key={f.getDownloadURL()}
+                      >
+                        <View style={styles.subCard}>
+                          <Icon
+                            containerStyle={styles.cardIcon}
+                            name="film"
+                            type="feather"
+                            color="black"
+                            size={25}
+                          />
+                          <Text style={styles.cardText}>
+                            {f.name}
+                          </Text>
+                        </View>
+                      </TouchableHighlight>
+                    ))}
+                  </>
+                  )}
+                  {obj.files.length > 0 && (
+                  <>
+                    {obj.files.map((f) => (
+                      <TouchableHighlight
+                        underlayColor="#EEEEEE"
+                        onPress={() => {}}
+                        style={styles.card}
+                        key={f.getDownloadURL()}
+                      >
+                        <View style={styles.subCard}>
+                          <Icon
+                            containerStyle={styles.cardIcon}
+                            name="film"
+                            type="feather"
+                            color="black"
+                            size={25}
+                          />
+                          <Text style={styles.cardText}>
+                            {f.name}
+                          </Text>
+                        </View>
+                      </TouchableHighlight>
+                    ))}
+                  </>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
+          ) : (
+            <Text>No matching files found.</Text>
           )}
         </>
-      ) : (
-        <>
-          <TouchableHighlight
-            style={styles.subContainer}
-            onPress={() => toFiles('Videos')}
-          >
-            <Text>Videos</Text>
-          </TouchableHighlight>
-          <TouchableHighlight
-            style={styles.subContainer}
-            onPress={() => toFiles('Photos')}
-          >
-            <Text>Photos</Text>
-          </TouchableHighlight>
-          <TouchableHighlight
-            style={styles.subContainer}
-            onPress={() => toFiles('Files')}
-          >
-            <Text>Files</Text>
-          </TouchableHighlight>
-        </>
       )}
+
+      <Animated.View style={{
+        transform: [{ translateY: slide }],
+        height: animatedHeight,
+        backgroundColor: 'white',
+      }}
+      >
+        <TouchableHighlight
+          style={styles.subContainer}
+          underlayColor="#EEEEEE"
+          onPress={() => toFiles('Videos')}
+        >
+          <View style={styles.subCard}>
+            <Icon
+              containerStyle={styles.subIcon}
+              name="film"
+              type="feather"
+              color="black"
+              size={25}
+            />
+            <Text style={styles.subText}>Videos</Text>
+          </View>
+        </TouchableHighlight>
+        <TouchableHighlight
+          style={styles.subContainer}
+          underlayColor="#EEEEEE"
+          onPress={() => toFiles('Photos')}
+        >
+          <View style={styles.subCard}>
+            <Icon
+              containerStyle={styles.subIcon}
+              name="image"
+              type="feather"
+              color="black"
+              size={25}
+            />
+            <Text style={styles.subText}>Photos</Text>
+          </View>
+        </TouchableHighlight>
+        <TouchableHighlight
+          style={styles.subContainer}
+          underlayColor="#EEEEEE"
+          onPress={() => toFiles('Files')}
+        >
+          <View style={styles.subCard}>
+            <Icon
+              containerStyle={styles.subIcon}
+              name="file"
+              type="feather"
+              color="black"
+              size={25}
+            />
+            <Text style={styles.subText}>Files</Text>
+          </View>
+        </TouchableHighlight>
+      </Animated.View>
+
     </View>
   );
 }
@@ -302,5 +472,6 @@ export default function LibraryScreen({ navigation }) {
 LibraryScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
+    setOptions: PropTypes.func.isRequired,
   }).isRequired,
 };
