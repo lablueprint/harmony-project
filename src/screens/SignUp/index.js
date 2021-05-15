@@ -1,3 +1,4 @@
 import SignUpScreen from './SignUpScreen';
+import UserInformationScreen from './UserInformationScreen';
 
-export default SignUpScreen;
+export { SignUpScreen, UserInformationScreen };

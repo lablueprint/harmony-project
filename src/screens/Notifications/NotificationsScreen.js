@@ -5,6 +5,7 @@ import {
 import { Icon, ListItem } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
+import Firebase from '@react-native-firebase/app';
 import moment from 'moment';
 
 const styles = StyleSheet.create({
@@ -81,7 +82,8 @@ export async function notifyAuthor(announcementID, message, page) {
 }
 
 export default function NotificationsScreen({ navigation }) {
-  const uid = navigation.getParam('uid', null);
+  //const uid = navigation.getParam('uid', null);
+  const { uid } = Firebase.auth().currentUser;
   const [classroomList, setClassroomList] = useState([]);
   const [notificationList, setNotificationList] = useState([]);
   const [listItems, setListItems] = useState([]);
@@ -168,7 +170,6 @@ NotificationsScreen.navigationOptions = ({ navigation }) => ({
 
 NotificationsScreen.propTypes = {
   navigation: PropTypes.shape({
-    uid: PropTypes.func.isRequired,
-    getParam: PropTypes.func.isRequired,
+    navigate: PropTypes.func.isRequired,
   }).isRequired,
 };

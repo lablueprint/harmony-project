@@ -80,15 +80,11 @@ const styles = StyleSheet.create({
 // navigation MUST INCLUDE: uid
 export default function ProfileScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
-<<<<<<< HEAD
   const [loading, setLoading] = useState(true);
   // const [edit, toggleEdit] = useState(false);
   const [user, setUser] = useState();
-  const uid = navigation.getParam('uid', null);
-=======
   const { uid } = Firebase.auth().currentUser;
-  const ref = Firestore().collection('users');
->>>>>>> 68ea6869ed88031c676083664d5ab2f6f99a3ead
+  //const uid = navigation.getParam('uid', null);
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
   const [instrumentList, setInstrumentList] = useState([]);
   // const [newState, setNewState] = useState(INITIAL_USER_STATE);
@@ -139,11 +135,14 @@ export default function ProfileScreen({ navigation }) {
       }
     }
 
-    const focusListener = navigation.addListener('didFocus', () => {
+    /*
+    const focusListener = navigation.addListener('focus', () => {
       fetchData();
     });
 
-    return () => focusListener.remove();
+    return focusListener;
+    */
+    fetchData();
   }, [user, uid]);
 
   /* function saveProfile() {

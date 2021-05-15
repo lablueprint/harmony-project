@@ -89,24 +89,6 @@ this will only run one time when the component is mounted
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <Text style={styles.welcomeMessage}>Posts</Text>
-        <Button
-          title="Make a Post"
-          onPress={() => {
-            navigation.navigate('NewAnnouncement', {
-              setLoad: setLoadingNewPost,
-              currentLoad: loadingNewPost,
-              uid,
-              title: '',
-              body: '',
-              attachments: '',
-            });
-          }}
-        />
-        {errorMessage && <Text>{errorMessage}</Text>}
-        {announcementsList}
-      </ScrollView>
     </View>
   );
 }

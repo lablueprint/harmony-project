@@ -1,23 +1,29 @@
 import React, { useState, useEffect, useContext} from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Text, Alert, Image,
+  StyleSheet, ActivityIndicator, View, Text, 
 } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
-import Logo from '../../components/hp_circleLogo.png';
-import LinearGradient from 'react-native-linear-gradient';
 import AuthContext from '../../navigation/AuthContext';
+import SignInWave from './background.svg';
+import Svg from 'react-native-svg';
 
 const styles = StyleSheet.create({
   screen: {
-    backgroundColor: '#f6f6f6'
+    backgroundColor: '#f6f6f6',
+    width: "100%"
   },
-  banner: {
-    height: '35%',
+  bannerText: {
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: 70,
+    marginBottom: 50
+  }, 
+  wavyBanner:  {
+    position: "absolute",
+    width: '100%',
+    height: '55%'
   },
   beforeBanner : { 
     width: 100, 
@@ -124,11 +130,8 @@ export default function SignInScreen({ navigation }) {
       setShowLoading(false);
       // if valid signin, navigate to landing
       if (doSignIn.user) {
-<<<<<<< HEAD
         navigation.navigate('Load');
-=======
         setAuthState(!authState);
->>>>>>> 68ea6869ed88031c676083664d5ab2f6f99a3ead
       }
     } catch (e) {
       const errorCode = e.code; 
@@ -142,10 +145,15 @@ export default function SignInScreen({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <LinearGradient style={styles.banner} start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#8e4f97', '#bc5d4e']}>
-          <Text style={[styles.whiteText, styles.h2]}>Welcome to</Text>
-          <Text style={[styles.whiteText, styles.h1]}>Harmony Project</Text>
-      </LinearGradient>
+      <View style={styles.wavyBanner}>
+        <Svg viewBox="0 0 375 450" width="100%" height="100%" preserveAspectRatio="none">
+          <SignInWave/>
+        </Svg>
+      </View>
+      <View style={styles.bannerText}>
+        <Text style={[styles.whiteText, styles.h2, ]}>Welcome to</Text>
+        <Text style={[styles.whiteText, styles.h1]}>Harmony Project</Text>
+      </View>
       <View style={styles.formContainer}>
         <View style={styles.subContainer}>
           <Input
