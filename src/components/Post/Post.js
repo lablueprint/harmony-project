@@ -56,12 +56,12 @@ const styles = StyleSheet.create({
 const loadAmount = 1;
 
 function CommentLoader({
-  postID, 
-  loadingNewComment, 
-  numCommentsLoaded, 
-  setloadedLastComment, 
+  postID,
+  loadingNewComment,
+  numCommentsLoaded,
+  setloadedLastComment,
   loadedLastComment,
-  setNoComments, 
+  setNoComments,
   noComments,
 }) {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -322,10 +322,10 @@ function LoadCommentButton({
 }
 
 function PinPost({
-  postID, 
-  initialValue, 
-  collection, 
-  rerender, 
+  postID,
+  initialValue,
+  collection,
+  rerender,
   setRerender,
 }) {
   return (
@@ -350,13 +350,13 @@ function PinPost({
 export default function Post({
   author,
   title,
-  createdAt, 
-  date, 
-  body, 
-  attachments, 
-  id, 
-  loadingNewComment, 
-  collection, 
+  createdAt,
+  date,
+  body,
+  attachments,
+  id,
+  loadingNewComment,
+  collection,
   pin,
   rerender,
   setRerender,
@@ -371,9 +371,12 @@ export default function Post({
   const [hasDeleted, setHasDeleted] = useState(false);
   const userID = Firebase.auth().currentUser.uid;
   const [authorState, setAuthorState] = useState(INITIAL_USER_STATE);
-  const uid = navigation.getParam('uid', null);
+
+
   const [showMore, setShowMore] = useState(true);
   const [buttons, setButtons] = useState(true);
+  // eslint-disable-next-line no-unused-vars
+  const [isPin, setPin] = useState(pin);
 
   const [lines, setLines] = useState(6);
 
@@ -399,23 +402,19 @@ export default function Post({
       });
   }, [collection, id, userID]);
 
-
-// Fetch author name of post
+  // Fetch author name of post
   useEffect(() => {
-      Firestore().collection('users').doc(author).get()
-        .then((document) => {
-          if (document.exists) {
-            return document.data();
-          }
-          return null;
-        })
-        .then((data) => {
-          setAuthorState(data);
+    Firestore().collection('users').doc(author).get()
+      .then((document) => {
+        if (document.exists) {
+          return document.data();
         }
-        );
+        return null;
+      })
+      .then((data) => {
+        setAuthorState(data);
+      });
   }, [collection, id, userID]);
-
-
 
   // Runs whenever loading changes (someone hits the 'Like' or 'Unlike' button).
   useEffect(() => {
@@ -448,19 +447,25 @@ export default function Post({
   return (
     hasDeleted ? null : (
       <View style={styles.container}>
-        {author !== '' && 
+        {author !== ''
+          && (
           <Text>
-          {`${authorState.firstName} ${authorState.lastName}`}
+            {`${authorState.firstName} ${authorState.lastName}`}
           </Text>
-        }
+          )}
         <Text style={styles.timeText}>
-          {date} @ {createdAt}
+          {date}
+          {' '}
+          @
+          {' '}
+          {createdAt}
         </Text>
-        {title !== '' && 
+        {title !== ''
+          && (
           <Text style={styles.topicText}>
             {title}
           </Text>
-        }
+          )}
 
         <View style={styles.contentContainer}>
           <Text numberOfLines={lines} onTextLayout={onTextLayout}>
@@ -627,6 +632,7 @@ export default function Post({
 }
 
 Post.propTypes = {
+  author: PropTypes.string,
   title: PropTypes.string,
   createdAt: PropTypes.string,
   date: PropTypes.string, // date object ?
@@ -641,11 +647,11 @@ Post.propTypes = {
 };
 
 Post.defaultProps = {
+  author: '',
   title: '',
   createdAt: '',
   date: '',
   id: '',
-  attachment: '',
   loadingNewComment: false,
   attachments: [],
 };

@@ -22,6 +22,9 @@ export default function NewPostScreen({ navigation }) {
   // const [loading, setLoading] = useState(false);
   // const mainScreenLoadStatus = navigation.params?currentLoad');
   // const reloadMainScreen = navigation.params?setLoad');
+  const [monitorUpload, setMonitor] = useState();
+  const [choseFile, setChoose] = useState();
+  const [upload, setUpload] = useState(false);
   const [body, setBody] = useState('');
   const [attachment, setAttachment] = useState('');
   const { uid } = Firebase.auth().currentUser;
@@ -32,7 +35,13 @@ export default function NewPostScreen({ navigation }) {
   const displayUpload = navigation.params?.displayUpload ?? true;
   const collection = navigation.params?.collection;
   const buttonTitle = navigation.params?.buttonTitle ?? 'Submit';
-  const handleSubmit = navigation.params?.handleSubmit;
+  const [showLoading, setShowLoading] = useState(false);
+
+
+  async function handleSubmit()
+  {
+    
+  }
 
   return (
     <View style={styles.container}>
@@ -55,10 +64,12 @@ export default function NewPostScreen({ navigation }) {
         />
         {displayUpload && (
         <UploadFile
-          setAttachment={setAttachment}
-          userId={userID}
-          postId={postID}
-          collection={collection}
+          setMonitor={setMonitor}
+          setChoose={setChoose}
+          upload={upload}
+          postId={uid}
+          collection="users/uploads"
+          mediaType="photo"
         />
         )}
       </View>
@@ -66,7 +77,7 @@ export default function NewPostScreen({ navigation }) {
       <Button
         // disabled={loading}
         title={buttonTitle}
-        onPress={() => { handleSubmit(userID, postID, body, attachment); navigation.goBack(); }}
+        onPress={() => { handleSubmit(uid, postID, body, attachment); navigation.goBack(); }}
       />
     </View>
   );
@@ -76,6 +87,9 @@ NewPostScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
     goBack: PropTypes.func.isRequired,
+  }).isRequired,
+  route: PropTypes.shape({
+    params: PropTypes.func.isRequired,
   }).isRequired,
 };
 

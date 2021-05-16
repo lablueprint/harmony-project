@@ -87,6 +87,9 @@ NewCommentScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
   }).isRequired,
+  route: PropTypes.shape({
+    params: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 NewCommentScreen.navigationOptions = {
