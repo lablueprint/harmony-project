@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import {
-  StyleSheet, View, ScrollView,
-} from 'react-native';
-import { Icon, ListItem } from 'react-native-elements';
+import React, { useState, useEffect, useContext } from 'react';
+import { FlatList, StyleSheet } from 'react-native';
+import { ListItem } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
 import moment from 'moment';
+import ClassroomContext from '../../context/ClassroomContext';
 
 const styles = StyleSheet.create({
   iconContainer: {
@@ -82,23 +81,34 @@ export async function notifyAuthor(announcementID, message, page) {
 }
 
 export default function NotificationsScreen({ navigation }) {
-  // const uid = navigation.getParam('uid', null);
   const { uid } = Firebase.auth().currentUser;
-  const [classroomList, setClassroomList] = useState([]);
-  const [notificationList, setNotificationList] = useState([]);
-  const [listItems, setListItems] = useState([]);
+  const { classroom, setClassroom } = useContext(ClassroomContext);
+  const [classroomMap, setClassroomMap] = useState(); // Map(classroomID -> classroomData)
+  const [notifications, setNotifications] = useState([]);
 
   /* Get all the notification documents associated with this user and store it
   in notificationList. */
   useEffect(() => {
     async function getNotifications() {
-      await Firestore().collection('notifications').where('userID', '==', uid).get()
+      let cmap = new Map();
+      await Firestore().collection('classrooms').where('studentIDs', 'array-contains', uid).get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((c) => {
+            cmap.set(c.id, c.data());
+          });
+          setClassroomMap(cmap); // Only rerender once map is filled completely
+        }).catch((error) => {
+          console.warn(error);
+        });
+      
+        await Firestore().collection('notifications').where('userID', '==', uid).get()
         .then((querySnapshot) => {
           if (querySnapshot.size > 0) {
             const notifications = querySnapshot.docs.map((doc) => ({
-              ...doc.data(), id: doc.id,
+              id: doc.id, ...doc.data()
             }));
-            setNotificationList(notifications);
+            setNotifications(notifications);
+            // console.log(notifications);
           }
         })
         .catch((error) => {
@@ -108,65 +118,51 @@ export default function NotificationsScreen({ navigation }) {
     getNotifications();
   }, []);
 
-  /* Get all the classroom documents associated with each notification doc and store
-  it in classroomList. */
-  useEffect(() => {
-    async function getClasses() {
-      notificationList.map(async (notification) => {
-        await Firestore().collection('classrooms').doc(notification.classroomID).get()
-          .then((snapshot) => {
-            if (snapshot) {
-              // eslint-disable-next-line no-shadow
-              setClassroomList((classroomList) => [...classroomList, snapshot.data()]);
-            }
-          });
-      });
+  const navFromNotification = (page) => {
+    if (page === 'TODO') {
+      navigation.navigate('Todo');
+      return;
     }
-    getClasses();
-  }, [notificationList]);
+    if (page === 'BULLETIN') {
+      navigation.navigate('Bulletin');
+      return;
+    }
+  }
 
-  /* For each notification, create a list item */
-  useEffect(() => {
-    if (notificationList.length > 0 && classroomList.length === notificationList.length) {
-      const ListItems = notificationList.map((element, index) => (
-        <ListItem
-          key={element.id}
-          leftIcon={(
-            <View style={styles.iconContainer}>
-              <Icon
-                name={element.page === 'TODO' ? 'clipboard' : 'home'}
-                type="feather"
-                color="#439ad8"
-              />
-            </View>
-          )}
-          title={classroomList[index].name}
-          subtitle={element.message}
-          rightTitle={moment(element.createdAt.toDate()).fromNow().toString()}
-          rightTitleStyle={{
-            fontSize: 11,
-            color: '#439AD8',
-          }}
-          bottomDivider
-        />
-      ));
-      setListItems(ListItems);
-    }
-  }, [classroomList]);
+  const renderNotification = ({item}) => {
+    return (
+      <ListItem
+        // Optional chaining with '?.' since not all classrooms on Firestore have these props right now
+        leftAvatar={{ 
+          // Icon fallbacks broken for this version of react native elements
+          source: { uri: classroomMap[item.classroomID]?.profilePicture },
+          icon: {name: 'notifications', type: 'ionicon'}
+       }}
+        title={classroomMap[item.classroomID]?.name}
+        subtitle={item?.message}
+        rightTitle={moment(item.createdAt?.toDate()).fromNow().toString()}
+        rightTitleStyle={{
+          fontSize: 11,
+          color: '#439AD8',
+        }}
+        onPress={() => {
+          setClassroom(item.classroomID);
+          navFromNotification(item.page);
+        }}
+        bottomDivider
+      />
+    );
+  };
 
   /* Display a list of Notifications */
   return (
-    <ScrollView>
-      {listItems}
-    </ScrollView>
+    <FlatList
+      keyExtractor={(_, index) => index.toString()}
+      data={notifications}
+      renderItem={renderNotification}
+    />
   );
 }
-
-// eslint-disable-next-line no-unused-vars
-NotificationsScreen.navigationOptions = ({ navigation }) => ({
-  title: 'Notifications',
-  headerShown: true,
-});
 
 NotificationsScreen.propTypes = {
   navigation: PropTypes.shape({

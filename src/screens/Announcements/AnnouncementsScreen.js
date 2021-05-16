@@ -5,6 +5,7 @@ import {
 import PropTypes from 'prop-types';
 import { ScrollView } from 'react-native-gesture-handler';
 import Firestore from '@react-native-firebase/firestore';
+import Firebase from '@react-native-firebase/app';
 import dateformat from 'dateformat';
 import Post from '../../components/Post/Post';
 
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
 Announcements Screen function
 */
 export default function AnnouncementsScreen({ navigation }) {
-  const uid = navigation.getParam('uid', null);
+  const { uid } = Firebase.auth().currentUser;
   const [errorMessage, setErrorMessage] = useState(null);
   const [announcementsList, setAnnouncementsList] = useState([]);
   const [rerender, setRerender] = useState(false);
@@ -56,9 +57,8 @@ this will only run one time when the component is mounted
         const announcements = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
         setAnnouncementsList(announcements.map((announcement) => {
           const date = announcement.createdAt.toDate();
-          const dateFormat = require('dateformat');
-          const dateForm = dateFormat(date, 'mmmm d, yyyy');
-          const timeForm = dateFormat(date, 'h:MM TT');
+          const dateForm = dateformat(date, 'mmmm d, yyyy');
+          const timeForm = dateformat(date, 'h:MM TT');
           return (
             <View style={styles.container} key={announcement.id}>
               <Post
@@ -101,7 +101,6 @@ this will only run one time when the component is mounted
 AnnouncementsScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-    getParam: PropTypes.func.isRequired,
   }).isRequired,
 
 };

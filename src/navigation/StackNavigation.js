@@ -16,11 +16,11 @@ import AssignmentScreen from '../screens/AssignmentList/AssignmentScreen';
 import NewAssignmentScreen from '../screens/AssignmentList/NewAssignmentScreen';
 import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
 import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
-import { ClassroomSelectScreen } from '../screens/Landing';
+import { ClassroomSelectScreen, LoadClasses } from '../screens/Landing';
 import { LibraryScreen, LibraryFilesScreen } from '../screens/Library';
 import { SignUpScreen, UserInformationScreen, InstrumentSelectionScreen } from '../screens/SignUp';
 import NotificationsScreen from '../screens/Notifications';
-
+import FeedbackScreen from '../screens/Feedback';
 const Stack = createStackNavigator();
 
 const MainStackNavigator = () => (
@@ -57,6 +57,7 @@ const MainStackNavigator = () => (
     <Stack.Screen name="SignUp" component={SignUpScreen} />
     <Stack.Screen name="UserInformation" component={UserInformationScreen} />
     <Stack.Screen name="InstrumentSelection" component={InstrumentSelectionScreen} />
+    <Stack.Screen name="Feedback" component={FeedbackScreen} />
   </Stack.Navigator>
 );
 

@@ -69,7 +69,6 @@ export default function LibraryScreen({ navigation }) {
 
   // if can't pass classrooms, need to fetch user data and check signin
   // const [user, setUser] = useState(null);
-  // const userState = navigation.getParam('userState', null);
   const { uid } = Auth().currentUser;
   const [classFiles, setFiles] = useState([]);
   const [searchText, setSearch] = useState('');

@@ -7,8 +7,7 @@ import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
 import { Avatar } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient';
-import ClassroomContext from '../../navigation/ClassroomContext';
-import AuthContext from '../../navigation/AuthContext';
+import ClassroomContext from '../../context/ClassroomContext';
 
 const styles = StyleSheet.create({
   headerContainer: {
@@ -29,7 +28,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 8,
-    marginBottom: 12,
+    paddingBottom: 10,
+    height: '100%',
   },
   classroomIconContainer: {
     backgroundColor: '#9ACA3C',
@@ -120,6 +120,7 @@ const ClassroomSelector = () => {
           colors={['#984A9C', '#C95748']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: -0.5 }}
+          style={{ height: '100%' }}
         >
           <Text style={styles.classroomHeaderText}>My Classrooms</Text>
           <ScrollView horizontal indicatorStyle="white" style={{ paddingLeft: 10 }}>

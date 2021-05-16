@@ -45,7 +45,7 @@ export default function EvaluationScreen({ navigation }) {
    * docId - (In the future, this should be retrieved from navigation, etc. rather than being
    * "hardcoded") Is the document ID of an example evaluation scrren in Firestore
    */
-  const submissionID = navigation.getParam('submissionID', null);
+  const submissionID = navigation.params?.submissionID ?? null;
   const [feedbackID, setFeedbackID] = useState(null);
 
   const [newComment, setNewComment] = useState({});
@@ -68,8 +68,8 @@ export default function EvaluationScreen({ navigation }) {
       } else {
         const newDoc = await createFeedback({ // will also update hasReceivedFeedback on submission
           submissionID,
-          studentID: navigation.getParam('studentID'),
-          teacherID: navigation.getParam('teacherID'),
+          studentID: navigation?.studentID ?? null,
+          teacherID: navigation?.getParam ?? teacherID,
           createdAt: Firestore.Timestamp.now(),
           updatedAt: Firestore.Timestamp.now(),
         });
