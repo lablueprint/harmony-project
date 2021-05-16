@@ -76,7 +76,6 @@ const styles = StyleSheet.create({
       },
       android: {
         fontSize: 20,
-        fontFamily: 'sans-serif-medium',
         fontWeight: 'normal',
       },
       default: {
@@ -242,8 +241,10 @@ export default function ClassroomSelectScreen({ navigation }) {
       <View style={styles.subContainer}>
         <Button
           style={styles.textInput}
-          title="Settings"
+          title="Library"
           onPress={() => {
+            setToggle(false);
+            navigation.navigate('Library', { classrooms });
           }}
         />
       </View>

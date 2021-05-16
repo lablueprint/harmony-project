@@ -7,7 +7,7 @@ import {
 import { Card } from 'react-native-elements';
 
 import Firestore from '@react-native-firebase/firestore';
-import firebase from '@react-native-firebase/app';
+import Firebase from '@react-native-firebase/app';
 import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
  */
 export default function AssignmentListScreen({ navigation }) {
   const [errorMessage, setErrorMessage] = useState(null);
-  const uid = navigation.getParam('uid', null);
+  const { uid } = Firebase.auth().currentUser;
   const [assignmentsList, setAssignmentsList] = useState([]);
   const [rerender, setRerender] = useState(false);
   const [loadingNewComment, setLoadingNewComment] = useState(false);
@@ -96,7 +96,6 @@ export default function AssignmentListScreen({ navigation }) {
       return;
     }
 
-    // const uid = navigation.getParam('uid', null);
     const createSubmission = ((userID, postID, body, attachment) => {
     // TODO: see if doc already exists. If it does, update the body, attachment, and updatedAt
       console.log(userID);
@@ -107,7 +106,7 @@ export default function AssignmentListScreen({ navigation }) {
           // querySnapshot.forEach((doc) => console.log(doc));
             const docID = querySnapshot.docs[0].id;
             Firestore().collection('submissions').doc(docID).update({
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              updatedAt: Firebase.firestore.FieldValue.serverTimestamp(),
               body,
               attachment,
             })
@@ -122,8 +121,8 @@ export default function AssignmentListScreen({ navigation }) {
             Firestore().collection('submissions').add({
               authorID: userID,
               assignmentID: postID,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              createdAt: Firebase.firestore.FieldValue.serverTimestamp(),
+              updatedAt: Firebase.firestore.FieldValue.serverTimestamp(),
               body,
               attachment,
               hasReceivedFeedback: false,
@@ -210,7 +209,7 @@ export default function AssignmentListScreen({ navigation }) {
       // Only returns assignments with classroomIDs in classroomIDsList
       if (studentClassroomIDs.includes(assignment.classroomID)) {
         return (
-          <>
+          <View key={assignment.id}>
             <TouchableOpacity
               onPress={async () => {
                 if (!isTeacher && !studentsSeenTemp.includes(uid)) {
@@ -304,7 +303,7 @@ export default function AssignmentListScreen({ navigation }) {
               </Card>
             </TouchableOpacity>
 
-          </>
+          </View>
         );
       }
       return null;
@@ -381,7 +380,5 @@ export default function AssignmentListScreen({ navigation }) {
 AssignmentListScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-    getParam: PropTypes.func.isRequired,
-
   }).isRequired,
 };

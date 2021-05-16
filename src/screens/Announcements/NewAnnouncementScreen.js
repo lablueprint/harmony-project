@@ -4,9 +4,10 @@ import {
 } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
-import UploadFile from '../../components/UploadFile';
-import {notifyStudents} from '../Notifications/NotificationsScreen';
 import Firestore from '@react-native-firebase/firestore';
+import Firebase from '@react-native-firebase/app';
+import UploadFile from '../../components/UploadFile';
+import { notifyStudents } from '../Notifications/NotificationsScreen';
 
 const styles = StyleSheet.create({
   container: {
@@ -26,7 +27,7 @@ export default function NewAnnouncementScreen({ navigation }) {
   const [title, setTitle] = useState(navigation.getParam('title'));
   const [body, setBody] = useState(navigation.getParam('body'));
   const [attachment, setAttachment] = useState('');
-  const uid = navigation.getParam('uid', null);
+  const { uid } = Firebase.auth().currentUser;
   const postID = navigation.getParam('postID');
   const collection = navigation.getParam('collection');
   const buttonTitle = navigation.getParam('buttonTitle', 'Submit');
@@ -34,31 +35,32 @@ export default function NewAnnouncementScreen({ navigation }) {
   const [teacherName, setTeacherName] = useState('');
 
   useEffect(() => {
-      Firestore().collection('users').doc(uid).get().then((doc) => {
-          const data = doc.data();
-          setClassroomID(data.classroomIds[0]); 
-          setTeacherName(data.name);
+    Firestore().collection('users').doc(uid).get()
+      .then((doc) => {
+        const data = doc.data();
+        setClassroomID(data.classroomIds[0]);
+        setTeacherName(data.name);
       })
       .catch((e) => {
-          console.warn(e);
-      })
+        console.warn(e);
+      });
   });
 
   const handleSubmit = async () => {
-      navigation.goBack();
-      await Firestore().collection('announcements').
-      add({
-          title, 
-          body, 
-          attachments: attachment,
-          createdAt: Firestore.Timestamp.now(),
-          updatedAt: Firestore.Timestamp.now(),
-          classroomID: classroom,
-          author: uid, 
-          likedBy: []
-      })
-      notifyStudents(classroom, teacherName + " has created a new post '" + title + "'", "BULLETIN");
-  }
+    navigation.goBack();
+    await Firestore().collection('announcements')
+      .add({
+        title,
+        body,
+        attachments: attachment,
+        createdAt: Firestore.Timestamp.now(),
+        updatedAt: Firestore.Timestamp.now(),
+        classroomID: classroom,
+        author: uid,
+        likedBy: [],
+      });
+    notifyStudents(classroom, `${teacherName} has created a new post '${title}'`, 'BULLETIN');
+  };
 
   return (
     <View style={styles.container}>
@@ -95,7 +97,6 @@ export default function NewAnnouncementScreen({ navigation }) {
 
 NewAnnouncementScreen.propTypes = {
   navigation: PropTypes.shape({
-    getParam: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
     goBack: PropTypes.func.isRequired,
   }).isRequired,

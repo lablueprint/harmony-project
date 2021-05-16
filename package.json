@@ -7,7 +7,8 @@
     "ios": "cd ios && pod install && cd .. && react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "postinstall": "rm ./node_modules/react-native/local-cli/core/__fixtures__/files/package.json"
   },
   "dependencies": {
     "@react-native-community/checkbox": "^0.5.7",
@@ -20,6 +21,9 @@
     "@react-native-firebase/firestore": "^6.7.1",
     "@react-native-firebase/storage": "^6.7.1",
     "@react-native-picker/picker": "^1.9.11",
+    "@react-navigation/bottom-tabs": "^5.11.10",
+    "@react-navigation/native": "^5.9.4",
+    "@react-navigation/stack": "^5.14.5",
     "dateformat": "^4.5.1",
     "feather-icons": "^4.28.0",
     "formik": "^2.1.5",
@@ -28,10 +32,11 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-image-gallery": "^1.0.9",
-    "react-native": "^0.63.4",
+    "react-native": "0.61.5",
     "react-native-calendars": "^1.1209.0",
     "react-native-cli": "^2.0.1",
     "react-native-collapsible": "^1.5.3",
+    "react-native-date-picker": "^3.3.0",
     "react-native-drawer": "^2.5.1",
     "react-native-elements": "^1.2.7",
     "react-native-formik": "^1.7.8",
@@ -40,13 +45,17 @@
     "react-native-image-picker": "^2.3.4",
     "react-native-linear-gradient": "^2.5.6",
     "react-native-paper": "^4.7.1",
+    "react-native-reanimated": "^1.13.2",
     "react-native-safe-area-context": "^0.7.3",
     "react-native-screens": "^2.9.0",
+    "react-native-svg": "^12.1.1",
+    "react-native-svg-transformer": "^0.14.3",
     "react-native-vector-icons": "^6.7.0",
     "react-native-video": "^4.4.5",
     "react-native-video-controls": "^2.6.0",
     "react-navigation": "^4.4.3",
-    "react-navigation-stack": "^2.8.2"
+    "react-navigation-stack": "^2.8.2",
+    "react-navigation-tabs": "^2.11.0"
   },
   "devDependencies": {
     "@babel/core": "^7.10.5",
