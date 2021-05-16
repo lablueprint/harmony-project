@@ -37,6 +37,7 @@
     "react-native-dialog": "^8.0.1",
     "react-native-drawer": "^2.5.1",
     "react-native-elements": "^1.2.7",
+    "react-native-floating-action": "^1.21.0",
     "react-native-formik": "^1.7.8",
     "react-native-gesture-handler": "^1.5.6",
     "react-native-image-gallery": "^2.1.5",

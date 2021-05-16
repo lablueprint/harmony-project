@@ -1,46 +1,129 @@
 import { ScrollView } from 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import {
-  Text, View, StyleSheet, Button,
+  Text, View, StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Card } from 'react-native-elements';
-import { List } from 'react-native-paper';
-
+import { Button } from 'react-native-elements';
+import { List, IconButton, FAB } from 'react-native-paper';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
 import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
-
-  headingTitle: {
-    fontSize: 28,
-    fontWeight: '600',
+  fab: {
+    position: 'relative',
+    zIndex: -1,
+    color: 'white',
+    width: '32%',
+    backgroundColor: '#8e4f97',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    marginLeft: 140,
   },
-  sectionContainer: {
-    paddingHorizontal: 10,
-    paddingBottom: 10,
-
+  buttonText_1: {
+    color: 'grey',
+    fontSize: 13,
+    fontWeight: '500',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: 'black',
+  buttonText_2: {
+    color: '#323232',
+    fontSize: 16,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  buttonText_3: {
+    color: '#8e4f97',
+    fontSize: 12,
+    fontWeight: '500',
   },
-  highlight: {
-    fontWeight: '700',
-  },
-  buttonsContainer: {
+  button_1: {
+    backgroundColor: 'transparent',
+    borderRadius: 40,
+    width: 125,
     flexDirection: 'row',
     alignItems: 'flex-end',
-    paddingLeft: 10,
-    paddingTop: 10,
-
+  },
+  button_2: {
+    backgroundColor: '#ffffff',
+    borderRadius: 15,
+    height: 29,
+    width: 90,
+    paddingBottom: 5,
+    borderColor: '#8e4f97',
+    borderWidth: 0.5,
+    alignSelf: 'center',
+    marginLeft: 12,
+  },
+  button_3: {
+    backgroundColor: '#ffffff',
+    borderRadius: 15,
+    height: 31,
+    width: 130,
+    paddingBottom: 5,
+    borderColor: '#8e4f97',
+    borderWidth: 0.5,
+    alignSelf: 'center',
+    marginLeft: 12,
+  },
+  row: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  title: {
+    paddingTop: 15,
+    paddingLeft: 15,
+    color: '#323232',
+    borderRadius: 25,
+    fontSize: 22,
+    fontFamily: 'Helvetica',
+    borderBottomWidth: 2.5,
+    borderColor: 'grey',
+    alignSelf: 'flex-start',
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    paddingBottom: 10,
+    marginTop: 12,
+    marginBottom: 5,
+    marginLeft: 12,
+    marginRight: 12,
+    borderRadius: 12,
+    backgroundColor: 'white',
+    width: '95%',
+  },
+  icons: {
+    position: 'absolute',
+    marginLeft: 350,
+    alignSelf: 'flex-end',
+  },
+  dueDate: {
+    paddingLeft: 5,
+    paddingTop: 2,
+    paddingBottom: 2,
+    marginLeft: 12,
+    borderRadius: 12,
+    backgroundColor: 'transparent',
+  },
+  students: {
+    paddingLeft: 5,
+    paddingTop: 2,
+    paddingBottom: 3,
+    margin: 2,
+    borderRadius: 20,
+    marginLeft: 12,
+    backgroundColor: '#F8F7F7',
+  },
+  buttonsContainer: {
+    alignSelf: 'center',
+    paddingLeft: 5,
+    paddingTop: 3,
+    paddingBottom: 3,
+    backgroundColor: '#F8F7F7',
+    borderRadius: 20,
+    margin: 5,
+    marginLeft: 15,
+    width: '37%',
   },
 
 });
@@ -97,21 +180,21 @@ export default function AssignmentListScreen({ navigation }) {
     }
 
     // const uid = navigation.getParam('uid', null);
-    const createSubmission = ((userID, postID, body, attachment) => {
+    async function createSubmission(userID, postID, body, attachment) {
       let newStudentsCompleted = [];
-      Firestore().collection('assignments').doc(postID)
+      await Firestore().collection('assignments').doc(postID)
         .get()
         .then((doc) => {
           newStudentsCompleted = doc.data().studentsSeen;
           newStudentsCompleted.push(userID);
         });
 
-      Firestore().collection('assignments').doc(postID)
+      await Firestore().collection('assignments').doc(postID)
         .update({
           studentsCompleted: newStudentsCompleted,
         });
 
-      Firestore().collection('submissions').where('authorID', '==', userID).where('assignmentID', '==', postID)
+      await Firestore().collection('submissions').where('authorID', '==', userID).where('assignmentID', '==', postID)
         .get()
         .then((querySnapshot) => {
           if (querySnapshot.size > 0) { // update if submission exists
@@ -147,7 +230,8 @@ export default function AssignmentListScreen({ navigation }) {
               });
           }
         });
-    });
+      // navigation.navigate('AssignmentList');
+    }
 
     async function isEvaluated(userID, postID) {
       let ret = null;
@@ -202,7 +286,9 @@ export default function AssignmentListScreen({ navigation }) {
 
       await Firestore().collection('classrooms').doc(classroomID)
         .get()
-        .then((doc) => { allStudents = doc.data().studentIDs; });
+        .then((doc) => {
+          allStudents = doc.data().studentIDs;
+        });
       incompleteStudents = allStudents.filter((element) => !completedStudents.includes(element));
       return [completedStudents, incompleteStudents];
     }
@@ -218,101 +304,113 @@ export default function AssignmentListScreen({ navigation }) {
       const studentsStatus = await getStudentsCompleted(assignment.id, assignment.classroomID);
       const studentsCompleted = studentsStatus[0];
       const studentsNotCompleted = studentsStatus[1];
+      const totalStudents = studentsCompleted.length + studentsNotCompleted.length;
 
       // Only returns assignments with classroomIDs in classroomIDsList
       if (studentClassroomIDs.includes(assignment.classroomID)) {
         return (
           <>
-            <TouchableOpacity
-              onPress={async () => {
-                if (!isTeacher && !studentsSeenTemp.includes(uid)) {
-                  studentsSeenTemp.push(uid);
-                  await setStudentsSeen(assignment.id, studentsSeenTemp);
-                  console.log('UPDATED');
-                }
-                navigation.navigate('Assignment', {
-                  post: assignment,
-                  isTeacher,
-                  hasBeenEval,
-                  hasBeenSubmitted,
-                  loadingNewComment,
-                  setLoadingNewComment,
-                  rerender,
-                  setRerender,
-                  createSubmission,
-                });
-              }}
-            >
-              <Card
-                title={assignment.title}
-                titleStyle={{
-                  textAlign: 'left',
+            <View style={styles.container}>
+              <TouchableOpacity
+                onPress={async () => {
+                  if (!isTeacher && !studentsSeenTemp.includes(uid)) {
+                    studentsSeenTemp.push(uid);
+                    await setStudentsSeen(assignment.id, studentsSeenTemp);
+                    console.log('UPDATED');
+                  }
+                  navigation.navigate('Assignment', {
+                    post: assignment,
+                    isTeacher,
+                    hasBeenEval,
+                    hasBeenSubmitted,
+                    loadingNewComment,
+                    setLoadingNewComment,
+                    rerender,
+                    setRerender,
+                    createSubmission,
+                  });
                 }}
-                containerStyle={{ padding: 20 }}
               >
-                <>
-                  {!isTeacher && !studentsCompleted.includes(uid) && (
-                  <Text
-                    style={styles.buttonsContainer}
-                  >
-                    Incomplete
+                <View style={styles.row}>
+                  <Text style={styles.title}>
+                    {assignment.title}
                   </Text>
+
+                  <IconButton
+                    color="#8e4f97"
+                    icon={assignment.doPin ? 'pin-off' : 'pin-outline'}
+                    style={styles.icons}
+                    onPress={async () => {
+                      await Firestore().collection('assignments').doc(assignment.id).update({
+                        doPin: !assignment.doPin,
+                      })
+                        .then(() => {
+                          setRerender(!rerender);
+                          console.log(`Successfully updated doPin to ${!assignment.doPin}`);
+                        })
+                        .catch((error) => {
+                          console.log('Error updating doPin: ', error);
+                        });
+                    }}
+                  />
+                </View>
+                <View style={styles.row}>
+                  {assignment.dueDate != null && (
+                  <Button
+                    buttonStyle={styles.dueDate}
+                    titleStyle={styles.buttonText_1}
+                    title={'Due: '
+                  + `${assignment.dueDate}`}
+                  />
                   )}
-                  {!isTeacher && studentsCompleted.includes(uid) && (
-                  <Text
-                    style={styles.buttonsContainer}
-                  >
-                    Complete
-                  </Text>
-                  )}
+                </View>
+                <View style={styles.row}>
                   {isTeacher && (
-                  <Text
-                    style={styles.buttonsContainer}
+                  <Button
+                    buttonStyle={styles.students}
+                    titleStyle={styles.buttonText_2}
                     onPress={() => {
                       navigation.navigate('StudentNames', {
                         studentIDs: studentsSeenTemp,
                       });
                     }}
-                  >
-                    Seen:
-                    {' '}
-                    {studentsSeenTemp.length}
-                  </Text>
+                    title={`Seen: ${studentsSeenTemp.length} / ${totalStudents}`}
+                  />
                   )}
 
                   {isTeacher && (
-                  <Text
-                    style={styles.buttonsContainer}
+                  <Button
+                    buttonStyle={styles.students}
+                    titleStyle={styles.buttonText_2}
                     onPress={() => {
                       navigation.navigate('StudentNames', {
                         studentIDs: studentsCompleted,
                       });
                     }}
-                  >
-                    Completed:
-                    {' '}
-                    {studentsCompleted.length}
-                  </Text>
+                    title={`Completed: ${studentsCompleted.length} / ${totalStudents}`}
+                  />
                   )}
+                </View>
 
-                  {isTeacher && (
-                  <Text
-                    style={styles.buttonsContainer}
-                    onPress={() => {
-                      navigation.navigate('StudentNames', {
-                        studentIDs: studentsNotCompleted,
-                      });
-                    }}
-                  >
-                    Not Completed:
-                    {' '}
-                    {studentsNotCompleted.length}
-                  </Text>
-                  )}
-
+                {/* {isTeacher && (
+                <Text
+                  style={styles.buttonsContainer}
+                  onPress={() => {
+                    navigation.navigate('StudentNames', {
+                      studentIDs: studentsNotCompleted,
+                    });
+                  }}
+                >
+                  Not Completed:
+                  {' '}
+                  {studentsNotCompleted.length}
+                </Text>
+                )} */}
+                <View style={styles.row}>
                   {isTeacher && (
                   <Button
-                    style={styles.buttonsContainer}
+                    buttonStyle={styles.button_2}
+                    titleStyle={styles.buttonText_3}
                     title="Edit"
                     onPress={() => {
                       navigation.navigate('NewAssignment', {
@@ -328,48 +426,34 @@ export default function AssignmentListScreen({ navigation }) {
                   />
                   )}
 
-                  <Text
-                    style={styles.buttonsContainer}
-                  >
-                    Due Date:
-                    {' '}
-                    {assignment.dueDate}
-                  </Text>
-
                   <Button
-                    title={assignment.doPin ? 'Unpin' : 'Pin'}
-                    onPress={async () => {
-                      await Firestore().collection('assignments').doc(assignment.id).update({
-                        doPin: !assignment.doPin,
-                      })
-                        .then(() => {
-                          setRerender(!rerender);
-                          console.log(`Successfully updated doPin to ${!assignment.doPin}`);
-                        })
-                        .catch((error) => {
-                          console.log('Error updating doPin: ', error);
-                        });
+                    buttonStyle={styles.button_2}
+                    titleStyle={styles.buttonText_3}
+                    title="Comment"
+                    onPress={() => {
+                      navigation.navigate('NewComment', { id: assignment.id, setLoad: setLoadingNewComment, currentLoad: loadingNewComment });
                     }}
                   />
-
-                  {!isTeacher && (
+                  {!isTeacher
+                  && !studentsCompleted.includes(uid) && (
                   <Button
+                    buttonStyle={styles.button_3}
+                    titleStyle={styles.buttonText_3}
                     title="Mark as Completed"
                     onPress={async () => {
                       if (!studentsCompleted.includes(uid)) {
                         studentsCompleted.push(uid);
-                        await setStudentsCompleted(assignment.id, studentsCompleted);
-                        console.log('UPDATED');
+                        await setStudentsCompleted(assignment.id, studentsCompleted)
+                          .then(() => setRerender(!rerender));
                       }
-                      setRerender(!rerender);
                     }}
                   />
-
                   )}
-                </>
-              </Card>
-            </TouchableOpacity>
 
+                </View>
+
+              </TouchableOpacity>
+            </View>
           </>
         );
       }
@@ -454,26 +538,28 @@ export default function AssignmentListScreen({ navigation }) {
   return (
     <View>
       <ScrollView>
-        <View>
-          {isTeacher
+        {isTeacher
             && (
-
-            <Button
-              title="Create An Assignment"
+            <FAB
+              style={styles.fab}
+              small
+              animated
+              icon="plus"
+              label="Create"
               onPress={() => {
                 navigation.navigate('NewAssignment', {
-                  setLoad: setLoadingNewPost,
-                  currentLoad: loadingNewPost,
-                  title: '',
-                  body: '',
-                  attachments: [],
-                  mode: 'Create',
-                  assign: null,
+                  setLoad1: setLoadingNewPost,
+                  currentLoad1: loadingNewPost,
+                  title1: '',
+                  body1: '',
+                  attachments1: [],
+                  mode1: 'Create',
+                  assign1: null,
                 });
               }}
             />
             )}
-        </View>
+
         {errorMessage && <Text>{errorMessage}</Text>}
         {isTeacher && assignmentsList.length !== 0 && (
           <>
@@ -486,20 +572,22 @@ export default function AssignmentListScreen({ navigation }) {
         </>
 
         )}
-
+        {!isTeacher
+        && (
         <List.Section>
           <List.Accordion
             title="Completed Assignments"
             expanded={expanded}
             onPress={handlePress}
           >
-            {!isTeacher && completedAssignmentsList.length !== 0 && (
+            {completedAssignmentsList.length !== 0 && (
             <>
               { completedAssignmentsList }
             </>
             )}
           </List.Accordion>
         </List.Section>
+        )}
 
       </ScrollView>
     </View>

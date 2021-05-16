@@ -66,7 +66,7 @@ const BottomTabNavigator = () => {
         />
 
         <Tab.Screen
-          name="To-do"
+          name="To-Do"
           component={AssignmentListScreen}
           options={{
             tabBarIcon: TodoIcon,

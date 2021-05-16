@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Button, Text, ActivityIndicator, StyleSheet, Alert,
+  View, Text, ActivityIndicator, StyleSheet, Alert,
 } from 'react-native';
 import { TextInput, ScrollView } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
+import { Button } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
 import { Calendar } from 'react-native-calendars';
@@ -12,11 +13,38 @@ import { List, IconButton } from 'react-native-paper';
 import Dialog from 'react-native-dialog';
 
 const styles = StyleSheet.create({
+  buttonText_2: {
+    color: '#323232',
+    fontSize: 16,
+  },
+  buttonText_3: {
+    color: '#8e4f97',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  button_1: {
+    backgroundColor: 'transparent',
+    borderRadius: 40,
+    width: 125,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  button_2: {
+    backgroundColor: '#ffffff',
+    borderRadius: 15,
+    height: 35,
+    width: 130,
+    paddingBottom: 5,
+    borderColor: '#8e4f97',
+    borderWidth: 0.5,
+    alignSelf: 'center',
+    marginLeft: 12,
+    margin: 12,
+  },
   container: {
     flex: 1,
     padding: 0,
     backgroundColor: '#F8F7F7',
-
   },
   listItems: {
     flex: 1,
@@ -55,7 +83,7 @@ const styles = StyleSheet.create({
     paddingLeft: 40,
     paddingRight: 40,
     paddingTop: 30,
-    paddingBottom: 125,
+    paddingBottom: 50,
     backgroundColor: 'white',
     color: 'black',
     fontFamily: 'Helvetica',
@@ -105,6 +133,8 @@ export default function NewAssignmentScreen({ route, navigation }) {
   // eslint-disable-next-line no-unused-vars
   const [attachment, setAttachment] = useState(attachments1);
   const [attachmentArr, setAttachmentArr] = useState([]);
+  const [newAttach, setNewAttach] = useState('');
+  const [rerender, setRerender] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -116,13 +146,17 @@ export default function NewAssignmentScreen({ route, navigation }) {
   const assignment = assign1;
 
   const [initializing, setInitializing] = useState(true);
-  const uid = Firebase.auth().currentUser;
+  const { uid } = Firebase.auth().currentUser;
   const ref = Firestore().collection('users');
   const [expanded0, setExpanded0] = useState(false);
   const [expanded1, setExpanded1] = useState(false);
   const handlePress = () => setExpanded0(!expanded0);
   const handlePress1 = () => setExpanded1(!expanded1);
+  const [editIndex, setEditIndex] = useState(null);
+  const [deleteIndex, setDeleteIndex] = useState(null);
   const [visible, setVisible] = useState(false);
+  const [visibleEdit, setVisibleEdit] = useState(false);
+  const [visibleDelete, setVisibleDelete] = useState(false);
 
   const showDialog = () => {
     setVisible(true);
@@ -130,13 +164,56 @@ export default function NewAssignmentScreen({ route, navigation }) {
 
   const handleCancel = () => {
     setVisible(false);
+    setNewAttach('');
   };
 
-  const handleDelete = () => {
-    // The user has pressed the "Delete" button, so here you can do your own logic.
-    // ...Your logic
-    setVisible(false);
+  const showDialogEdit = (index) => {
+    setVisibleEdit(true);
+    setEditIndex(index);
   };
+
+  const handleCancelEdit = () => {
+    setVisibleEdit(false);
+    setNewAttach('');
+  };
+
+  const showDialogDelete = (index) => {
+    setVisibleDelete(true);
+    setDeleteIndex(index);
+  };
+
+  const handleCancelDelete = () => {
+    setVisibleDelete(false);
+  };
+
+  const handleAdd = () => {
+    const n = attachment;
+    n.push(newAttach);
+    setAttachment(n);
+    setNewAttach('');
+    setVisible(false);
+    setRerender(!rerender);
+  };
+
+  const handleEdit = (index) => {
+    const n = attachment;
+    n[index] = newAttach;
+    setAttachment(n);
+    setNewAttach('');
+    setEditIndex(null);
+    setVisibleEdit(false);
+    setRerender(!rerender);
+  };
+
+  const handleDelete = (index) => {
+    const n = attachment;
+    n.splice(index, 1);
+    setAttachment(n);
+    setDeleteIndex(null);
+    setVisibleDelete(false);
+    setRerender(!rerender);
+  };
+
   useEffect(() => {
     console.log('ONE');
     try {
@@ -157,23 +234,26 @@ export default function NewAssignmentScreen({ route, navigation }) {
       return (
         <>
           <View style={styles.inline}>
-
             <Text style={styles.attachment}>
               {attach}
             </Text>
 
             <IconButton
               icon="pencil-outline"
+              onPress={() => showDialogEdit(index)}
             />
             <IconButton
               icon="trash-can"
+              onPress={() => showDialogDelete(index)}
             />
           </View>
         </>
       );
     }
-
-    const temp = attachment.map((attach, index) => getSingleAttachment(attach, index));
+    let temp = [];
+    if (attachment.length > 0) {
+      temp = attachment.map((attach, index) => getSingleAttachment(attach, index));
+    }
     temp.push(
       <>
         <View style={styles.inline}>
@@ -194,7 +274,7 @@ export default function NewAssignmentScreen({ route, navigation }) {
 
     );
     setAttachmentArr(temp);
-  }, []);
+  }, [rerender]);
 
   if (initializing) return null;
 
@@ -278,14 +358,51 @@ export default function NewAssignmentScreen({ route, navigation }) {
             <>
               <View style={styles.container}>
                 <Dialog.Container visible={visible}>
-                  <Dialog.Title>Account delete</Dialog.Title>
+                  <Dialog.Title>Add New Attachment</Dialog.Title>
                   <Dialog.Description>
-                    Do you want to delete this account? You cannot undo this action.
+                    Insert Link
                   </Dialog.Description>
+                  <Dialog.Input onChangeText={setNewAttach} />
                   <Dialog.Button label="Cancel" onPress={handleCancel} />
-                  <Dialog.Button label="Delete" onPress={handleDelete} />
+                  <Dialog.Button
+                    label="Add"
+                    onPress={() => {
+                      if (newAttach !== '') { handleAdd(); }
+                    }}
+                  />
                 </Dialog.Container>
+
+                <Dialog.Container visible={visibleEdit}>
+                  <Dialog.Title>Edit Attachment</Dialog.Title>
+                  <Dialog.Description>
+                    Insert Link
+                  </Dialog.Description>
+                  <Dialog.Input onChangeText={setNewAttach} />
+                  <Dialog.Button label="Cancel" onPress={handleCancelEdit} />
+                  <Dialog.Button
+                    label="Edit"
+                    onPress={() => {
+                      if (newAttach !== '') { handleEdit(editIndex); }
+                    }}
+                  />
+                </Dialog.Container>
+
+                <Dialog.Container visible={visibleDelete}>
+                  <Dialog.Title>Delete Attachment</Dialog.Title>
+                  <Dialog.Description>
+                    Are You Sure You Want To Delete This Link?
+                  </Dialog.Description>
+                  <Dialog.Button label="Cancel" onPress={handleCancelDelete} />
+                  <Dialog.Button
+                    label="Delete"
+                    onPress={() => {
+                      handleDelete(deleteIndex);
+                    }}
+                  />
+                </Dialog.Container>
+
               </View>
+
             </>
             <List.Accordion
               style={styles.listItems}
@@ -294,6 +411,7 @@ export default function NewAssignmentScreen({ route, navigation }) {
               expanded={expanded0}
               onPress={handlePress}
             >
+
               <Calendar
                 style={styles.calendar}
                 onDayPress={(day) => { setDueDate(day); }}
@@ -303,7 +421,8 @@ export default function NewAssignmentScreen({ route, navigation }) {
         </View>
         {loading && <ActivityIndicator />}
         <Button
-          style={styles.submitButton}
+          buttonStyle={styles.button_2}
+          titleStyle={styles.buttonText_3}
           disabled={loading}
           title={`${mode} To-Do`}
           onPress={handleSubmit}
