@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import {
-  ScrollView,
+  StyleSheet, View, ScrollView,
 } from 'react-native';
-import { ListItem } from 'react-native-elements';
+import { Icon, ListItem } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
+import Firebase from '@react-native-firebase/app';
 import moment from 'moment';
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    backgroundColor: '#d0e6f5',
+    padding: 6,
+    borderRadius: 25,
+  },
+});
 
 /**
  * Get the list of students in this class, then reate a notification for each student.
@@ -73,7 +82,8 @@ export async function notifyAuthor(announcementID, message, page) {
 }
 
 export default function NotificationsScreen({ navigation }) {
-  const uid = navigation.getParam('uid', null);
+  // const uid = navigation.getParam('uid', null);
+  const { uid } = Firebase.auth().currentUser;
   const [classroomList, setClassroomList] = useState([]);
   const [notificationList, setNotificationList] = useState([]);
   const [listItems, setListItems] = useState([]);
@@ -117,11 +127,19 @@ export default function NotificationsScreen({ navigation }) {
 
   /* For each notification, create a list item */
   useEffect(() => {
-    if (notificationList.length > 0 && classroomList.length == notificationList.length) {
+    if (notificationList.length > 0 && classroomList.length === notificationList.length) {
       const ListItems = notificationList.map((element, index) => (
         <ListItem
           key={element.id}
-          leftAvatar={{ source: { uri: classroomList[index].profilePicture } }}
+          leftIcon={(
+            <View style={styles.iconContainer}>
+              <Icon
+                name={element.page === 'TODO' ? 'clipboard' : 'home'}
+                type="feather"
+                color="#439ad8"
+              />
+            </View>
+          )}
           title={classroomList[index].name}
           subtitle={element.message}
           rightTitle={moment(element.createdAt.toDate()).fromNow().toString()}
@@ -152,7 +170,6 @@ NotificationsScreen.navigationOptions = ({ navigation }) => ({
 
 NotificationsScreen.propTypes = {
   navigation: PropTypes.shape({
-    uid: PropTypes.func.isRequired,
-    getParam: PropTypes.func.isRequired,
+    navigate: PropTypes.func.isRequired,
   }).isRequired,
 };

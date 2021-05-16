@@ -3,57 +3,57 @@ import React, { useState, useEffect } from 'react';
 import {
   StyleSheet, View, Alert, Image,
 } from 'react-native';
-import { Icon, Text, ListItem } from 'react-native-elements';
+import { Text, Icon, ListItem } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import Firebase from '@react-native-firebase/app';
-import { INITIAL_USER_STATE } from '../../components';
 import LinearGradient from 'react-native-linear-gradient';
+import { INITIAL_USER_STATE } from '../../components';
 
 const styles = StyleSheet.create({
   banner: {
     height: '20%',
-    zIndex: 1, 
+    zIndex: 1,
   },
   screenContainer: {
-    display: 'flex', 
+    display: 'flex',
     backgroundColor: '#ffffff',
-    zIndex: 2
+    zIndex: 2,
   },
   top: {
     top: -120,
-    zIndex: 2
+    zIndex: 2,
   },
   bottom: {
-    top:-120, 
-    zIndex:3
+    top: -120,
+    zIndex: 3,
   },
   profilePicture: {
-    height: 150, 
+    height: 150,
     width: 150,
-    borderRadius: 150, 
+    borderRadius: 150,
     borderWidth: 6,
-    borderColor: '#ffffff'
-  }, 
+    borderColor: '#ffffff',
+  },
   parentCenter: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
   },
   childCenter: {
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
   pageName: {
-    color: '#ffffff', 
+    color: '#ffffff',
     fontSize: 25,
-    marginBottom: 20
+    marginBottom: 20,
   },
   subtextContainer: {
-    backgroundColor: '#f1f3f4', 
-    padding: 6, 
-    color: '#6c6c6c', 
-    borderRadius: 8
+    backgroundColor: '#f1f3f4',
+    padding: 6,
+    color: '#6c6c6c',
+    borderRadius: 8,
   },
   horizontalListContainer: {
     backgroundColor: '#ffffff',
@@ -62,28 +62,28 @@ const styles = StyleSheet.create({
   },
   gradeLevelContainer: {
     marginLeft: 8,
-    color: '#4391d8'
+    color: '#4391d8',
   },
   instrumentContainer: {
-    marginBottom: -10
+    marginBottom: -10,
   },
   instrumentListContainer: {
     paddingBottom: 15,
     paddingLeft: 15,
-    flexWrap: 'wrap', 
+    flexWrap: 'wrap',
   },
-  instrumentTextContainer: { 
-    marginRight: 8
-  }, 
+  instrumentTextContainer: {
+    marginRight: 8,
+  },
 });
 
 // navigation MUST INCLUDE: uid
 export default function ProfileScreen({ navigation }) {
-  //const [initializing, setInitializing] = useState(true);
-  //const [user, setUser] = useState();
+  // const [initializing, setInitializing] = useState(true);
+  // const [user, setUser] = useState();
   const [loading, setLoading] = useState(false);
 
-  const { uid } = Firebase.auth().currentUser;
+  const uid = Firebase.auth().currentUser;
   const ref = Firestore().collection('users');
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
   const [instrumentList, setInstrumentList] = useState([]);
@@ -103,9 +103,13 @@ export default function ProfileScreen({ navigation }) {
           .then((data) => {
             setUserState(data);
 
-            const temp = data.instruments.map((instrument, index) => {
-              return <Text key={index} style={[styles.subtextContainer, styles.instrumentTextContainer]}> {instrument} </Text>
-              });
+            const temp = data.instruments.map((instrument, index) => (
+              <Text key={index} style={[styles.subtextContainer, styles.instrumentTextContainer]}>
+                {' '}
+                {instrument}
+                {' '}
+              </Text>
+            ));
             setInstrumentList(temp);
 
             // setNewState(data);
@@ -116,7 +120,6 @@ export default function ProfileScreen({ navigation }) {
           });
       }
     }
-
 
     navigation.addListener('focus', () => {
       fetchData();
@@ -136,48 +139,36 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <View>
-      <LinearGradient style={styles.banner} start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#aa7bb1', '#cd857a']}></LinearGradient>
-      <View style={styles.screenContainer}>
-        <View style={[styles.parentCenter, styles.top]}>
-          <Text style={[styles.childCenter, styles.pageName]} >My Profile</Text>
-          <Image style={[styles.childCenter, styles.profilePicture]} source={{ uri: userState.profilePic }} />
-          <View style={[styles.childCenter]}>
-            <Text h4>{`${userState.firstName} ${userState.lastName}`}</Text>
-          </View>
-          <View style={[styles.childCenter, styles.horizontalListContainer]}>
-            <Text style={[styles.subtextContainer]}>Student</Text>
-            <Text style={[styles.subtextContainer, styles.gradeLevelContainer]}>{`Grade ${userState.gradeLevel}`}</Text>
-          </View>
-        </View>
-      </View>
+      <LinearGradient style={styles.banner} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} colors={['#aa7bb1', '#cd857a']} />
+      <View style={styles.screenContainer} />
       <View style={styles.bottom}>
-      <ListItem
-          leftIcon={
-            <Icon 
-              name='music'
-              type='feather'
+        <ListItem
+          leftIcon={(
+            <Icon
+              name="music"
+              type="feather"
               containerStyle={styles.instrumentContainer}
             />
-        }
+          )}
           title="Instrument List"
         />
         <View style={[styles.horizontalListContainer, styles.instrumentListContainer]}>
-            {instrumentList}
+          {instrumentList}
         </View>
         <ListItem
-          leftIcon={
-            <Icon 
-              name='bell'
-              type='feather'
+          leftIcon={(
+            <Icon
+              name="bell"
+              type="feather"
             />
-          }
+          )}
           title="Notification Settings"
-          chevron={
-            <Icon 
-              name='chevron-right'
-              type='feather'
+          chevron={(
+            <Icon
+              name="chevron-right"
+              type="feather"
             />
-          }
+          )}
           onPress={() => {
             navigation.navigate('Notifications', { uid });
           }}
@@ -185,19 +176,19 @@ export default function ProfileScreen({ navigation }) {
           bottomDivider
         />
         <ListItem
-          leftIcon={
-            <Icon 
-              name='edit-3'
-              type='feather'
+          leftIcon={(
+            <Icon
+              name="edit-3"
+              type="feather"
             />
-          }
+          )}
           title="Edit Profile"
-          chevron={
-            <Icon 
-              name='chevron-right'
-              type='feather'
+          chevron={(
+            <Icon
+              name="chevron-right"
+              type="feather"
             />
-          }
+          )}
           onPress={() => {
             navigation.navigate('EditProfile', { uid });
             setLoading(true);
@@ -205,12 +196,12 @@ export default function ProfileScreen({ navigation }) {
           bottomDivider
         />
         <ListItem
-          leftIcon={
-            <Icon 
-              name='log-out'
-              type='feather'
+          leftIcon={(
+            <Icon
+              name="log-out"
+              type="feather"
             />
-          }
+          )}
           title="Log Out"
           onPress={() => { Auth().signOut(); }}
           bottomDivider
@@ -243,6 +234,5 @@ ProfileScreen.navigationOptions = ({ navigation }) => ({
 ProfileScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-    addListener: PropTypes.func.isRequired,
   }).isRequired,
 };

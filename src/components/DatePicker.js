@@ -1,22 +1,40 @@
 /* eslint-disable no-plusplus */
 import React, { useState } from 'react';
 import {
-  StyleSheet, View,
+  StyleSheet, View, Text,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
+  labelStyles: {
+    color: '#828282',
+    fontWeight: 'bold',
+  },
+  unitStyles: {
+    color: '#BDBDBD',
+    fontWeight: 'bold',
+  },
   calendar: {
     display: 'flex',
+    flexDirection: 'row',
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+    margin: 5,
+  },
+  monthInput: {
+    width: '33%',
+  },
+  dayInput: {
+    width: '25%',
+  },
+  yearInput: {
+    width: '33%',
   },
   textInput: {
-    fontSize: 18,
-    margin: 5,
-    width: 200,
+    fontSize: 30,
+    width: '33%',
   },
 });
 
@@ -27,7 +45,7 @@ export default function DatePicker({
   currDay, currMonth, currYear, onChange,
 }) {
   const [day, setDay] = useState(currDay);
-  const [month, setMonth] = useState(currMonth - 1);
+  const [month, setMonth] = useState(currMonth);
   const [year, setYear] = useState(currYear);
 
   const [monthsDays, setDays] = useState([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]);
@@ -35,7 +53,7 @@ export default function DatePicker({
   for (let i = 1; i <= 31; ++i) {
     pickerDays.push(i);
   }
-  const pickerMonths = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'June', 'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
+  const pickerMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const pickerYears = [];
   for (let i = 1920; i <= 2021; ++i) {
     pickerYears.push(i);
@@ -79,34 +97,42 @@ export default function DatePicker({
   }
 
   return (
-    <View style={styles.calendar}>
-      <Picker
-        selectedValue={month}
-        style={styles.textInput}
-        onValueChange={(itemValue) => {
-          setDate(itemValue, day, year);
-        }}
-      >
-        {pickerMonths.map((i, index) => (<Picker.Item key={i} label={i} value={index} />))}
-      </Picker>
-      <Picker
-        selectedValue={day}
-        style={styles.textInput}
-        onValueChange={(itemValue) => {
-          setDate(month, itemValue, year);
-        }}
-      >
-        {pickerDays.map((i, index) => (index < monthsDays[month] && <Picker.Item key={i} label={`${i}`} value={i} />))}
-      </Picker>
-      <Picker
-        selectedValue={year}
-        style={styles.textInput}
-        onValueChange={(itemValue) => {
-          setDate(month, day, itemValue);
-        }}
-      >
-        {pickerYears.map((i) => (<Picker.Item key={i} label={`${i}`} value={i} />))}
-      </Picker>
+    <View>
+      <Text style={styles.labelStyles}>Birthdate</Text>
+      <View style={styles.calendar}>
+        <Picker
+          selectedValue={month}
+          style={styles.monthInput}
+          onValueChange={(itemValue) => {
+            setDate(itemValue, day, year);
+          }}
+          itemStyle={{ fontSize: 30 }}
+        >
+          <Picker.Item key={13} label="Month" value={-1} color="#828282" />
+          {pickerMonths.map((i, index) => (<Picker.Item key={i} label={i} value={index + 1} />))}
+        </Picker>
+
+        <Picker
+          selectedValue={day}
+          style={styles.dayInput}
+          onValueChange={(itemValue) => {
+            setDate(month, itemValue, year);
+          }}
+        >
+          <Picker.Item key={32} label="Day" value={-1} color="#828282" />
+          {pickerDays.map((i, index) => (index < monthsDays[month] && <Picker.Item key={i} label={`${i}`} value={i} />))}
+        </Picker>
+        <Picker
+          selectedValue={year}
+          style={styles.yearInput}
+          onValueChange={(itemValue) => {
+            setDate(month, day, itemValue);
+          }}
+        >
+          <Picker.Item key={1919} label="Year" value={-1} color="#828282" />
+          {pickerYears.map((i) => (<Picker.Item key={i} label={`${i}`} value={i} />))}
+        </Picker>
+      </View>
     </View>
   );
 }

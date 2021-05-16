@@ -22,7 +22,6 @@ imports below.
 HomeScreen error is due to "relativePath.split() is not a function"
 */
 
-
 import React, { /* useContext */ } from 'react';
 import { Text, View } from 'react-native';
 import { Button } from 'react-native-elements';
