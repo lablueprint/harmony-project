@@ -6,7 +6,6 @@ import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import Svg from 'react-native-svg';
-import AuthContext from '../../navigation/AuthContext';
 import SignInWave from './background.svg';
 
 const styles = StyleSheet.create({
@@ -105,7 +104,6 @@ export default function SignInScreen({ navigation }) {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [showLoading, setShowLoading] = useState(false);
-  // const [authState, setAuthState] = useContext(AuthContext);
 
   useEffect(() => {
     setEmailError('');

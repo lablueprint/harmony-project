@@ -18,28 +18,29 @@ const styles = StyleSheet.create({
 });
 
 export default function NewCommentScreen({ navigation }) {
-  const uid = navigation.getParam('uid', null);
+  const { uid } = Firebase.auth().currentUser;
   const [body, setBody] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const postId = navigation.getParam('postid', '');
-  const mainScreenLoadStatus = navigation.getParam('currentLoad');
-  const reloadMainScreen = navigation.getParam('setLoad');
+  const postId = navigation.params?.postid ?? '';
+  const mainScreenLoadStatus = navigation.params?.currentLoad;
+  const reloadMainScreen = navigation.params?.setLoad;
   const [commenterName, setCommenterName] = useState('');
 
   useEffect(() => {
-    Firestore().collection('users').doc(uid).get().then((doc) => {
-      const data = doc.data();
-      if(data) {
-        setCommenterName(data.name);
-      }
-    });
+    Firestore().collection('users').doc(uid).get()
+      .then((doc) => {
+        const data = doc.data();
+        if (data) {
+          setCommenterName(data.name);
+        }
+      });
   });
 
   const handleSubmit = () => {
     setLoading(true);
     // reloadMainScreen(!mainScreenLoadStatus);
-  
+
     const commentRecord = {
       postId,
       body,
@@ -60,7 +61,7 @@ export default function NewCommentScreen({ navigation }) {
         setErrorMessage(error.message);
       });
 
-    notifyAuthor(postId, commenterName + " has commented on your post ", "BULLETIN");
+    notifyAuthor(postId, `${commenterName} has commented on your post `, 'BULLETIN');
   };
 
   return (
@@ -84,7 +85,6 @@ export default function NewCommentScreen({ navigation }) {
 
 NewCommentScreen.propTypes = {
   navigation: PropTypes.shape({
-    getParam: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
   }).isRequired,
 };

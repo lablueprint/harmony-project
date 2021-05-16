@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
   StyleSheet, View, Alert, Image,
 } from 'react-native';
-import { Text, Icon, ListItem } from 'react-native-elements';
+import { Icon, Text, ListItem } from 'react-native-elements';
 import Firestore from '@react-native-firebase/firestore';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
@@ -13,7 +13,7 @@ import { INITIAL_USER_STATE } from '../../components';
 
 const styles = StyleSheet.create({
   banner: {
-    height: '20%',
+    height: 130,
     zIndex: 1,
   },
   screenContainer: {
@@ -33,8 +33,9 @@ const styles = StyleSheet.create({
     height: 150,
     width: 150,
     borderRadius: 150,
-    borderWidth: 6,
+    borderWidth: 5,
     borderColor: '#ffffff',
+    marginTop: 40,
   },
   parentCenter: {
     display: 'flex',
@@ -47,7 +48,8 @@ const styles = StyleSheet.create({
   pageName: {
     color: '#ffffff',
     fontSize: 25,
-    marginBottom: 20,
+    marginTop: 5,
+    marginBottom: 15,
   },
   subtextContainer: {
     backgroundColor: '#f1f3f4',
@@ -83,7 +85,7 @@ export default function ProfileScreen({ navigation }) {
   // const [user, setUser] = useState();
   const [loading, setLoading] = useState(false);
 
-  const uid = Firebase.auth().currentUser;
+  const { uid } = Firebase.auth().currentUser;
   const ref = Firestore().collection('users');
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
   const [instrumentList, setInstrumentList] = useState([]);
@@ -102,7 +104,7 @@ export default function ProfileScreen({ navigation }) {
           })
           .then((data) => {
             setUserState(data);
-
+            if (!data.instruments) return;
             const temp = data.instruments.map((instrument, index) => (
               <Text key={index} style={[styles.subtextContainer, styles.instrumentTextContainer]}>
                 {' '}
@@ -139,8 +141,25 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <View>
-      <LinearGradient style={styles.banner} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} colors={['#aa7bb1', '#cd857a']} />
-      <View style={styles.screenContainer} />
+      <LinearGradient
+        colors={['#984A9C', '#C95748']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: -0.5 }}
+        style={styles.banner}
+      />
+      <View style={styles.screenContainer}>
+        <View style={[styles.parentCenter, styles.top]}>
+          {/* <Text style={[styles.childCenter, styles.pageName]}>My Profile</Text> */}
+          <Image style={[styles.childCenter, styles.profilePicture]} source={{ uri: userState.profilePic === '' ? 'no-pic' : userState.profilePic }} />
+          <View style={[styles.childCenter]}>
+            <Text h4>{`${userState.firstName} ${userState.lastName}`}</Text>
+          </View>
+          <View style={[styles.childCenter, styles.horizontalListContainer]}>
+            <Text style={[styles.subtextContainer]}>Student</Text>
+            <Text style={[styles.subtextContainer, styles.gradeLevelContainer]}>{`Grade ${userState.gradeLevel}`}</Text>
+          </View>
+        </View>
+      </View>
       <View style={styles.bottom}>
         <ListItem
           leftIcon={(
@@ -234,5 +253,6 @@ ProfileScreen.navigationOptions = ({ navigation }) => ({
 ProfileScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
+    addListener: PropTypes.func.isRequired,
   }).isRequired,
 };
