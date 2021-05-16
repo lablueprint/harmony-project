@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Text, ScrollView,
+  StyleSheet, ActivityIndicator, View, Text,
 } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';

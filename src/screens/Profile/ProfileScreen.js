@@ -150,7 +150,8 @@ export default function ProfileScreen({ navigation }) {
       <View style={styles.screenContainer}>
         <View style={[styles.parentCenter, styles.top]}>
           {/* <Text style={[styles.childCenter, styles.pageName]}>My Profile</Text> */}
-          <Image style={[styles.childCenter, styles.profilePicture]} source={{ uri: userState.profilePic === '' ? 'no-pic' : userState.profilePic }} />
+          {userState && userState.profilePic && userState.profilePic.length > 0 && 
+          <Image style={[styles.childCenter, styles.profilePicture]} source={{ uri: userState?.profilePic === '' ? 'no-pic' : userState.profilePic }} />}
           <View style={[styles.childCenter]}>
             <Text h4>{`${userState.firstName} ${userState.lastName}`}</Text>
           </View>

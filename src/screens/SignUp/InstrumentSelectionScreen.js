@@ -137,7 +137,28 @@ export default function UserInformationScreen({ route, navigation }) {
   const [dob, setDob] = useState({});
   const [instruments, setInsts] = useState([]);
   const [selectedInstr, setSelectedInstr] = useState([]);
-  // let selectedInstr = [];
+
+  const signup = async () => {
+    Auth().createUserWithEmailAndPassword(email, password)
+      .then((user) => {
+        if (user) {
+          user.sendEmailVerification();
+        }
+      })
+      .catch((e) => {
+        const errorCode = e.code;
+        console.log(errorCode);
+        /*
+        if (errorCode === 'auth/email-already-in-use') {
+          setEmailErr('*Email already in use');
+        } else if (errorCode === 'auth/invalid-email') {
+          setEmailErr('*Invalid email');
+        } else if (errorCode === 'auth/weak-password') {
+          setPasswordErr('*Weak Password');
+        }
+        */
+      });
+  };
 
   useEffect(() => {
     Auth().signInAnonymously().then((user) => {
