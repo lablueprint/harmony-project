@@ -8,6 +8,7 @@ import Firebase from '@react-native-firebase/app';
 import { Avatar } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient';
 import ClassroomContext from '../../navigation/ClassroomContext';
+// eslint-disable-next-line no-unused-vars
 import AuthContext from '../../navigation/AuthContext';
 
 const styles = StyleSheet.create({
