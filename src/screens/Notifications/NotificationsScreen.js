@@ -110,6 +110,17 @@ export default function NotificationsScreen({ navigation }) {
     getNotifications();
   }, []);
 
+  const navFromNotification = (page) => {
+    if (page === 'TODO') {
+      navigation.navigate('Todo');
+      return;
+    }
+    if (page === 'BULLETIN') {
+      navigation.navigate('Bulletin');
+      return;
+    }
+  }
+
   const renderNotification = ({item}) => {
     return (
       <ListItem
@@ -128,7 +139,7 @@ export default function NotificationsScreen({ navigation }) {
         }}
         onPress={() => {
           setClassroom(item.classroomID);
-          // navigation.navigate()
+          navFromNotification(item.page);
         }}
         bottomDivider
       />

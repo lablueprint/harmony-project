@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     height: 150,
     width: 150,
     borderRadius: 150,
-    borderWidth: 6,
+    borderWidth: 5,
     borderColor: '#ffffff',
     marginTop: 40,
   },
@@ -104,7 +104,7 @@ export default function ProfileScreen({ navigation }) {
           })
           .then((data) => {
             setUserState(data);
-
+            if (!data.instruments) return;
             const temp = data.instruments.map((instrument, index) => (
               <Text key={index} style={[styles.subtextContainer, styles.instrumentTextContainer]}>
                 {' '}
@@ -150,7 +150,7 @@ export default function ProfileScreen({ navigation }) {
       <View style={styles.screenContainer}>
         <View style={[styles.parentCenter, styles.top]}>
           {/* <Text style={[styles.childCenter, styles.pageName]}>My Profile</Text> */}
-          <Image style={[styles.childCenter, styles.profilePicture]} source={{ uri: userState.profilePic }} />
+          <Image style={[styles.childCenter, styles.profilePicture]} source={{ uri: userState.profilePic === '' ? 'no-pic' : userState.profilePic }} />
           <View style={[styles.childCenter]}>
             <Text h4>{`${userState.firstName} ${userState.lastName}`}</Text>
           </View>

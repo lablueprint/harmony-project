@@ -44,7 +44,7 @@ const BottomTabNavigator = () => (
     />
 
     <Tab.Screen
-      name="To-do"
+      name="Todo"
       component={ToDoStackNavigator}
       options={{
         tabBarIcon: TodoIcon,
