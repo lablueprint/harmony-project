@@ -135,7 +135,6 @@ export default function SignInScreen({ navigation }) {
       .catch((e) => {
         setShowLoading(false);
         const errorCode = e.code;
-        console.log(errorCode);
         if (errorCode === 'auth/invalid-email') {
           setEmailError('*Invalid Email');
         } else if (errorCode === 'auth/wrong-password') {

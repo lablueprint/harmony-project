@@ -7,6 +7,7 @@ import { Picker } from '@react-native-picker/picker';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import Svg from 'react-native-svg';
+import Firestore from '@react-native-firebase/firestore';
 import SignInWave from '../SignIn/background.svg';
 
 const styles = StyleSheet.create({
@@ -83,6 +84,43 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderRadius: 40,
     width: 250,
+  },
+
+  labelContainer: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  labelStyles: {
+    color: '#828282',
+    fontWeight: 'bold',
+    alignItems: 'flex-start',
+  },
+  highlightedLabelStyles: {
+    color: '#8E4F97',
+    fontWeight: 'bold',
+  },
+  instrumentContainer: {
+    height: 240,
+    width: 300,
+    borderRadius: 10,
+    borderWidth: 1,
+    backgroundColor: '#ffffff',
+    borderColor: '#BDBDBD',
+    margin: 10,
+    marginTop: 15,
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
+  checkbox: {
+    backgroundColor: '#ffffff',
+    borderWidth: 0,
+    margin: 0,
+  },
+  instrument: {
+    fontSize: 18,
+    color: '#828282',
   },
 });
 
@@ -212,38 +250,6 @@ export default function UserInformationScreen({ route, navigation }) {
     }
     return error;
   }
-
-  const signup = async () => {
-    Auth().createUserWithEmailAndPassword(email, password)
-      .then((user) => {
-        if (user) {
-          user.sendEmailVerification();
-        }
-      })
-      .then(() => {
-        navigation.navigate('InstrumentSelection', {
-          classCode,
-          role,
-          firstName,
-          lastName,
-          studentID,
-          gradeLevel,
-          email,
-          password,
-        });
-      })
-      .catch((e) => {
-        const errorCode = e.code;
-        console.log(errorCode);
-        if (errorCode === 'auth/email-already-in-use') {
-          setEmailErr('*Email already in use');
-        } else if (errorCode === 'auth/invalid-email') {
-          setEmailErr('*Invalid email');
-        } else if (errorCode === 'auth/weak-password') {
-          setPasswordErr('*Weak Password');
-        }
-      });
-  };
 
   function verifyReenterPwd() {
     let error = false;
@@ -398,7 +404,16 @@ export default function UserInformationScreen({ route, navigation }) {
               if (!verifyFirstName() && !verifyLastName() && !verifyStudentID()
               && !verifyGrade() && !verifyEmail() && !verifyPassword()
               && !verifyReenterPwd()) {
-                signup();
+                navigation.navigate('InstrumentSelection', {
+                  classCode
+                  role,
+                  email,
+                  firstName,
+                  lastName,
+                  profilePic: '',
+                  studentID,
+                  gradeLevel,
+                });
               }
             }}
           />
