@@ -83,7 +83,7 @@ export default function ProfileScreen({ navigation }) {
   // const [user, setUser] = useState();
   const [loading, setLoading] = useState(false);
 
-  const uid = Firebase.auth().currentUser;
+  const { uid } = Firebase.auth().currentUser;
   const ref = Firestore().collection('users');
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
   const [instrumentList, setInstrumentList] = useState([]);

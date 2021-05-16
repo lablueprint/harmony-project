@@ -6,7 +6,7 @@ import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import Svg from 'react-native-svg';
-import AuthContext from '../../navigation/AuthContext';
+import Firestore from '@react-native-firebase/firestore';
 import SignInWave from './background.svg';
 
 const styles = StyleSheet.create({
@@ -137,6 +137,7 @@ export default function SignInScreen({ navigation }) {
       .catch((e) => {
         setShowLoading(false);
         const errorCode = e.code;
+        console.log(errorCode);
         if (errorCode === 'auth/invalid-email') {
           setEmailError('*Invalid Email');
         } else if (errorCode === 'auth/wrong-password') {

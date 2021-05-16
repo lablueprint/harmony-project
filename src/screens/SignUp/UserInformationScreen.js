@@ -234,8 +234,13 @@ export default function UserInformationScreen({ route, navigation }) {
       })
       .catch((e) => {
         const errorCode = e.code;
+        console.log(errorCode);
         if (errorCode === 'auth/email-already-in-use') {
           setEmailErr('*Email already in use');
+        } else if (errorCode === 'auth/invalid-email') {
+          setEmailErr('*Invalid email');
+        } else if (errorCode === 'auth/weak-password') {
+          setPasswordErr('*Weak Password');
         }
       });
   };
