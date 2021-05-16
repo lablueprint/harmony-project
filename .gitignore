@@ -53,3 +53,6 @@ buck-out/
 # Firebase files
 ios/GoogleService-Info.plist
 android/app/google-services.json
+
+
+.vscode/settings.json

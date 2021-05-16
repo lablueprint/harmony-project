@@ -7,6 +7,7 @@ import { Button } from 'react-native-elements';
 import { List } from 'react-native-paper';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
+import Firebase from '@react-native-firebase/app';
 
 const styles = StyleSheet.create({
   accordion: {
@@ -62,12 +63,16 @@ export default function SubmissionsList({ route, navigation }) {
   // const [errorMessage, setErrorMessage] = useState(null);
   const [assignmentID, setAssignmentID] = useState(null);
   const [classroomID, setClassroomID] = useState(null);
+  const { teacherID } = Firebase.auth().currentUser.uid;
   // const [initializing, setInitializing] = useState(true);
+  // TODO: refactor all this to just use the original submission object
   const [studentIDsList, setStudentIDsList] = useState([]);
   const [studentNames, setStudentNames] = useState([]);
   const [submissionIDs, setSubmissionIDs] = useState([]);
   const [submissionFeedback, setSubmissionFeedback] = useState([]);
+  const [submissionAttachments, setSubmissionAttachments] = useState([]);
   const [studentsList, setStudentList] = useState([]);
+  // using this as a hacky obj array in the meantime
   const [displayMissing, setDisplayMissing] = useState([]);
   const [displaySubmitted, setDisplaySubmitted] = useState([]);
   const [displayEvaluated, setDisplayEvaluated] = useState([]);
@@ -172,7 +177,9 @@ export default function SubmissionsList({ route, navigation }) {
                 if (doc) {
                   const data = doc.data();
                   // eslint-disable-next-line no-shadow
-                  setSubmissionIDs((submissionIDs) => [...submissionIDs, doc.id]);
+                  setSubmissionAttachments((submissionAttachments) => [...submissionAttachments,
+                    data.attachment]);
+                  setSubmissionIDs((submissionIDs1) => [...submissionIDs1, doc.id]);
                   setSubmissionFeedback(
                     // eslint-disable-next-line no-shadow
                     (submissionFeedback) => [...submissionFeedback, data.hasReceivedFeedback],
@@ -197,7 +204,9 @@ export default function SubmissionsList({ route, navigation }) {
     console.log('six');
 
     const zipping = async () => {
-      const zipped = studentNames.map((x, i) => [x, submissionIDs[i], submissionFeedback[i]]);
+      // hacky, needs reworking
+      const zipped = studentNames.map((x, i) => [x, submissionIDs[i],
+        submissionFeedback[i], studentIDsList[i], submissionAttachments[i]]);
       console.log(zipped);
       setStudentList(zipped);
       return true;
@@ -229,8 +238,12 @@ export default function SubmissionsList({ route, navigation }) {
 
     const submitted = studentsList.filter((e) => (e[1] !== null && !e[2]));
     setDisplaySubmitted(submitted.map((obj) => {
-      const submission = obj[1];
+      // ..this needs to be rewritten
+      const submissionID = obj[1];
       const name = obj[0];
+      // const evaluated = obj[2];
+      const studentID = obj[3];
+      const attachment = obj[4];
       // const evaluated = obj[2];
       return (
         <View style={styles.container}>
@@ -238,11 +251,13 @@ export default function SubmissionsList({ route, navigation }) {
           {/* {(submission !== null && !evaluated)
             ? ( */}
           <Button
-            title={`Evaluate: ${name}`}
+            title={`Leave Feedback For : ${name}`}
             titleStyle={styles.buttonText_3}
             buttonStyle={styles.name}
             onPress={() => {
-              navigation.navigate('CreateEvaluation', { submissionID: submission });
+              navigation.navigate('Evaluation', {
+                submissionID, teacherID, studentID, attachment,
+              });
             }}
           />
           {/* // ) : []} */}
@@ -253,9 +268,8 @@ export default function SubmissionsList({ route, navigation }) {
 
     const evaluated = studentsList.filter((e) => (e[1] !== null && e[2]));
     setDisplayEvaluated(evaluated.map((obj) => {
-      // const submission = obj[1];
       const name = obj[0];
-      // const e = obj[2];
+
       return (
         <View style={styles.container}>
 
@@ -264,7 +278,7 @@ export default function SubmissionsList({ route, navigation }) {
         </View>
       );
     }));
-  }, [navigation, finished4]);
+  }, [navigation, finished4, studentsList, teacherID]);
 
   return (
     <View>

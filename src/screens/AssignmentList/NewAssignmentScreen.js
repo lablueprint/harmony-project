@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, ActivityIndicator, StyleSheet, Alert,
@@ -11,6 +12,8 @@ import { Calendar } from 'react-native-calendars';
 import { List, IconButton } from 'react-native-paper';
 // eslint-disable-next-line import/no-unresolved
 import Dialog from 'react-native-dialog';
+// eslint-disable-next-line import/named
+import { notifyStudents } from '../Notifications/NotificationsScreen';
 
 const styles = StyleSheet.create({
   buttonText_2: {
@@ -143,11 +146,11 @@ export default function NewAssignmentScreen({ route, navigation }) {
   const reloadMainScreen = setLoad1;
   const [classroom, setClassroomID] = useState('');
   const mode = mode1;
-  const assignment = assign1;
+  // assignment = assign1;
 
   const [initializing, setInitializing] = useState(true);
   const { uid } = Firebase.auth().currentUser;
-  const ref = Firestore().collection('users');
+  // const ref = Firestore().collection('users');
   const [expanded0, setExpanded0] = useState(false);
   const [expanded1, setExpanded1] = useState(false);
   const handlePress = () => setExpanded0(!expanded0);
@@ -157,6 +160,8 @@ export default function NewAssignmentScreen({ route, navigation }) {
   const [visible, setVisible] = useState(false);
   const [visibleEdit, setVisibleEdit] = useState(false);
   const [visibleDelete, setVisibleDelete] = useState(false);
+  const [teacherName, setTeacherName] = useState('');
+  // const [studentIDs, setStudentIDs] = useState([]);
 
   const showDialog = () => {
     setVisible(true);
@@ -217,10 +222,14 @@ export default function NewAssignmentScreen({ route, navigation }) {
   useEffect(() => {
     console.log('ONE');
     try {
-      ref.doc(uid).get().then((doc) => {
-        const data = doc.data();
-        setClassroomID(data.classroomIds[0]);
-      });
+      Firestore().collection('users').doc(uid).get()
+        .then((doc) => {
+          const data = doc.data();
+          if (data) {
+            setClassroomID(data.classroomIds[0]);
+            setTeacherName(data.name);
+          }
+        });
       if (initializing) setInitializing(false);
     } catch (e) {
       setInitializing(false);
@@ -278,47 +287,51 @@ export default function NewAssignmentScreen({ route, navigation }) {
 
   if (initializing) return null;
 
+  /* When an assignment has been created, create a notification for every student in the class */
+  /*
+  const notifyStudents = () => {
+    if(studentIDs.length > 0 && teacherName !== '') {
+      studentIDs.forEach(async (studentID) => {
+        await Firestore().collection('notifications').add({
+          classroomID: classroom,
+          createdAt: Firestore.Timestamp.now(),
+          message: teacherName + " has created a new To Do '" + title + "'",
+          page: "TODO",
+          userID: studentID
+        })
+      })
+    }
+  }
+  */
+
   const handleSubmit = () => {
     setLoading(true);
     reloadMainScreen(!mainScreenLoadStatus);
-    if (mode === 'Create') {
-      const assignmentRecord = {
-        title,
-        body,
-        attachments: attachment,
-        createdAt: Firestore.Timestamp.now(),
-        updatedAt: Firestore.Timestamp.now(),
-        classroomID: classroom,
-        dueDate: date.dateString,
-        author: Firebase.auth().currentUser.uid,
-        likedByIDs: {},
-      };
-      Firestore().collection('assignments')
-        .add(assignmentRecord)
-        .then(() => {
-          setLoading(false);
-          navigation.navigate('AssignmentList');
-        })
-        .catch((error) => {
-          setErrorMessage(error.message);
-        });
-    } else {
-      Firestore().collection('assignments').doc(assignment.id)
-        .update({
-          title,
-          body,
-          attachments: attachment,
-          updatedAt: Firestore.Timestamp.now(),
-          dueDate: date.dateString,
-        })
-        .then(() => {
-          setLoading(false);
-          navigation.navigate('AssignmentList');
-        })
-        .catch((error) => {
-          setErrorMessage(error.message);
-        });
-    }
+
+    const assignmentRecord = {
+      title,
+      body,
+      attachments: attachment,
+      createdAt: Firestore.Timestamp.now(),
+      updatedAt: Firestore.Timestamp.now(),
+      classroomID: classroom,
+      hasBeenGraded: false,
+      dueDate: date.dateString,
+      author: Firebase.auth().currentUser.uid,
+      likedBy: {},
+    };
+    Firestore().collection('assignments')
+      .add(assignmentRecord)
+      .then(() => {
+        setLoading(false);
+
+        navigation.navigate('AssignmentList', { uid });
+      })
+      .catch((error) => {
+        setErrorMessage(error.message);
+      });
+
+    notifyStudents(classroom, `${teacherName} has created a new To Do '${title}'`, 'TODO');
   };
 
   return (

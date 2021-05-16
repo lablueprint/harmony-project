@@ -1,7 +1,7 @@
-import React from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from 'react';
 import {
-  Alert, Button, View,
-  Platform,
+  Alert, Button, View, Platform, TextInput,
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -14,8 +14,11 @@ import UploadFileToFirebase from '../../utils/FileManipulation';
 // Greatly increases uploading speed
 
 const UploadFile = (props) => {
+  const [localPath, setLocalPath] = useState('');
+  const [name, setName] = useState('');
+
   const {
-    setAttachment, postId, collection, mediaType,
+    setChoose, setMonitor, postId, collection, mediaType, inputName, upload,
   } = props;
 
   const imagePickerOptions = {
@@ -30,44 +33,70 @@ const UploadFile = (props) => {
   };
 
   const monitorUpload = (uploadTask) => {
+    const fileData = { url: '', path: '' };
     uploadTask.on('state_changed', (snapshot) => {
       switch (snapshot.state) {
         case 'running':
           break;
         case 'success':
           snapshot.ref.getDownloadURL().then((downloadURL) => {
-            setAttachment(downloadURL);
-            Alert.alert(`${mediaType} upload succeeded! ${downloadURL}`);
+            fileData.url = downloadURL;
+            console.log(`${mediaType} upload succeeded! ${downloadURL}`);
           });
+          fileData.path = snapshot.ref.fullPath;
           break;
         default:
           break;
       }
     });
+
+    return Promise.resolve(fileData);
   };
 
-  const uploadFile = () => {
+  const chooseFile = () => {
     ImagePicker.launchImageLibrary(imagePickerOptions, (imagePickerResponse) => {
       const { didCancel, error } = imagePickerResponse;
-
       if (didCancel) {
-        Alert.alert('Post canceled');
+        Alert.alert('Upload canceled');
       } else if (error) {
-        Alert.alert('An error occurred: ', imagePickerResponse.error);
+        console.log('An error occurred: ', imagePickerResponse.error);
       } else {
-        const localPath = getFileLocalPath(imagePickerResponse);
-
-        const uploadTask = UploadFileToFirebase(collection, postId, localPath);
-        monitorUpload(uploadTask);
+        setLocalPath(getFileLocalPath(imagePickerResponse));
+        setChoose(true);
       }
     });
   };
 
+  // upload file
+  useEffect(() => {
+    if (upload) {
+      if (inputName && !name) {
+        Alert.alert('Please name your file.');
+      } else {
+        const fileName = inputName ? name : Math.random()
+          .toString(36)
+          .slice(3);
+
+        const uploadTask = UploadFileToFirebase(collection, postId, localPath, fileName);
+        setMonitor(monitorUpload(uploadTask));
+      }
+    }
+  }, [upload]);
+
   return (
     <View>
+      {inputName && (
+      <TextInput
+        placeholder="Name"
+        fontSize={14}
+        maxLength={50}
+        onChangeText={setName}
+        value={name}
+      />
+      )}
       <Button
-        title="Upload File"
-        onPress={uploadFile}
+        title="Choose File"
+        onPress={chooseFile}
       />
     </View>
   );
@@ -77,10 +106,17 @@ const UploadFile = (props) => {
 // - postId: String, Required - Id of document to add as a record of upload (in Firestore)
 // - collection: String, Optional - Collection to add to as a record of the upload
 UploadFile.propTypes = {
-  setAttachment: PropTypes.string.isRequired,
+  setChoose: PropTypes.func.isRequired,
+  setMonitor: PropTypes.func.isRequired,
+  upload: PropTypes.bool.isRequired,
+  inputName: PropTypes.bool,
   postId: PropTypes.string.isRequired,
   collection: PropTypes.string.isRequired,
   mediaType: PropTypes.string.isRequired,
+};
+
+UploadFile.defaultProps = {
+  inputName: false,
 };
 
 /*

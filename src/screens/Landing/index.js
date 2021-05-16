@@ -1,3 +1,4 @@
 import ClassroomSelectScreen from './ClassroomSelectScreen';
+import LoadClasses from './LoadClasses';
 
-export default ClassroomSelectScreen;
+export { ClassroomSelectScreen, LoadClasses };

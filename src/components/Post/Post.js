@@ -8,25 +8,30 @@ import Firebase from '@react-native-firebase/app';
 import { ScrollView } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
 import Comment from './Comment';
+import { INITIAL_USER_STATE } from '..';
 
 const styles = StyleSheet.create({
   container: {
     marginTop: 10,
     marginBottom: 10,
     marginHorizontal: 10,
-    padding: 10,
+    padding: 20,
     backgroundColor: '#ffffff',
     borderRadius: 10,
+    width: '90%',
   },
   contentContainer: {
     paddingTop: 20,
   },
   timeText: {
-    fontSize: 11,
+    fontSize: 14,
+    color: '#828282',
+
   },
   topicText: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
+    marginTop: 10,
   },
   bodyText: {
     fontSize: 14,
@@ -38,8 +43,13 @@ const styles = StyleSheet.create({
 const loadAmount = 1;
 
 function CommentLoader({
-  postID, loadingNewComment, numCommentsLoaded, setloadedLastComment, loadedLastComment,
-  setNoComments, noComments,
+  postID,
+  loadingNewComment,
+  numCommentsLoaded,
+  setloadedLastComment,
+  loadedLastComment,
+  setNoComments,
+  noComments,
 }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [commentList, setCommentList] = useState([]);
@@ -300,7 +310,11 @@ function LoadCommentButton({
 }
 
 function PinPost({
-  postID, initialValue, collection, rerender, setRerender,
+  postID,
+  initialValue,
+  collection,
+  rerender,
+  setRerender,
 }) {
   return (
     <Button
@@ -322,8 +336,17 @@ function PinPost({
 }
 
 export default function Post({
-  // eslint-disable-next-line no-unused-vars
-  title, createdAt, date, body, attachments, id, loadingNewComment, collection, pin, rerender,
+  author,
+  title,
+  createdAt,
+  date,
+  body,
+  attachments,
+  id,
+  loadingNewComment,
+  collection,
+  pin,
+  rerender,
   setRerender,
 }) {
   const [loading, setLoading] = useState(false);
@@ -334,9 +357,11 @@ export default function Post({
   const [isAuthor, setIsAuthor] = useState(false);
   const [hasDeleted, setHasDeleted] = useState(false);
   const userID = Firebase.auth().currentUser.uid;
+  const [authorState, setAuthorState] = useState(INITIAL_USER_STATE);
 
   const [showMore, setShowMore] = useState(true);
   const [buttons, setButtons] = useState(true);
+  // eslint-disable-next-line no-unused-vars
   const [isPin, setPin] = useState(pin);
 
   const [lines, setLines] = useState(6);
@@ -360,6 +385,20 @@ export default function Post({
         if (postAuthor === userID) {
           setIsAuthor(true);
         }
+      });
+  }, [collection, id, userID]);
+
+  // Fetch author name of post
+  useEffect(() => {
+    Firestore().collection('users').doc(author).get()
+      .then((document) => {
+        if (document.exists) {
+          return document.data();
+        }
+        return null;
+      })
+      .then((data) => {
+        setAuthorState(data);
       });
   }, [collection, id, userID]);
 
@@ -394,12 +433,26 @@ export default function Post({
   return (
     hasDeleted ? null : (
       <View style={styles.container}>
-        <Text style={styles.topicText}>
-          {title}
-        </Text>
+        {author !== ''
+          && (
+          <Text>
+            {`${authorState.firstName} ${authorState.lastName}`}
+          </Text>
+          )}
         <Text style={styles.timeText}>
           {date}
+          {' '}
+          @
+          {' '}
+          {createdAt}
         </Text>
+        {title !== ''
+          && (
+          <Text style={styles.topicText}>
+            {title}
+          </Text>
+          )}
+
         <View style={styles.contentContainer}>
           <Text numberOfLines={lines} onTextLayout={onTextLayout}>
             {body}
@@ -451,23 +504,15 @@ export default function Post({
             />
           </View>
         )}
-        <Button
-          title={isPin ? 'Unpin' : 'Pin'}
-          onPress={async () => {
-            await Firestore().collection(collection).doc(id).update({
-              doPin: !isPin,
-            })
-              .then(() => {
-                setRerender(!rerender);
-                console.log(`Successfully updated doPin to ${!isPin}`);
-              })
-              .catch((error) => {
-                console.log('Error updating doPin: ', error);
-              });
-            setPin(!isPin);
-          }}
-        />
-
+        {isAuthor && (
+          <PinPost
+            postID={id}
+            initialValue={pin}
+            collection={collection}
+            rerender={rerender}
+            setRerender={setRerender}
+          />
+        )}
         {isAuthor ? (
           <Button
             title="Delete"
@@ -546,7 +591,8 @@ export default function Post({
 }
 
 Post.propTypes = {
-  title: PropTypes.string.isRequired,
+  author: PropTypes.string,
+  title: PropTypes.string,
   createdAt: PropTypes.string,
   date: PropTypes.string, // date object ?
   body: PropTypes.string.isRequired,
@@ -560,6 +606,8 @@ Post.propTypes = {
 };
 
 Post.defaultProps = {
+  author: '',
+  title: '',
   createdAt: '',
   date: '',
   id: '',

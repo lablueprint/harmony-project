@@ -41,11 +41,10 @@ const styles = StyleSheet.create({
   },
 });
 
-// navigation MUST INCLUDE: code, classroomInfo, uid
+// navigation MUST INCLUDE: classroomInfo, uid
 export default function ClassroomHome({ navigation }) {
   const uid = navigation.getParam('uid', null);
   const classroomInfo = navigation.getParam('classroomInfo', null);
-  const code = navigation.getParam('code', null);
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
 
   useEffect(() => {
@@ -72,7 +71,7 @@ export default function ClassroomHome({ navigation }) {
 
   // copies code to clipboard
   const copyToClipboard = () => {
-    Clipboard.setString(code);
+    Clipboard.setString(classroomInfo.code);
   };
 
   return (
@@ -86,7 +85,7 @@ export default function ClassroomHome({ navigation }) {
             {`Description: ${classroomInfo.description}`}
           </Text>
           <Text style={styles.sectionDescription}>
-            {`Code: ${code.toUpperCase()}`}
+            {`Code: ${classroomInfo.code.toUpperCase()}`}
           </Text>
           <Button
             style={styles.textInput}
@@ -116,7 +115,7 @@ export default function ClassroomHome({ navigation }) {
               style={styles.textInput}
               title="Back to Landing"
               onPress={() => {
-                navigation.navigate('Landing', uid);
+                navigation.navigate('Load');
               }}
             />
           </View>
