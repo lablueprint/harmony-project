@@ -31,6 +31,11 @@ const styles = StyleSheet.create({
   highlight: {
     fontWeight: '700',
   },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingLeft: 5
+  }
 });
 
 /*
@@ -75,16 +80,10 @@ this will only run one time when the component is mounted
                 pin={announcement.doPin}
                 rerender={rerender}
                 setRerender={setRerender}
+                navigation = {navigation}
               >
                 {announcement.body}
               </Post>
-              <Button
-                styles={styles.container}
-                title="Comment on Post"
-                onPress={() => {
-                  navigation.navigate('NewComment', { uid, postid: announcement.id, setLoad: setLoadingNewComment });
-                }}
-              />
 
             </View>
           );
@@ -98,8 +97,8 @@ this will only run one time when the component is mounted
   return (
     <View style={styles.container}>
       <ScrollView>
-        <Text style={styles.welcomeMessage}>Posts</Text>
-        <Button
+        
+        {/* <Button
           title="Make a Post"
           onPress={() => {
             navigation.navigate('NewAnnouncement', {
@@ -111,7 +110,7 @@ this will only run one time when the component is mounted
               attachments: '',
             });
           }}
-        />
+        /> */}
         {errorMessage && <Text>{errorMessage}</Text>}
         {announcementsList}
       </ScrollView>
