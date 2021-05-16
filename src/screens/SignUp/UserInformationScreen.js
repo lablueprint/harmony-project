@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { Picker } from '@react-native-picker/picker';
+import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import Svg from 'react-native-svg';
 import SignInWave from '../SignIn/background.svg';
@@ -212,6 +213,33 @@ export default function UserInformationScreen({ route, navigation }) {
     return error;
   }
 
+  const signup = async () => {
+    Auth().createUserWithEmailAndPassword(email, password)
+      .then((user) => {
+        if (user) {
+          user.sendEmailVerification();
+        }
+      })
+      .then(() => {
+        navigation.navigate('InstrumentSelection', {
+          classCode,
+          role,
+          firstName,
+          lastName,
+          studentID,
+          gradeLevel,
+          email,
+          password,
+        });
+      })
+      .catch((e) => {
+        const errorCode = e.code;
+        if (errorCode === 'auth/email-already-in-use') {
+          setEmailErr('*Email already in use');
+        }
+      });
+  };
+
   function verifyReenterPwd() {
     let error = false;
     if (reenterPwd.length < 8) {
@@ -362,44 +390,11 @@ export default function UserInformationScreen({ route, navigation }) {
             buttonStyle={styles.button_2}
             title="Next"
             onPress={() => {
-              /*
               if (!verifyFirstName() && !verifyLastName() && !verifyStudentID()
               && !verifyGrade() && !verifyEmail() && !verifyPassword()
               && !verifyReenterPwd()) {
-                navigation.navigate('InstrumentSelection', {
-                  classCode,
-                  role,
-                  firstName,
-                  lastName,
-                  studentID,
-                  gradeLevel,
-                  email,
-                  password,
-                });
+                signup();
               }
-              */
-              /*
-              console.log({
-                classCode,
-                role,
-                firstName,
-                lastName,
-                studentID,
-                gradeLevel,
-                email,
-                password,
-              });
-              */
-              navigation.navigate('InstrumentSelection', {
-                classCode,
-                role,
-                firstName,
-                lastName,
-                studentID,
-                gradeLevel,
-                email,
-                password,
-              });
             }}
           />
         </View>

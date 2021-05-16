@@ -18,7 +18,7 @@ import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
 import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
 import NotificationsScreen from '../screens/Notifications';
 import NotificationsSettingsScreen from '../screens/NotificationsSettings';
-import { ClassroomSelectScreen, LoadClasses } from '../screens/Landing';
+import { ClassroomSelectScreen } from '../screens/Landing';
 import SignUpScreen from '../screens/SignUp';
 import UserInformationScreen from '../screens/SignUp/UserInformationScreen';
 
@@ -47,9 +47,8 @@ const AppNavigation = createStackNavigator(
     Landing: ClassroomSelectScreen,
     Notifications: NotificationsScreen,
     NotificationsSettings: NotificationsSettingsScreen,
-    Load: LoadClasses,
-    SignUp: SignUpScreen, 
-    UserInformation: UserInformationScreen
+    SignUp: SignUpScreen,
+    UserInformation: UserInformationScreen,
   },
   {
     initialRouteName: 'Home',

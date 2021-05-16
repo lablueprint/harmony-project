@@ -118,33 +118,34 @@ export default function SignInScreen({ navigation }) {
   // login
   const login = async () => {
     // setShowLoading(true);
-    try {
-      if (email === '' && password === '') {
-        setEmailError('*Invalid Email');
-        setPasswordError('*Invalid Password');
-        return;
-      } if (email === '') {
-        setEmailError('*Invalid Email');
-        return;
-      } if (password === '') {
-        setPasswordError('*Invalid Password');
-        return;
-      }
-
-      const doSignIn = await Auth().signInWithEmailAndPassword(email, password);
-      setShowLoading(false);
-      // if valid signin, navigate to landing
-      if (doSignIn.user) {
-        navigation.navigate('Load');
-      }
-    } catch (e) {
-      const errorCode = e.code;
-      if (errorCode === 'auth/invalid-email') {
-        setEmailError('*Invalid Email');
-      } else if (errorCode === 'auth/wrong-password') {
-        setPasswordError('*Wrong password');
-      }
+    if (email === '' && password === '') {
+      setEmailError('*Invalid Email');
+      setPasswordError('*Invalid Password');
+      return;
+    } if (email === '') {
+      setEmailError('*Invalid Email');
+      return;
+    } if (password === '') {
+      setPasswordError('*Invalid Password');
+      return;
     }
+
+    Auth().signInWithEmailAndPassword(email, password)
+      .then(() => {
+        setShowLoading(false);
+      })
+      .catch((e) => {
+        setShowLoading(false);
+        const errorCode = e.code;
+        if (errorCode === 'auth/invalid-email') {
+          setEmailError('*Invalid Email');
+        } else if (errorCode === 'auth/wrong-password') {
+          setPasswordError('*Wrong password');
+        }
+      });
+
+    setShowLoading(false);
+    // if valid signin, navigate to landing
   };
 
   return (

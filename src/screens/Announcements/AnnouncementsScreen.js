@@ -5,8 +5,8 @@ import {
 import PropTypes from 'prop-types';
 import { ScrollView } from 'react-native-gesture-handler';
 import Firestore from '@react-native-firebase/firestore';
-import Post from '../../components/Post/Post';
 import dateformat from 'dateformat';
+import Post from '../../components/Post/Post';
 
 const styles = StyleSheet.create({
   headingTitle: {
@@ -47,7 +47,6 @@ export default function AnnouncementsScreen({ navigation }) {
 this will only run one time when the component is mounted
 */
 
-
   useEffect(() => {
     Firestore().collection('announcements')
       .orderBy('doPin', 'desc')
@@ -58,9 +57,8 @@ this will only run one time when the component is mounted
         setAnnouncementsList(announcements.map((announcement) => {
           const date = announcement.createdAt.toDate();
           const dateFormat = require('dateformat');
-          const timeFormat = require('dateformat')
-          const dateForm = dateFormat(date, "mmmm d, yyyy");
-          const timeForm = timeFormat(date, "h:MM TT")
+          const dateForm = dateFormat(date, 'mmmm d, yyyy');
+          const timeForm = dateFormat(date, 'h:MM TT');
           return (
             <View style={styles.container} key={announcement.id}>
               <Post
@@ -96,8 +94,7 @@ this will only run one time when the component is mounted
   }, [navigation, rerender]);
 
   return (
-    <View style={styles.container}>
-    </View>
+    <View style={styles.container} />
   );
 }
 

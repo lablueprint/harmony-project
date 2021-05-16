@@ -61,7 +61,7 @@ const AppContainer = () => {
     <AuthContext.Provider value={authToken}>
       <NavigationContainer>
         <Root.Navigator>
-          {isAuth
+          {user
             ? (
               <Root.Screen
                 name="MainApp"

@@ -136,8 +136,8 @@ export default function UserInformationScreen({ route, navigation }) {
 
   const [dob, setDob] = useState({});
   const [instruments, setInsts] = useState([]);
-  const [numInstr, setNumInstr] = useState(0);
   const [selectedInstr, setSelectedInstr] = useState([]);
+  // let selectedInstr = [];
 
   useEffect(() => {
     Auth().signInAnonymously().then((user) => {
@@ -187,7 +187,7 @@ export default function UserInformationScreen({ route, navigation }) {
         <Text style={styles.labelStyles}>My Instruments - </Text>
         <Text style={styles.highlightedLabelStyles}>
           (
-          {numInstr}
+          {selectedInstr.length}
           ) Selected
         </Text>
       </View>
@@ -204,18 +204,14 @@ export default function UserInformationScreen({ route, navigation }) {
                   const items = [...instruments];
                   items[index].toggle = !i.toggle;
                   if (i.toggle) {
-                    setNumInstr(numInstr + 1);
-                    // setSelectedInstr((prev) => [...prev, i.name]);
+                    setSelectedInstr((prev) => [...prev, i.name]);
                   } else {
-                    /*
                     const prev = [...selectedInstr];
-                    const index = prev.indexOf(i.name);
+                    const instrIndex = selectedInstr.indexOf(i.name);
                     if (index !== -1) {
-                      prev.splice(index, 1);
-                      setSelectedInstr({ });
+                      prev.splice(instrIndex, 1);
+                      setSelectedInstr(prev);
                     }
-                    */
-                    setNumInstr(numInstr - 1);
                   }
                   setInsts(items);
                 }}
@@ -231,6 +227,7 @@ export default function UserInformationScreen({ route, navigation }) {
           buttonStyle={styles.button_2}
           title="Sign Up"
           onPress={() => {
+            signup();
             Auth().signInAnonymously().then((user) => {
               if (user) {
                 Firestore().collection('classrooms').where('id', '==', classCode)
@@ -247,7 +244,7 @@ export default function UserInformationScreen({ route, navigation }) {
                         hpID: studentID,
                         gradeLevel,
                         dob,
-                        instruments: [],
+                        instruments: selectedInstr,
                       }).then((userDoc) => {
                         if (role === 'Student') {
                           Firestore().collection('classrooms').doc(classCode)
