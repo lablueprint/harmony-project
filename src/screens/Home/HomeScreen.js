@@ -41,8 +41,9 @@ import PropTypes from 'prop-types';
 //   },
 // });
 
-export default function HomeScreen() {
-  // const [authState, setAuthState] = useContext(AuthContext);
+
+export default function HomeScreen({ navigation }) {
+  const [authState, setAuthState] = useContext(AuthContext);
 
   return (
     <View>
@@ -55,6 +56,13 @@ export default function HomeScreen() {
           // Auth().signOut().then(() => { setAuthState(!authState); });
           Auth().signOut();
         }}
+      />
+      <Button
+        title="Feedback"
+        buttonStyle={{
+          padding: 5, marginRight: 30, marginLeft: 30, marginTop: 30,
+        }}
+        onPress={() => { navigation.navigate('Feedback'); }}
       />
     </View>
   );
