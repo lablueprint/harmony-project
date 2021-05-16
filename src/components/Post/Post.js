@@ -9,6 +9,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
 import Comment from './Comment';
 import { INITIAL_USER_STATE } from '../../components';
+import { Icon } from 'react-native-elements';
 
 const styles = StyleSheet.create({
   container: {
@@ -35,7 +36,19 @@ const styles = StyleSheet.create({
   },
   bodyText: {
     fontSize: 14,
+    padding: 15,
   },
+  iconContainer: {
+    justifyContent: "space-between",
+    alignContent: 'center',
+    flexDirection: 'row',
+  },
+  icon: {
+    justifyContent: 'center',
+    padding: 8,
+    marginTop: 10,
+    flexDirection: 'row',
+  }
 });
 
 // loadAmount refers to how many comments are loaded when clicking "Load Comments"
@@ -235,10 +248,9 @@ function DisplayLikes({ postID, collection }) {
 
   return (
     <Text>
-      {'\n'}
       {numLikes}
       {' '}
-      people liked this post.
+      Likes
     </Text>
   );
 }
@@ -348,6 +360,7 @@ export default function Post({
   pin,
   rerender,
   setRerender,
+  navigation,
 }) {
   const [loading, setLoading] = useState(false);
   const [hasLiked, setHasLiked] = useState(false);
@@ -358,7 +371,7 @@ export default function Post({
   const [hasDeleted, setHasDeleted] = useState(false);
   const userID = Firebase.auth().currentUser.uid;
   const [authorState, setAuthorState] = useState(INITIAL_USER_STATE);
-  
+  const uid = navigation.getParam('uid', null);
   const [showMore, setShowMore] = useState(true);
   const [buttons, setButtons] = useState(true);
 
@@ -478,28 +491,55 @@ export default function Post({
             />
           ) : null}
         </View>
-        <DisplayLikes postID={id} collection={collection} />
+        <View style={styles.iconContainer}>
         {hasLiked ? (
-          <View style={{ flexDirection: 'row' }}>
-            <Button
+          <View style={styles.icon}>
+            <Icon
+              containerStyle = {color = 'red'}
+              name = 'heart'
+              type = 'antdesign'
+              color = 'red'
+              style={styles.icon}
               title="Unlike"
               onPress={() => {
                 setLoading(!loading);
                 unlikeButton(id, collection);
               }}
             />
+            <DisplayLikes postID={id} collection={collection} />
           </View>
         ) : (
-          <View style={{ flexDirection: 'row' }}>
-            <Button
+          <View style={styles.icon}>
+            <Icon
+              name = 'heart'
+              type = 'feather'
+              style={styles.icon}
               title="Like"
               onPress={() => {
                 setLoading(!loading);
                 likeButton(id, collection);
               }}
             />
+            <DisplayLikes postID={id} collection={collection} />
+
           </View>
+          
         )}
+        <View style={styles.icon}>
+        <Icon
+              name = 'message-circle'
+              type = 'feather'
+              style={styles.icon}
+              onPress={() => {
+                  navigation.navigate('NewComment', { uid, postid: id, setLoad: loadingNewComment });
+                }}
+              />
+              <Text>Comment</Text>
+        </View>
+        
+          </View>
+       
+        
         {isAuthor && (
           <PinPost
             postID={id}
@@ -557,7 +597,7 @@ export default function Post({
             }}
           />
         ) : null}
-        <CommentLoader
+        {/* <CommentLoader
           postID={id}
           loadingNewComment={loadingNewComment}
           numCommentsLoaded={numCommentsLoaded}
@@ -574,7 +614,7 @@ export default function Post({
                 setNumCommentsLoaded(numCommentsLoaded + loadAmount);
               }}
             />
-          )}
+          )} */}
         {/* <LoadCommentButton
         loadedLastComment={loadedLastComment}
         noComments={noComments}
