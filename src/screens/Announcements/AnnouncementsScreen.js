@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { ScrollView } from 'react-native-gesture-handler';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
+import dateformat from 'dateformat';
 import Post from '../../components/Post/Post';
 
 const styles = StyleSheet.create({
@@ -16,6 +17,7 @@ const styles = StyleSheet.create({
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,
+    alignContent: 'center',
   },
   sectionTitle: {
     fontSize: 24,
@@ -45,6 +47,7 @@ export default function AnnouncementsScreen({ navigation }) {
   /*
 this will only run one time when the component is mounted
 */
+
   useEffect(() => {
     Firestore().collection('announcements')
       .orderBy('doPin', 'desc')
@@ -54,14 +57,16 @@ this will only run one time when the component is mounted
         const announcements = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
         setAnnouncementsList(announcements.map((announcement) => {
           const date = announcement.createdAt.toDate();
+          const dateForm = dateformat(date, 'mmmm d, yyyy');
+          const timeForm = dateformat(date, 'h:MM TT');
           return (
             <View style={styles.container} key={announcement.id}>
               <Post
                 id={announcement.id}
-                name={announcement.username}
+                author={announcement.author}
                 title={announcement.title}
-                createdAt={date.toTimeString()}
-                date={date.toDateString()}
+                createdAt={timeForm}
+                date={dateForm}
                 attachments={announcement.attachments}
                 body={announcement.body}
                 collection="announcements"
@@ -89,26 +94,7 @@ this will only run one time when the component is mounted
   }, [navigation, rerender]);
 
   return (
-    <View style={styles.container}>
-      <ScrollView>
-        {/* <Text style={styles.welcomeMessage}>Posts</Text> */}
-        <Button
-          title="Make a Post"
-          onPress={() => {
-            navigation.navigate('NewAnnouncement', {
-              setLoad: setLoadingNewPost,
-              currentLoad: loadingNewPost,
-              uid,
-              title: '',
-              body: '',
-              attachments: '',
-            });
-          }}
-        />
-        {errorMessage && <Text>{errorMessage}</Text>}
-        {announcementsList}
-      </ScrollView>
-    </View>
+    <View style={styles.container} />
   );
 }
 

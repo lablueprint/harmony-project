@@ -8,13 +8,14 @@ import Firebase from '@react-native-firebase/app';
 import { ScrollView } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
 import Comment from './Comment';
+import { INITIAL_USER_STATE } from '../../components';
 
 const styles = StyleSheet.create({
   container: {
     marginTop: 10,
     marginBottom: 10,
     marginHorizontal: 10,
-    padding: 10,
+    padding: 20,
     backgroundColor: '#ffffff',
     borderRadius: 10,
     width: '90%',
@@ -23,14 +24,17 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   timeText: {
-    fontSize: 11,
+    fontSize: 14,
+    color: '#828282',
+
   },
   topicText: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
+    marginTop: 10,
   },
   bodyText: {
-    fontSize: 18,
+    fontSize: 14,
   },
 });
 
@@ -332,7 +336,8 @@ function PinPost({
 }
 
 export default function Post({
-  title, 
+  author,
+  title,
   createdAt, 
   date, 
   body, 
@@ -352,6 +357,7 @@ export default function Post({
   const [isAuthor, setIsAuthor] = useState(false);
   const [hasDeleted, setHasDeleted] = useState(false);
   const userID = Firebase.auth().currentUser.uid;
+  const [authorState, setAuthorState] = useState(INITIAL_USER_STATE);
   
   const [showMore, setShowMore] = useState(true);
   const [buttons, setButtons] = useState(true);
@@ -379,6 +385,24 @@ export default function Post({
         }
       });
   }, [collection, id, userID]);
+
+
+// Fetch author name of post
+  useEffect(() => {
+      Firestore().collection('users').doc(author).get()
+        .then((document) => {
+          if (document.exists) {
+            return document.data();
+          }
+          return null;
+        })
+        .then((data) => {
+          setAuthorState(data);
+        }
+        );
+  }, [collection, id, userID]);
+
+
 
   // Runs whenever loading changes (someone hits the 'Like' or 'Unlike' button).
   useEffect(() => {
@@ -411,17 +435,20 @@ export default function Post({
   return (
     hasDeleted ? null : (
       <View style={styles.container}>
+        {author !== '' && 
+          <Text>
+          {`${authorState.firstName} ${authorState.lastName}`}
+          </Text>
+        }
+        <Text style={styles.timeText}>
+          {date} @ {createdAt}
+        </Text>
         {title !== '' && 
           <Text style={styles.topicText}>
             {title}
           </Text>
         }
-        <Text style={styles.timeText}>
-          {createdAt}
-        </Text>
-        <Text style={styles.timeText}>
-          {date}
-        </Text>
+
         <View style={styles.contentContainer}>
           <Text numberOfLines={lines} onTextLayout={onTextLayout}>
             {body}

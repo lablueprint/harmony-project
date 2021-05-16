@@ -1,11 +1,19 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
 import moment from 'moment';
 import ClassroomContext from '../../context/ClassroomContext';
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    backgroundColor: '#d0e6f5',
+    padding: 6,
+    borderRadius: 25,
+  },
+});
 
 /**
  * Get the list of students in this class, then reate a notification for each student.
