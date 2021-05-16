@@ -1,9 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import React, { useState } from 'react';
+import React from 'react';
 import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
-import ClassroomContext from '../../context/ClassroomContext';
-import ClassroomSelector from '../../components/ClassroomSelector';
 import BulletinStackNavigator from './BulletinStackNavigator';
 import ToDoStackNavigator from './ToDoStackNavigator';
 import NotificationStackNavigator from './NotificationStackNavigator';
@@ -35,56 +33,50 @@ const ProfileIcon = ({ color }) => (
 
 const Tab = createBottomTabNavigator();
 
-const BottomTabNavigator = () => {
-  const [classroom, setClassroom] = useState('');
+const BottomTabNavigator = () => (
+  <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Screen
+      name="Bulletin"
+      component={BulletinStackNavigator}
+      options={{
+        tabBarIcon: HomeIcon,
+      }}
+    />
 
-  return (
-    <ClassroomContext.Provider value={{ classroom, setClassroom }}>
-      <ClassroomSelector />
-      <Tab.Navigator screenOptions={{ headerShown: false }}>
-        <Tab.Screen
-          name="Bulletin"
-          component={BulletinStackNavigator}
-          options={{
-            tabBarIcon: HomeIcon,
-          }}
-        />
+    <Tab.Screen
+      name="To-do"
+      component={ToDoStackNavigator}
+      options={{
+        tabBarIcon: TodoIcon,
+      }}
+    />
 
-        <Tab.Screen
-          name="To-do"
-          component={ToDoStackNavigator}
-          options={{
-            tabBarIcon: TodoIcon,
-          }}
-        />
+    <Tab.Screen
+      name="Notifications"
+      component={NotificationStackNavigator}
+      options={{
+        tabBarIcon: NotificationIcon,
+      }}
+    />
 
-        <Tab.Screen
-          name="Notifications"
-          component={NotificationStackNavigator}
-          options={{
-            tabBarIcon: NotificationIcon,
-          }}
-        />
+    <Tab.Screen
+      name="Library"
+      component={LibraryStackNavigator}
+      options={{
+        tabBarIcon: LibraryIcon,
+      }}
+    />
 
-        <Tab.Screen
-          name="Library"
-          component={LibraryStackNavigator}
-          options={{
-            tabBarIcon: LibraryIcon,
-          }}
-        />
-
-        <Tab.Screen
-          name="Profile"
-          component={ProfileStackNavigator}
-          options={{
-            tabBarIcon: ProfileIcon,
-          }}
-        />
-      </Tab.Navigator>
-    </ClassroomContext.Provider>
-  );
-};
+    <Tab.Screen
+      name="Profile"
+      component={ProfileStackNavigator}
+      options={{
+        tabBarIcon: ProfileIcon,
+        header: null,
+      }}
+    />
+  </Tab.Navigator>
+);
 
 // Validate Icon Props
 HomeIcon.propTypes = {

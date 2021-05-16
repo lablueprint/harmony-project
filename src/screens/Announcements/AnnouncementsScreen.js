@@ -91,7 +91,7 @@ this will only run one time when the component is mounted
   return (
     <View style={styles.container}>
       <ScrollView>
-        <Text style={styles.welcomeMessage}>Posts</Text>
+        {/* <Text style={styles.welcomeMessage}>Posts</Text> */}
         <Button
           title="Make a Post"
           onPress={() => {
