@@ -1,11 +1,14 @@
+/* eslint-disable react/no-children-prop */
+/* eslint-disable no-console */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {
   useState, useEffect, useRef, useContext,
 } from 'react';
 import {
-  StyleSheet, View, Alert, TouchableHighlight, Text, ScrollView, Animated, useWindowDimensions,
+  StyleSheet, View, Alert, TouchableHighlight, Text, ScrollView, Animated,
+  useWindowDimensions, Image,
 } from 'react-native';
-import { SearchBar, Icon } from 'react-native-elements';
+import { SearchBar, Icon, Overlay } from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 // import Auth from '@react-native-firebase/auth';
 import Firestore from '@react-native-firebase/firestore';
@@ -94,6 +97,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 36,
   },
+  fileModal: {
+    width: 300,
+    height: 300,
+  },
 });
 
 export default function LibraryScreen({ navigation }) {
@@ -103,10 +110,13 @@ export default function LibraryScreen({ navigation }) {
   const [classFiles, setFiles] = useState({});
   const [searchText, setSearch] = useState('');
   const [searchFiles, setSearchFiles] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [focus, setFocus] = useState(false);
   const [animatedHeight, setHeight] = useState('auto');
   const [searchRef, setRef] = useState();
+  // const [filePath, setPath] = useState('');
+  const [file, setFile] = useState(null);
+  const [overlay, showOverlay] = useState(false);
 
   const {
     classroom: selectedClassroom,
@@ -183,10 +193,10 @@ export default function LibraryScreen({ navigation }) {
       } else {
         setSearchFiles(null);
       }
-      setLoading(false);
     } else {
       setSearchFiles(null);
     }
+    setLoading(false);
   }, [searchText]);
 
   useEffect(() => {
@@ -215,6 +225,17 @@ export default function LibraryScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {overlay && (
+        <Overlay
+          children={file}
+          isVisible={overlay}
+          backdropStyle={{ backgroundColor: 'white', width: 100 }}
+          onBackdropPress={() => {
+            showOverlay(false);
+            setFile(null);
+          }}
+        />
+      )}
       <View style={styles.searchContainer}>
         <SearchBar
           lightTheme
@@ -234,7 +255,7 @@ export default function LibraryScreen({ navigation }) {
           ref={(search) => setRef(search)}
         />
       </View>
-      {!loading && (
+      {!loading && searchText.length > 0 && (
         <>
           {searchFiles ? (
             <ScrollView style={styles.cardContainer}>
@@ -268,7 +289,21 @@ export default function LibraryScreen({ navigation }) {
               {searchFiles.photos.map((f) => (
                 <TouchableHighlight
                   underlayColor="#EEEEEE"
-                  onPress={() => {}}
+                  onPress={() => {
+                    // f.getDownloadURL().then((url) => {
+                    //   viewFile(url, f.name);
+                    // });
+                    f.getDownloadURL().then((url) => {
+                      setFile(<Image
+                        style={{ width: '100%', height: '100%' }}
+                        source={{ uri: url }}
+                      />);
+                      showOverlay(true);
+                    })
+                      .catch((e) => {
+                        console.log(e.message);
+                      });
+                  }}
                   style={styles.card}
                   key={f.getDownloadURL()}
                 >

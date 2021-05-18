@@ -62,7 +62,12 @@ const BottomTabNavigator = () => {
   return (
     <ClassroomContext.Provider value={{ classroom, setClassroom }}>
       <ClassroomSelector />
-      <Tab.Navigator screenOptions={{ headerShown: false }}>
+      <Tab.Navigator
+        tabBarOptions={{
+          keyboardHidesTabBar: true,
+        }}
+        screenOptions={{ headerShown: false }}
+      >
         <Tab.Screen
           name="Bulletin"
           component={MainStackNavigator}
@@ -89,7 +94,7 @@ const BottomTabNavigator = () => {
 
         <Tab.Screen
           name="Library"
-          component={LibraryNavigator}
+          component={ProfileScreen}
           options={{
             tabBarIcon: LibraryIcon,
           }}
@@ -97,7 +102,7 @@ const BottomTabNavigator = () => {
 
         <Tab.Screen
           name="Profile"
-          component={ProfileScreen}
+          component={LibraryNavigator}
           options={{
             tabBarIcon: ProfileIcon,
           }}

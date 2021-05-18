@@ -1,9 +1,10 @@
+/* eslint-disable no-console */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, ScrollView, View, Alert, TouchableHighlight, Text,
+  StyleSheet, ScrollView, View, Alert, TouchableHighlight, Text, Image,
 } from 'react-native';
-import { SearchBar } from 'react-native-elements';
+import { SearchBar, Overlay, Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
@@ -97,6 +98,8 @@ export default function LibraryFilesScreen({ navigation, route }) {
     name: classFiles.name,
     files: classFiles[fileType.toLowerCase()],
   };
+  const [file, setFile] = useState(null);
+  const [overlay, showOverlay] = useState(false);
 
   // search function
   useEffect(() => {
@@ -124,6 +127,18 @@ export default function LibraryFilesScreen({ navigation, route }) {
 
   return (
     <View style={styles.container}>
+      {overlay && (
+        <Overlay
+          // eslint-disable-next-line react/no-children-prop
+          children={file}
+          isVisible={overlay}
+          backdropStyle={{ backgroundColor: 'white', width: 100 }}
+          onBackdropPress={() => {
+            showOverlay(false);
+            setFile(null);
+          }}
+        />
+      )}
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>
           {`${items.name}'s ${text}`}
@@ -148,13 +163,36 @@ export default function LibraryFilesScreen({ navigation, route }) {
               {searchFiles.map((f) => (
                 <TouchableHighlight
                   underlayColor="#EEEEEE"
-                  onPress={() => {}}
+                  onPress={() => {
+                    // f.getDownloadURL().then((url) => {
+                    //   viewFile(url, f.name);
+                    // });
+                    f.getDownloadURL().then((url) => {
+                      setFile(<Image
+                        style={{ width: '100%', height: '100%' }}
+                        source={{ uri: url }}
+                      />);
+                      showOverlay(true);
+                    })
+                      .catch((e) => {
+                        console.log(e.message);
+                      });
+                  }}
                   style={styles.card}
-                  key={f.getDownloadURL()}
+                  key={f.name}
                 >
-                  <Text style={styles.cardText}>
-                    {f.name}
-                  </Text>
+                  <View style={styles.subCard}>
+                    <Icon
+                      containerStyle={styles.cardIcon}
+                      name="image"
+                      type="feather"
+                      color="black"
+                      size={25}
+                    />
+                    <Text style={styles.cardText}>
+                      {f.name}
+                    </Text>
+                  </View>
                 </TouchableHighlight>
               ))}
             </ScrollView>
@@ -169,16 +207,39 @@ export default function LibraryFilesScreen({ navigation, route }) {
           {items.files.length > 0 ? items.files.map((f) => (
             <TouchableHighlight
               underlayColor="#EEEEEE"
-              onPress={() => {}}
+              onPress={() => {
+                // f.getDownloadURL().then((url) => {
+                //   viewFile(url, f.name);
+                // });
+                f.getDownloadURL().then((url) => {
+                  setFile(<Image
+                    style={{ width: '100%', height: '100%' }}
+                    source={{ uri: url }}
+                  />);
+                  showOverlay(true);
+                })
+                  .catch((e) => {
+                    console.log(e.message);
+                  });
+              }}
               style={styles.card}
-              key={f.getDownloadURL()}
+              key={f.name}
             >
-              <Text style={styles.cardText}>
-                {f.name}
-              </Text>
+              <View style={styles.subCard}>
+                <Icon
+                  containerStyle={styles.cardIcon}
+                  name="image"
+                  type="feather"
+                  color="black"
+                  size={25}
+                />
+                <Text style={styles.cardText}>
+                  {f.name}
+                </Text>
+              </View>
             </TouchableHighlight>
           )) : (
-            <Text>
+            <Text style={{ paddingHorizontal: 20, paddingTop: 20 }}>
               {`No ${text.toLowerCase()} yet! When your teacher uploads ${text.toLowerCase()}, they will show up here.`}
             </Text>
           )}
