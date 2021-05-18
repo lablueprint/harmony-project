@@ -3,44 +3,20 @@ import React, { useState, useEffect } from 'react';
 // import Firebase from '@react-native-firebase/app';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-// import LinearGradient from 'react-native-linear-gradient';
 import Auth from '@react-native-firebase/auth';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import AuthNavigation from './AuthNavigation';
 import BottomTabNavigator from './BottomTabNavigation';
-// import HeaderContext from './HeaderContext';
-// import AuthContext from './AuthContext';
-
-/* This contains the default navigation settings for the ENTIRE
-APPLICATION. Currently, it will display the linear gradient at the
-top of the app for every single page.
-*/
-// const backgroundGradient = () => (
-//   <LinearGradient
-//     colors={['#984A9C', '#C95748']}
-//     style={{ flex: 1 }}
-//     start={{ x: 0, y: 0 }}
-//     end={{ x: 1, y: 0 }}
-//   />
-// );
-
-// const defaultNavOptions = {
-//   headerBackground: backgroundGradient,
-//   title: '',
-// };
+import ClassroomContext from '../context/ClassroomContext';
+import ClassroomSelector from '../components/ClassroomSelector';
 
 const AppContainer = () => {
   const Root = createStackNavigator();
-  // const [isAuth, setAuth] = useState(null);
-  // const authToken = useState(false);
-  // const header = useState(true);
-  // const [defaultNavOptions, setOptions] = useState({
-  //   headerBackground: backgroundGradient,
-  //   title: '',
-  // });
 
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
+  const [classroom, setClassroom] = useState('');
 
   // Handle user state changes
   function onAuthStateChanged(authUser) {
@@ -70,31 +46,33 @@ const AppContainer = () => {
   // }, [authToken]);
 
   return (
-  // <AuthContext.Provider value={authToken}>
-  // <HeaderContext.Provider value={header}>
-    <NavigationContainer>
-      <Root.Navigator>
-        {user
-          ? (
-            <Root.Screen
-              name="MainApp"
-              component={BottomTabNavigator}
-              options={{
-                headerShown: false,
-              }}
-            />
-          )
-          : (
-            <Root.Screen
-              name="AuthStack"
-              component={AuthNavigation}
-              options={{ title: '' }}
-            />
-          )}
-      </Root.Navigator>
-    </NavigationContainer>
-  // </HeaderContext.Provider>
-  // </AuthContext.Provider>
+    <ClassroomContext.Provider value={{ classroom, setClassroom }}>
+      <NavigationContainer>
+        <Root.Navigator screenOptions={{ headerMode: 'screen' }}>
+          {user
+            ? (
+              <Root.Screen
+                name="MainApp"
+                component={BottomTabNavigator}
+                options={({ route }) => ({
+                  headerMode: 'screen',
+                  header: () => getFocusedRouteNameFromRoute(route) !== 'Profile' && <ClassroomSelector />,
+                  headerStyle: {
+                    height: 130, // Specify the height of your custom header
+                  },
+                })}
+              />
+            )
+            : (
+              <Root.Screen
+                name="AuthStack"
+                component={AuthNavigation}
+                options={{ title: '' }}
+              />
+            )}
+        </Root.Navigator>
+      </NavigationContainer>
+    </ClassroomContext.Provider>
   );
 };
 

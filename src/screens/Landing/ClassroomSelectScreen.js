@@ -76,7 +76,6 @@ const styles = StyleSheet.create({
       },
       android: {
         fontSize: 20,
-        fontFamily: 'sans-serif-medium',
         fontWeight: 'normal',
       },
       default: {

@@ -5,6 +5,7 @@ import {
 import { TextInput } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
 import UploadFile from '../UploadFile/UploadFile';
+import Firebase from '@react-native-firebase/app';
 
 const styles = StyleSheet.create({
   container: {
@@ -19,19 +20,28 @@ export default function NewPostScreen({ navigation }) {
   // const [title, setTitle] = useState('');
   // const [errorMessage, setErrorMessage] = useState(null);
   // const [loading, setLoading] = useState(false);
-  // const mainScreenLoadStatus = navigation.getParam('currentLoad');
-  // const reloadMainScreen = navigation.getParam('setLoad');
+  // const mainScreenLoadStatus = navigation.params?currentLoad');
+  // const reloadMainScreen = navigation.params?setLoad');
+  const [monitorUpload, setMonitor] = useState();
+  const [choseFile, setChoose] = useState();
+  const [upload, setUpload] = useState(false);
   const [body, setBody] = useState('');
   const [attachment, setAttachment] = useState('');
-  const userID = navigation.getParam('userID');
-  const postID = navigation.getParam('postID');
-  const displayTitle = navigation.getParam('displayTitle', true);
-  const setTitle = navigation.getParam('setTitle');
-  const title = navigation.getParam('title', '');
-  const displayUpload = navigation.getParam('displayUpload', true);
-  const collection = navigation.getParam('collection');
-  const buttonTitle = navigation.getParam('buttonTitle', 'Submit');
-  const handleSubmit = navigation.getParam('handleSubmit');
+  const { uid } = Firebase.auth().currentUser;
+  const postID = navigation.params?.postID;
+  const displayTitle = navigation.params?.displayTitle ?? true;
+  const setTitle = navigation.params?.setTitle;
+  const title = navigation.params?.title ?? '';
+  const displayUpload = navigation.params?.displayUpload ?? true;
+  const collection = navigation.params?.collection;
+  const buttonTitle = navigation.params?.buttonTitle ?? 'Submit';
+  const [showLoading, setShowLoading] = useState(false);
+
+
+  async function handleSubmit()
+  {
+    
+  }
 
   return (
     <View style={styles.container}>
@@ -54,10 +64,12 @@ export default function NewPostScreen({ navigation }) {
         />
         {displayUpload && (
         <UploadFile
-          setAttachment={setAttachment}
-          userId={userID}
-          postId={postID}
-          collection={collection}
+          setMonitor={setMonitor}
+          setChoose={setChoose}
+          upload={upload}
+          postId={uid}
+          collection="users/uploads"
+          mediaType="photo"
         />
         )}
       </View>
@@ -65,7 +77,7 @@ export default function NewPostScreen({ navigation }) {
       <Button
         // disabled={loading}
         title={buttonTitle}
-        onPress={() => { handleSubmit(userID, postID, body, attachment); navigation.goBack(); }}
+        onPress={() => { handleSubmit(uid, postID, body, attachment); navigation.goBack(); }}
       />
     </View>
   );
@@ -73,9 +85,11 @@ export default function NewPostScreen({ navigation }) {
 
 NewPostScreen.propTypes = {
   navigation: PropTypes.shape({
-    getParam: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
     goBack: PropTypes.func.isRequired,
+  }).isRequired,
+  route: PropTypes.shape({
+    params: PropTypes.func.isRequired,
   }).isRequired,
 };
 

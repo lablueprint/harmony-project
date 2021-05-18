@@ -203,7 +203,6 @@ export default function PostsScreen({ navigation }) {
 
 PostsScreen.propTypes = {
   navigation: PropTypes.shape({
-    getParam: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
   }).isRequired,
 };

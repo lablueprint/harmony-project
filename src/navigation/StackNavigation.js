@@ -16,9 +16,11 @@ import AssignmentScreen from '../screens/AssignmentList/AssignmentScreen';
 import NewAssignmentScreen from '../screens/AssignmentList/NewAssignmentScreen';
 import SubmissionsList from '../screens/AssignmentList/SubmissionsList';
 import { ClassroomHome, CreateClassroomScreen } from '../screens/Classroom';
-import FeedbackScreen from '../screens/Feedback';
 import { ClassroomSelectScreen, LoadClasses } from '../screens/Landing';
 import { LibraryScreen, LibraryFilesScreen } from '../screens/Library';
+import { SignUpScreen, UserInformationScreen, InstrumentSelectionScreen } from '../screens/SignUp';
+import NotificationsScreen from '../screens/Notifications';
+import FeedbackScreen from '../screens/Feedback';
 
 const Stack = createStackNavigator();
 
@@ -51,8 +53,11 @@ const MainStackNavigator = () => (
     <Stack.Screen name="AssignmentList" component={AssignmentListScreen} />
     <Stack.Screen name="CreateClassroom" component={CreateClassroomScreen} />
     <Stack.Screen name="Classroom" component={ClassroomHome} />
-    <Stack.Screen name="LoadClasses" component={LoadClasses} />
     <Stack.Screen name="Landing" component={ClassroomSelectScreen} />
+    <Stack.Screen name="Notifications" component={NotificationsScreen} />
+    <Stack.Screen name="SignUp" component={SignUpScreen} />
+    <Stack.Screen name="UserInformation" component={UserInformationScreen} />
+    <Stack.Screen name="InstrumentSelection" component={InstrumentSelectionScreen} />
     <Stack.Screen name="Feedback" component={FeedbackScreen} />
   </Stack.Navigator>
 );
