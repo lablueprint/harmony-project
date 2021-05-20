@@ -150,8 +150,7 @@ export default function ProfileScreen({ navigation }) {
       <View style={styles.screenContainer}>
         <View style={[styles.parentCenter, styles.top]}>
           {/* <Text style={[styles.childCenter, styles.pageName]}>My Profile</Text> */}
-          {userState && userState.profilePic && userState.profilePic.length > 0 && 
-          <Image style={[styles.childCenter, styles.profilePicture]} source={{ uri: userState?.profilePic === '' ? 'no-pic' : userState.profilePic }} />}
+          <Image style={[styles.childCenter, styles.profilePicture]} source={{ uri: userState.profilePic === '' ? 'no-pic' : userState.profilePic }} />
           <View style={[styles.childCenter]}>
             <Text h4>{`${userState.firstName} ${userState.lastName}`}</Text>
           </View>
@@ -224,20 +223,6 @@ export default function ProfileScreen({ navigation }) {
           )}
           title="Log Out"
           onPress={() => { Auth().signOut(); }}
-          bottomDivider
-        />
-        <ListItem
-          title="Home"
-          onPress={() => {
-            navigation.navigate('Home');
-          }}
-          bottomDivider
-        />
-        <ListItem
-          title="Landing"
-          onPress={() => {
-            navigation.navigate('Load');
-          }}
           bottomDivider
         />
       </View>

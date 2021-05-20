@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Text,
+  StyleSheet, ActivityIndicator, View, Text, ScrollView,
 } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
@@ -147,7 +147,7 @@ export default function SignInScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.screen}>
+    <ScrollView style={styles.screen}>
       <View style={styles.wavyBanner}>
         <Svg viewBox="0 0 375 450" width="100%" height="100%" preserveAspectRatio="none">
           <SignInWave />
@@ -213,14 +213,8 @@ export default function SignInScreen({ navigation }) {
             }}
           />
         </View>
-        {showLoading
-          && (
-          <View style={styles.activity}>
-            <ActivityIndicator size="large" color="#828282" />
-          </View>
-          )}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

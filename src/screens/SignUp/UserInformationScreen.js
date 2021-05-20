@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, View, ScrollView, Text,
+  StyleSheet, View, ScrollView, Text, ActivityIndicator,
 } from 'react-native';
-import { Button, Input } from 'react-native-elements';
+import { Button, Input, CheckBox } from 'react-native-elements';
 import { Picker } from '@react-native-picker/picker';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import Svg from 'react-native-svg';
 import Firestore from '@react-native-firebase/firestore';
 import SignInWave from '../SignIn/background.svg';
+import DatePicker from '../../components/DatePicker';
 
 const styles = StyleSheet.create({
   screen: {
@@ -102,6 +103,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   instrumentContainer: {
+    display: 'flex',
+    justifyContent: 'center',
     height: 240,
     width: 300,
     borderRadius: 10,
@@ -122,11 +125,29 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#828282',
   },
+  datePicker: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  myInstruments: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    width: '100%',
+    marginLeft: 40,
+  },
+  activity: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+  },
 });
 
 export default function UserInformationScreen({ route, navigation }) {
   const { classCode, role } = route.params;
 
+  const [showLoading, setShowLoading] = useState(true);
   const [firstName, setFirstName] = useState('');
   const [firstNameFocus, setFirstNameFocus] = useState(false);
   const [firstNameErr, setFirstNameErr] = useState('');
@@ -147,11 +168,39 @@ export default function UserInformationScreen({ route, navigation }) {
   const [reenterPwdErr, setReenterPwdErr] = useState('');
   const [gradeLevel, setGradeLevel] = useState('');
   const [gradeLevelErr, setGradeLevelErr] = useState('');
+  const [dob, setDob] = useState({});
+  const [instruments, setInsts] = useState([]);
+  const [selectedInstr, setSelectedInstr] = useState([]);
 
   const numbers = /\d/; // regex that tests numbers
   const lowers = /[a-z]/; // regex that tests lowercase letters
   const uppers = /[A-Z]/; // regex that tests uppercase letters
   const symbols = /[^a-zA-Z\d]/; // regex that tests symbols
+
+  useEffect(() => {
+    Auth().signInAnonymously().then((user) => {
+      if (user) {
+        // fetch instruments from Firestore and place them into the instruments state var
+        // each object in the instruments state var hold the name and
+        // whether or not they've been chosen (toggle)
+        Firestore().collection('instruments').orderBy('name', 'asc').get()
+          .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              setInsts((insts) => [...insts, { id: doc.id, name: doc.data().name, toggle: false }]);
+            });
+          })
+          .then(() => setShowLoading(false))
+          .catch((e) => {
+            console.log(e.message);
+          });
+
+        // Delete anonymous user after fetching instruments from Firestore
+        Auth().currentUser.delete();
+      }
+    }).catch((e) => {
+      console.warn(e);
+    });
+  }, []);
 
   useEffect(() => {
     setFirstNameErr('');
@@ -395,17 +444,72 @@ export default function UserInformationScreen({ route, navigation }) {
             onChangeText={(value) => setReenterPwd(value)}
           />
         </View>
+        <View style={[styles.subContainer, styles.datePicker]}>
+          <DatePicker
+            currDay={-1}
+            currMonth={-1}
+            currYear={-1}
+            onChange={setDob}
+          />
+        </View>
+        <View style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+          <View style={styles.myInstruments}>
+            <Text style={styles.labelStyles}>My Instruments - </Text>
+            <Text style={styles.highlightedLabelStyles}>
+              (
+              {selectedInstr.length}
+              ) Selected
+            </Text>
+          </View>
+          <View style={styles.instrumentContainer}>
+            {showLoading
+            && (
+            <View>
+              <ActivityIndicator size="large" color="#828282" />
+            </View>
+            )}
+            {!showLoading && (
+              <ScrollView persistentScrollbar>
+                {instruments.map((i, index) => (
+                  <View key={i.id} style={styles.checklist}>
+                    <CheckBox
+                      checked={i.toggle}
+                      title={i.name}
+                      textStyle={styles.instrument}
+                      containerStyle={styles.checkbox}
+                      onPress={() => {
+                        const items = [...instruments];
+                        items[index].toggle = !i.toggle;
+                        if (i.toggle) {
+                          setSelectedInstr((prev) => [...prev, i.name]);
+                        } else {
+                          const prev = [...selectedInstr];
+                          const instrIndex = selectedInstr.indexOf(i.name);
+                          if (index !== -1) {
+                            prev.splice(instrIndex, 1);
+                            setSelectedInstr(prev);
+                          }
+                        }
+                        setInsts(items);
+                      }}
+                    />
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+          </View>
+        </View>
         <View style={styles.subContainer}>
           <Button
             titleStyle={styles.buttonText_2}
             buttonStyle={styles.button_2}
-            title="Next"
+            title="Sign Up"
             onPress={() => {
               if (!verifyFirstName() && !verifyLastName() && !verifyStudentID()
               && !verifyGrade() && !verifyEmail() && !verifyPassword()
               && !verifyReenterPwd()) {
                 navigation.navigate('InstrumentSelection', {
-                  classCode
+                  classCode,
                   role,
                   email,
                   firstName,
@@ -413,6 +517,7 @@ export default function UserInformationScreen({ route, navigation }) {
                   profilePic: '',
                   studentID,
                   gradeLevel,
+                  dob,
                 });
               }
             }}
@@ -427,14 +532,13 @@ export default function UserInformationScreen({ route, navigation }) {
           />
         </View>
       </ScrollView>
-
     </View>
   );
 }
 
 UserInformationScreen.navigationOptions = ({ navigation }) => ({
   title: 'Sign In',
-  headerShown: true,
+  headerShown: false,
 });
 
 UserInformationScreen.propTypes = {
