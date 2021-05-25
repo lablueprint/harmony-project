@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable react/forbid-prop-types */
 import React, { useState, useRef, useEffect } from 'react';
 import {
@@ -212,6 +213,8 @@ export default function FeedbackScreen({ route }) {
   const [feedbackPosts, setFeedbackPosts] = useState(null);
   const [noFeedback, setNoFeedback] = useState(false);
   const [loadCounter, setLoadCounter] = useState(0);
+  const [isTeacher, setIsTeacher] = useState(false);
+  const [hasDeleted, setHasDeleted] = useState(false);
   const videoPlayer = useRef(null);
   const scrollRef = useRef(null);
 
@@ -220,8 +223,9 @@ export default function FeedbackScreen({ route }) {
     setCurrentTime(data.currentTime);
   };
 
-  // Get the video URL from Firestore
+  // Runs once on mounting to load initial information
   useEffect(() => {
+    // Get the video URL from Firestore
     Firestore().collection('submissions')
       .doc(submissionID)
       .get()
@@ -232,7 +236,19 @@ export default function FeedbackScreen({ route }) {
         setStudentID(studID);
         setLoadingVideo(false);
       });
-  });
+
+    // Gets the role of the user (Student or Teacher)
+    const { uid } = Firebase.auth().currentUser;
+    Firestore().collection('users')
+      .doc(uid)
+      .get()
+      .then((snapshot) => {
+        const role = snapshot.get('role').toLowerCase();
+        if (role === 'teacher') {
+          setIsTeacher(true);
+        }
+      });
+  }, [submissionID]);
 
   // Produce the list of feedback posts
   useEffect(() => {
@@ -247,6 +263,8 @@ export default function FeedbackScreen({ route }) {
           setNoFeedback(false);
         } else {
           setNoFeedback(true);
+          setFeedbackData(null);
+          setFeedbackPosts(null);
         }
       })
       .then(() => {
@@ -254,10 +272,14 @@ export default function FeedbackScreen({ route }) {
           setFeedbackPosts(feedbackData.map((feedback) => (
             <FeedbackPost
               key={feedback.id}
+              id={feedback.id}
               time={feedback.time}
               message={feedback.body}
               videoPlayer={videoPlayer}
               scrollRef={scrollRef}
+              hasDeleted={hasDeleted}
+              setHasDeleted={setHasDeleted}
+              isTeacher={isTeacher}
             />
           )));
         }
@@ -272,7 +294,12 @@ export default function FeedbackScreen({ route }) {
       });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addFeedback, submissionID, loadCounter, loadingVideo]);
+  }, [addFeedback, submissionID, loadCounter, loadingVideo, hasDeleted]);
+
+  // Resets counter on delete
+  useEffect(() => {
+    setLoadCounter(0);
+  }, [hasDeleted]);
 
   /* Resets loadcounter everytime feedback is added. This will allow the
   new feedback (if it's made) to be rendered on the feedback screen.
@@ -297,32 +324,36 @@ export default function FeedbackScreen({ route }) {
             ref={videoPlayer}
             onProgress={onProgress}
             onSeek={() => { setPause(true); }}
-            onEnd={() => { videoPlayer.current.seek(0); }}
+            onEnd={() => { videoPlayer.current.seek(0); setCurrentTime(0); }}
           />
         )}
-        {addFeedback
-          ? (
-            <CreateFeedback
-              currentTime={currentTime}
-              setAddFeedback={setAddFeedback}
-              addFeedback={addFeedback}
-              setPause={setPause}
-              submissionID={submissionID}
-              studentID={studentID}
-            />
-          )
-          : (
-            <>
-              <Button
-                title="Add Feedback"
-                titleStyle={{ fontFamily: 'Verdana-Bold' }}
-                buttonStyle={styles.buttonContainer}
-                onPress={() => { setAddFeedback(!addFeedback); setPause(true); }}
-                style={styles.buttonPosition}
+        {/* Renders feedback button + posts for the teacher/student */}
+        {isTeacher ? (
+          addFeedback
+            ? (
+              <CreateFeedback
+                currentTime={currentTime}
+                setAddFeedback={setAddFeedback}
+                addFeedback={addFeedback}
+                setPause={setPause}
+                submissionID={submissionID}
+                studentID={studentID}
               />
-              {feedbackPosts}
-            </>
-          )}
+            )
+            : (
+              <>
+                <Button
+                  title="Add Feedback"
+                  titleStyle={{ fontFamily: 'Verdana-Bold' }}
+                  buttonStyle={styles.buttonContainer}
+                  onPress={() => { setAddFeedback(!addFeedback); setPause(true); }}
+                  style={styles.buttonPosition}
+                />
+                {feedbackPosts}
+              </>
+            )
+        ) : (feedbackPosts) }
+
       </View>
       {noFeedback ? (
         <>
