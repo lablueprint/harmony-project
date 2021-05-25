@@ -296,7 +296,8 @@ export default function FeedbackScreen({ route }) {
             paused={pause}
             ref={videoPlayer}
             onProgress={onProgress}
-            onSeek={() => { setPause(!pause); }}
+            onSeek={() => { setPause(true); }}
+            onEnd={() => { videoPlayer.current.seek(0); }}
           />
         )}
         {addFeedback
