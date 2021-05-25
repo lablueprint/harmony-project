@@ -1,3 +1,4 @@
+/* eslint-disable react/forbid-prop-types */
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Text, View, StyleSheet,
@@ -111,7 +112,7 @@ function CreateFeedback({
     const FeedbackRecord = {
       submissionID,
       studentID,
-      teacherID: Firebase.auth().currentUser.uid,
+      authorID: Firebase.auth().currentUser.uid,
       createdAt: Firestore.Timestamp.now(),
       updatedAt: Firestore.Timestamp.now(),
       body: content,
@@ -212,6 +213,7 @@ export default function FeedbackScreen({ route }) {
   const [noFeedback, setNoFeedback] = useState(false);
   const [loadCounter, setLoadCounter] = useState(0);
   const videoPlayer = useRef(null);
+  const scrollRef = useRef(null);
 
   // As the video progresses, updates the currentTime
   const onProgress = (data) => {
@@ -255,6 +257,7 @@ export default function FeedbackScreen({ route }) {
               time={feedback.time}
               message={feedback.body}
               videoPlayer={videoPlayer}
+              scrollRef={scrollRef}
             />
           )));
         }
@@ -279,7 +282,7 @@ export default function FeedbackScreen({ route }) {
   }, [addFeedback]);
 
   return (
-    <ScrollView>
+    <ScrollView ref={scrollRef}>
       <View>
         { loadingVideo ? null : (
           <Video
@@ -333,7 +336,6 @@ export default function FeedbackScreen({ route }) {
 
 FeedbackScreen.propTypes = {
   route: PropTypes.shape({
-    // eslint-disable-next-line react/forbid-prop-types
     params: PropTypes.object.isRequired,
   }).isRequired,
 };

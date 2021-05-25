@@ -1,3 +1,4 @@
+/* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import {
   View, Text, StyleSheet,
@@ -22,7 +23,7 @@ const styles = StyleSheet.create({
 });
 
 export default function FeedbackPost({
-  time, message, videoPlayer,
+  time, message, videoPlayer, scrollRef,
 }) {
   // Gets a time value and outputs the appropripate minutes:seconds text
   function getTime(unprocessedTime) {
@@ -43,6 +44,7 @@ export default function FeedbackPost({
             icon={{ name: 'play-circle', type: 'feather' }}
             onPress={() => {
               videoPlayer.current.seek(time);
+              scrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
             }}
             size="small"
             activeOpacity={0.7}
@@ -80,8 +82,8 @@ export default function FeedbackPost({
 FeedbackPost.propTypes = {
   time: PropTypes.number,
   message: PropTypes.string.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   videoPlayer: PropTypes.object.isRequired,
+  scrollRef: PropTypes.object.isRequired,
 };
 
 FeedbackPost.defaultProps = {
