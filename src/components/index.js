@@ -6,6 +6,7 @@ import {
   roles,
   classDays,
   classTypes,
+  fileTypes,
 } from './const';
 
 export {
@@ -16,4 +17,5 @@ export {
   roles,
   classDays,
   classTypes,
+  fileTypes,
 };

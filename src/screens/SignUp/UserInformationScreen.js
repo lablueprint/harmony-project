@@ -405,7 +405,7 @@ export default function UserInformationScreen({ route, navigation }) {
               && !verifyGrade() && !verifyEmail() && !verifyPassword()
               && !verifyReenterPwd()) {
                 navigation.navigate('InstrumentSelection', {
-                  classCode
+                  classCode,
                   role,
                   email,
                   firstName,

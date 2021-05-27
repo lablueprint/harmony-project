@@ -2,10 +2,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, ScrollView, View, Alert, TouchableHighlight, Text, Image,
+  StyleSheet, ScrollView, View, Alert, TouchableHighlight, Text,
 } from 'react-native';
-import { SearchBar, Overlay, Icon } from 'react-native-elements';
+import { SearchBar, Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
+import toPreview from './LibraryFunctions';
 
 const styles = StyleSheet.create({
   container: {
@@ -89,17 +90,15 @@ const styles = StyleSheet.create({
 });
 
 export default function LibraryFilesScreen({ navigation, route }) {
-  const { fileType, classFiles } = route.params; // fileType = 'Videos', 'Photos', or 'Files'
+  const { fileType, classFiles } = route.params; // fileType = 'Video', 'Photo', or 'File'
   const [searchText, setSearch] = useState('');
   const [searchFiles, setSearchFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const items = {
     code: classFiles.code,
     name: classFiles.name,
-    files: classFiles[fileType.toLowerCase()],
+    files: classFiles[`${fileType.toLowerCase()}s`],
   };
-  const [file, setFile] = useState(null);
-  const [overlay, showOverlay] = useState(false);
 
   // search function
   useEffect(() => {
@@ -123,25 +122,11 @@ export default function LibraryFilesScreen({ navigation, route }) {
     return navigation.goBack();
   }
 
-  const text = fileType;
-
   return (
     <View style={styles.container}>
-      {overlay && (
-        <Overlay
-          // eslint-disable-next-line react/no-children-prop
-          children={file}
-          isVisible={overlay}
-          backdropStyle={{ backgroundColor: 'white', width: 100 }}
-          onBackdropPress={() => {
-            showOverlay(false);
-            setFile(null);
-          }}
-        />
-      )}
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>
-          {`${items.name}'s ${text}`}
+          {`${items.name}'s ${fileType}s`}
         </Text>
       </View>
       <View style={styles.searchContainer}>
@@ -151,7 +136,7 @@ export default function LibraryFilesScreen({ navigation, route }) {
           inputStyle={styles.searchBarInput}
           containerStyle={styles.searchBar}
           searchIcon={{ size: 27 }}
-          placeholder={`Search ${text}`}
+          placeholder={`Search ${fileType}s`}
           onChangeText={setSearch}
           value={searchText}
         />
@@ -167,16 +152,7 @@ export default function LibraryFilesScreen({ navigation, route }) {
                     // f.getDownloadURL().then((url) => {
                     //   viewFile(url, f.name);
                     // });
-                    f.getDownloadURL().then((url) => {
-                      setFile(<Image
-                        style={{ width: '100%', height: '100%' }}
-                        source={{ uri: url }}
-                      />);
-                      showOverlay(true);
-                    })
-                      .catch((e) => {
-                        console.log(e.message);
-                      });
+                    toPreview(navigation, fileType, f);
                   }}
                   style={styles.card}
                   key={f.name}
@@ -211,16 +187,7 @@ export default function LibraryFilesScreen({ navigation, route }) {
                 // f.getDownloadURL().then((url) => {
                 //   viewFile(url, f.name);
                 // });
-                f.getDownloadURL().then((url) => {
-                  setFile(<Image
-                    style={{ width: '100%', height: '100%' }}
-                    source={{ uri: url }}
-                  />);
-                  showOverlay(true);
-                })
-                  .catch((e) => {
-                    console.log(e.message);
-                  });
+                toPreview(navigation, fileType, f);
               }}
               style={styles.card}
               key={f.name}
@@ -240,7 +207,7 @@ export default function LibraryFilesScreen({ navigation, route }) {
             </TouchableHighlight>
           )) : (
             <Text style={{ paddingHorizontal: 20, paddingTop: 20 }}>
-              {`No ${text.toLowerCase()} yet! When your teacher uploads ${text.toLowerCase()}, they will show up here.`}
+              {`No ${fileType.toLowerCase()} yet! When your teacher uploads ${fileType.toLowerCase()}, they will show up here.`}
             </Text>
           )}
         </ScrollView>
@@ -252,7 +219,6 @@ export default function LibraryFilesScreen({ navigation, route }) {
 LibraryFilesScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-
     goBack: PropTypes.func.isRequired,
   }).isRequired,
 

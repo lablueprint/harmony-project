@@ -1,10 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 // import Firebase from '@react-native-firebase/app';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Auth from '@react-native-firebase/auth';
-import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import AuthNavigation from './AuthNavigation';
 import BottomTabNavigator from './BottomTabNavigation';
 import ClassroomContext from '../context/ClassroomContext';

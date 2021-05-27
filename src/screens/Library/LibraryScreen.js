@@ -6,14 +6,16 @@ import React, {
 } from 'react';
 import {
   StyleSheet, View, Alert, TouchableHighlight, Text, ScrollView, Animated,
-  useWindowDimensions, Image,
+  useWindowDimensions,
 } from 'react-native';
-import { SearchBar, Icon, Overlay } from 'react-native-elements';
+import { SearchBar, Icon } from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 // import Auth from '@react-native-firebase/auth';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
-import ClassroomContext from '../../navigation/ClassroomContext';
+import ClassroomContext from '../../context/ClassroomContext';
+import { fileTypes } from '../../components';
+import toPreview from './LibraryFunctions';
 
 const styles = StyleSheet.create({
   container: {
@@ -107,7 +109,7 @@ export default function LibraryScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
 
   // const { uid } = Auth().currentUser;
-  const [classFiles, setFiles] = useState({});
+  const [classFiles, setFiles] = useState([]);
   const [searchText, setSearch] = useState('');
   const [searchFiles, setSearchFiles] = useState({});
   const [loading, setLoading] = useState(false);
@@ -115,8 +117,6 @@ export default function LibraryScreen({ navigation }) {
   const [animatedHeight, setHeight] = useState('auto');
   const [searchRef, setRef] = useState();
   // const [filePath, setPath] = useState('');
-  const [file, setFile] = useState(null);
-  const [overlay, showOverlay] = useState(false);
 
   const {
     classroom: selectedClassroom,
@@ -225,17 +225,6 @@ export default function LibraryScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {overlay && (
-        <Overlay
-          children={file}
-          isVisible={overlay}
-          backdropStyle={{ backgroundColor: 'white', width: 100 }}
-          onBackdropPress={() => {
-            showOverlay(false);
-            setFile(null);
-          }}
-        />
-      )}
       <View style={styles.searchContainer}>
         <SearchBar
           lightTheme
@@ -268,7 +257,9 @@ export default function LibraryScreen({ navigation }) {
                 // their file name...?
                 <TouchableHighlight
                   underlayColor="#EEEEEE"
-                  onPress={() => {}}
+                  onPress={() => {
+                    toPreview(navigation, fileTypes.video, f);
+                  }}
                   style={styles.card}
                   key={f.getDownloadURL()}
                 >
@@ -293,16 +284,7 @@ export default function LibraryScreen({ navigation }) {
                     // f.getDownloadURL().then((url) => {
                     //   viewFile(url, f.name);
                     // });
-                    f.getDownloadURL().then((url) => {
-                      setFile(<Image
-                        style={{ width: '100%', height: '100%' }}
-                        source={{ uri: url }}
-                      />);
-                      showOverlay(true);
-                    })
-                      .catch((e) => {
-                        console.log(e.message);
-                      });
+                    toPreview(navigation, fileTypes.photo, f);
                   }}
                   style={styles.card}
                   key={f.getDownloadURL()}
@@ -324,7 +306,9 @@ export default function LibraryScreen({ navigation }) {
               {searchFiles.files.map((f) => (
                 <TouchableHighlight
                   underlayColor="#EEEEEE"
-                  onPress={() => {}}
+                  onPress={() => {
+                    toPreview(navigation, fileTypes.file, f);
+                  }}
                   style={styles.card}
                   key={f.getDownloadURL()}
                 >
@@ -359,7 +343,7 @@ export default function LibraryScreen({ navigation }) {
         <TouchableHighlight
           style={styles.subContainer}
           underlayColor="#EEEEEE"
-          onPress={() => toFiles('Videos')}
+          onPress={() => toFiles(fileTypes.video)}
         >
           <View style={styles.subCard}>
             <Icon
@@ -375,7 +359,7 @@ export default function LibraryScreen({ navigation }) {
         <TouchableHighlight
           style={styles.subContainer}
           underlayColor="#EEEEEE"
-          onPress={() => toFiles('Photos')}
+          onPress={() => toFiles(fileTypes.photo)}
         >
           <View style={styles.subCard}>
             <Icon
@@ -391,7 +375,7 @@ export default function LibraryScreen({ navigation }) {
         <TouchableHighlight
           style={styles.subContainer}
           underlayColor="#EEEEEE"
-          onPress={() => toFiles('Files')}
+          onPress={() => toFiles(fileTypes.file)}
         >
           <View style={styles.subCard}>
             <Icon
