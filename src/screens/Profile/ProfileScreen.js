@@ -106,6 +106,7 @@ export default function ProfileScreen({ navigation }) {
             setUserState(data);
             if (!data.instruments) return;
             const temp = data.instruments.map((instrument, index) => (
+              // eslint-disable-next-line react/no-array-index-key
               <Text key={index} style={[styles.subtextContainer, styles.instrumentTextContainer]}>
                 {' '}
                 {instrument}
@@ -150,8 +151,7 @@ export default function ProfileScreen({ navigation }) {
       <View style={styles.screenContainer}>
         <View style={[styles.parentCenter, styles.top]}>
           {/* <Text style={[styles.childCenter, styles.pageName]}>My Profile</Text> */}
-          {userState && userState.profilePic && userState.profilePic.length > 0 && 
-          <Image style={[styles.childCenter, styles.profilePicture]} source={{ uri: userState?.profilePic === '' ? 'no-pic' : userState.profilePic }} />}
+          <Image style={[styles.childCenter, styles.profilePicture]} source={{ uri: userState.profilePic === '' ? 'no-pic' : userState.profilePic }} />
           <View style={[styles.childCenter]}>
             <Text h4>{`${userState.firstName} ${userState.lastName}`}</Text>
           </View>

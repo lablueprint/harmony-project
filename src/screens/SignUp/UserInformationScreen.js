@@ -4,10 +4,8 @@ import {
 } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { Picker } from '@react-native-picker/picker';
-import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import Svg from 'react-native-svg';
-import Firestore from '@react-native-firebase/firestore';
 import SignInWave from '../SignIn/background.svg';
 
 const styles = StyleSheet.create({
@@ -223,6 +221,7 @@ export default function UserInformationScreen({ route, navigation }) {
     if (email.length === 0) {
       setEmailErr('*Invalid Email');
       error = true;
+    // eslint-disable-next-line max-len
     } /* else if (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(email.toLowerCase())) {
       setEmailErr('*Invalid Email');
       error = true;
@@ -405,7 +404,7 @@ export default function UserInformationScreen({ route, navigation }) {
               && !verifyGrade() && !verifyEmail() && !verifyPassword()
               && !verifyReenterPwd()) {
                 navigation.navigate('InstrumentSelection', {
-                  classCode
+                  classCode,
                   role,
                   email,
                   firstName,
@@ -432,7 +431,7 @@ export default function UserInformationScreen({ route, navigation }) {
   );
 }
 
-UserInformationScreen.navigationOptions = ({ navigation }) => ({
+UserInformationScreen.navigationOptions = () => ({
   title: 'Sign In',
   headerShown: true,
 });
