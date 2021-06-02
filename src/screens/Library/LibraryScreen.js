@@ -200,17 +200,18 @@ export default function LibraryScreen({ navigation }) {
   }, [searchText]);
 
   useEffect(() => {
+    const duration = 200;
     if (focus && !searchText) {
       setHeight(0);
       Animated.timing(slide, {
         toValue: window.height,
-        duration: 200,
+        duration,
         useNativeDriver: true,
       }).start();
     } else if (!searchText) {
       Animated.timing(slide, {
         toValue: 0,
-        duration: 100,
+        duration,
         useNativeDriver: true,
       }).start();
       setHeight('auto');
@@ -218,7 +219,7 @@ export default function LibraryScreen({ navigation }) {
   }, [focus]);
 
   function toFiles(fileType) {
-    return navigation.navigate('LibraryFiles', { fileType, classFiles });
+    return navigation.navigate('LibraryFiles', { fileType, classFiles, classroom: selectedClassroom });
   }
 
   if (initializing) return null;
@@ -258,7 +259,7 @@ export default function LibraryScreen({ navigation }) {
                 <TouchableHighlight
                   underlayColor="#EEEEEE"
                   onPress={() => {
-                    toPreview(navigation, fileTypes.video, f);
+                    toPreview(navigation, fileTypes.video, f, selectedClassroom);
                   }}
                   style={styles.card}
                   key={f.getDownloadURL()}
@@ -284,7 +285,7 @@ export default function LibraryScreen({ navigation }) {
                     // f.getDownloadURL().then((url) => {
                     //   viewFile(url, f.name);
                     // });
-                    toPreview(navigation, fileTypes.photo, f);
+                    toPreview(navigation, fileTypes.photo, f, selectedClassroom);
                   }}
                   style={styles.card}
                   key={f.getDownloadURL()}
@@ -307,7 +308,7 @@ export default function LibraryScreen({ navigation }) {
                 <TouchableHighlight
                   underlayColor="#EEEEEE"
                   onPress={() => {
-                    toPreview(navigation, fileTypes.file, f);
+                    toPreview(navigation, fileTypes.file, f, selectedClassroom);
                   }}
                   style={styles.card}
                   key={f.getDownloadURL()}

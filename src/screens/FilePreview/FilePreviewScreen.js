@@ -1,11 +1,15 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-console */
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState, useEffect, useRef, useContext,
+} from 'react';
 import {
   StyleSheet, View, Text, Image, Dimensions, Button,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Pdf from 'react-native-pdf';
 import Video from 'react-native-video';
+import ClassroomContext from '../../context/ClassroomContext';
 
 const styles = StyleSheet.create({
   container: {
@@ -16,12 +20,18 @@ const styles = StyleSheet.create({
 });
 
 export default function FilePreviewScreen({ navigation, route }) {
-  const { fileType, fileURL, fileName } = route.params; // fileType = 'Video', 'Photo', or 'File'
+  const {
+    fileType, fileURL, fileName, classroom,
+  } = route.params; // fileType = 'Video', 'Photo', or 'File'
   const [dimensions, setDimensions] = useState({ window });
 
   // video controls
   const [pause, setPause] = useState(false);
   const videoPlayer = useRef(null);
+
+  const {
+    classroom: selectedClassroom,
+  } = useContext(ClassroomContext);
 
   // window dimension checking
   const onChange = ({ window }) => {
@@ -33,7 +43,13 @@ export default function FilePreviewScreen({ navigation, route }) {
     return () => {
       Dimensions.removeEventListener('change', onChange);
     };
-  });
+  }, []);
+
+  useEffect(() => {
+    if (selectedClassroom !== classroom) {
+      navigation.navigate('Library');
+    }
+  }, [selectedClassroom]);
 
   if (fileType !== 'Video' && fileType !== 'Photo' && fileType !== 'File') {
     console.log('Invalid file type.');

@@ -1,12 +1,13 @@
 /* eslint-disable no-console */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   StyleSheet, ScrollView, View, Alert, TouchableHighlight, Text,
 } from 'react-native';
 import { SearchBar, Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import toPreview from './LibraryFunctions';
+import ClassroomContext from '../../context/ClassroomContext';
 
 const styles = StyleSheet.create({
   container: {
@@ -90,7 +91,9 @@ const styles = StyleSheet.create({
 });
 
 export default function LibraryFilesScreen({ navigation, route }) {
-  const { fileType, classFiles } = route.params; // fileType = 'Video', 'Photo', or 'File'
+  const {
+    fileType, classFiles, classroom,
+  } = route.params; // fileType = 'Video', 'Photo', or 'File'
   const [searchText, setSearch] = useState('');
   const [searchFiles, setSearchFiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -99,6 +102,10 @@ export default function LibraryFilesScreen({ navigation, route }) {
     name: classFiles.name,
     files: classFiles[`${fileType.toLowerCase()}s`],
   };
+
+  const {
+    classroom: selectedClassroom,
+  } = useContext(ClassroomContext);
 
   // search function
   useEffect(() => {
@@ -116,6 +123,12 @@ export default function LibraryFilesScreen({ navigation, route }) {
       setSearchFiles([]);
     }
   }, [searchText]);
+
+  useEffect(() => {
+    if (selectedClassroom !== classroom) {
+      navigation.navigate('Library');
+    }
+  }, [selectedClassroom]);
 
   if (!fileType) {
     Alert.alert('Error: No file type specified to display!');
@@ -152,7 +165,7 @@ export default function LibraryFilesScreen({ navigation, route }) {
                     // f.getDownloadURL().then((url) => {
                     //   viewFile(url, f.name);
                     // });
-                    toPreview(navigation, fileType, f);
+                    toPreview(navigation, fileType, f, selectedClassroom);
                   }}
                   style={styles.card}
                   key={f.name}
@@ -187,7 +200,7 @@ export default function LibraryFilesScreen({ navigation, route }) {
                 // f.getDownloadURL().then((url) => {
                 //   viewFile(url, f.name);
                 // });
-                toPreview(navigation, fileType, f);
+                toPreview(navigation, fileType, f, selectedClassroom);
               }}
               style={styles.card}
               key={f.name}
