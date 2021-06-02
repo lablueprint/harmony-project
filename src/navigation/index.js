@@ -1,12 +1,12 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
-// import Firebase from '@react-native-firebase/app';
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Auth from '@react-native-firebase/auth';
 import AuthNavigation from './AuthNavigation';
 import BottomTabNavigator from './BottomTabNavigation';
-import ClassroomContext from '../context/ClassroomContext';
+import { ClassroomContext, HeaderContext } from '../context';
 import ClassroomSelector from '../components/ClassroomSelector';
 
 const AppContainer = () => {
@@ -16,6 +16,7 @@ const AppContainer = () => {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
   const [classroom, setClassroom] = useState('');
+  const [animate, setAnimate] = useState('');
 
   // Handle user state changes
   function onAuthStateChanged(authUser) {
@@ -46,31 +47,30 @@ const AppContainer = () => {
 
   return (
     <ClassroomContext.Provider value={{ classroom, setClassroom }}>
-      <NavigationContainer>
-        <Root.Navigator screenOptions={{ headerMode: 'screen' }}>
-          {user
-            ? (
-              <Root.Screen
-                name="MainApp"
-                component={BottomTabNavigator}
-                options={({ route }) => ({
-                  headerMode: 'screen',
-                  header: () => getFocusedRouteNameFromRoute(route) !== 'Profile' && <ClassroomSelector />,
-                  headerStyle: {
-                    height: 130, // Specify the height of your custom header
-                  },
-                })}
-              />
-            )
-            : (
-              <Root.Screen
-                name="AuthStack"
-                component={AuthNavigation}
-                options={{ title: '' }}
-              />
-            )}
-        </Root.Navigator>
-      </NavigationContainer>
+      <HeaderContext.Provider value={{ animate, setAnimate }}>
+        <NavigationContainer>
+          <Root.Navigator screenOptions={{ headerMode: 'screen' }}>
+            {user
+              ? (
+                <Root.Screen
+                  name="MainApp"
+                  component={BottomTabNavigator}
+                  options={({ route }) => ({
+                    headerMode: 'float',
+                    header: ({ scene }) => getFocusedRouteNameFromRoute(route) !== 'Profile' && <ClassroomSelector scene={scene} />,
+                  })}
+                />
+              )
+              : (
+                <Root.Screen
+                  name="AuthStack"
+                  component={AuthNavigation}
+                  options={{ title: '' }}
+                />
+              )}
+          </Root.Navigator>
+        </NavigationContainer>
+      </HeaderContext.Provider>
     </ClassroomContext.Provider>
   );
 };
