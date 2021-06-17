@@ -6,6 +6,8 @@ import { Button, Input, CheckBox } from 'react-native-elements';
 import { Picker } from '@react-native-picker/picker';
 import PropTypes from 'prop-types';
 import Svg from 'react-native-svg';
+import Auth from '@react-native-firebase/auth';
+import Firestore from '@react-native-firebase/firestore';
 import SignInWave from '../SignIn/background.svg';
 import DatePicker from '../../components/DatePicker';
 import SignUpScreen from './SignUpScreen';
@@ -312,58 +314,10 @@ export default function UserInformationScreen({ route, navigation }) {
     return error;
   }
 
-  async function createUser(uid) {
-    Firestore().collection('classrooms').where('id', '==', classCode)
-      .then((doc) => {
-        if (doc) {
-          console.log('classroom documents');
-          console.log(doc);
-          Firestore().collection('users').doc(uid).set({
-            role,
-            createdAt: Firestore.Timestamp.now(),
-            updatedAt: Firestore.Timestamp.now(),
-            email,
-            firstName,
-            lastName,
-            profilePic: 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cmFiYml0fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80',
-            hpID: studentID,
-            gradeLevel,
-            dob,
-            instruments: selectedInstr,
-          })
-            .then((userDoc) => {
-              if (role === 'Student') {
-                Firestore().collection('classrooms').doc(classCode)
-                  .update({
-                    studentIDs: Firestore.FieldValue.arrayUnion(userDoc.id),
-                  });
-              } else {
-                Firestore().collection('classrooms').doc(classCode)
-                  .update({
-                    teacherIDs: Firestore.FieldValue.arrayUnion(userDoc.id),
-                  });
-              }
-            })
-            .then(() => {
-              navigation.navigate('SignIn');
-            });
-        }
-      });
-  }
-
-  const signup = async () => {
+  async function signup() {
     Auth().createUserWithEmailAndPassword(email, password)
-      .then(async (user) => {
-        if (user) {
-          await createUser(user.uid);
-          console.log('user successfully created!!');
-          console.log(user);
-          user.sendEmailVerification();
-        }
-      })
       .catch((e) => {
         const errorCode = e.code;
-        console.warn('Error code!!');
         console.warn(errorCode);
         if (errorCode === 'auth/email-already-in-use') {
           setEmailErr('*Email already in use');
@@ -373,7 +327,49 @@ export default function UserInformationScreen({ route, navigation }) {
           setPasswordErr('*Weak Password');
         }
       });
-  };
+  }
+
+  async function createUser() {
+    Auth().signInAnonymously().then((user) => {
+      if (user) {
+        Firestore().collection('users').add({
+          role,
+          createdAt: Firestore.Timestamp.now(),
+          updatedAt: Firestore.Timestamp.now(),
+          email,
+          firstName,
+          lastName,
+          profilePic: 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cmFiYml0fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80',
+          hpID: studentID,
+          gradeLevel,
+          dob,
+          instruments: selectedInstr,
+        })
+          .then((userDoc) => {
+            if (role === 'Student') {
+              Firestore().collection('classrooms').doc(classCode)
+                .update({
+                  studentIDs: Firestore.FieldValue.arrayUnion(userDoc.id),
+                });
+            } else {
+              Firestore().collection('classrooms').doc(classCode)
+                .update({
+                  teacherIDs: Firestore.FieldValue.arrayUnion(userDoc.id),
+                });
+            }
+            return userDoc.id;
+          })
+          .then(() => {
+            signup();
+          });
+
+        // Delete anonymous user after fetching instruments from Firestore
+        Auth().currentUser.delete();
+      }
+    }).catch((e) => {
+      console.warn(e);
+    });
+  }
 
   return (
     <View style={styles.screen}>
@@ -571,7 +567,7 @@ export default function UserInformationScreen({ route, navigation }) {
               if (!verifyFirstName() && !verifyLastName() && !verifyStudentID()
               && !verifyGrade() && !verifyEmail() && !verifyPassword()
               && !verifyReenterPwd()) {
-                signup();
+                createUser();
               }
             }}
           />
