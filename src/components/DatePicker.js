@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
   labelStyles: {
     color: '#828282',
     fontWeight: 'bold',
-    marginLeft: 10
+    marginLeft: 10,
   },
   unitStyles: {
     color: '#BDBDBD',
@@ -50,11 +50,14 @@ export default function DatePicker({
   for (let i = 1; i <= 31; ++i) {
     pickerDays.push(i);
   }
-  const pickerMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const pickerMonths = [];
+  for (let i = 1; i <= 12; i++) {
+    pickerMonths.push(i);
+  }
+
   const pickerYears = [];
-  const d = new Date();
-  const currentYear = d.getFullYear();
-  console.log(currentYear);
+  const temp = new Date();
+  const currentYear = temp.getFullYear();
   for (let i = currentYear; i >= 1920; i--) {
     pickerYears.push(i);
   }
@@ -108,7 +111,7 @@ export default function DatePicker({
           }}
         >
           <Picker.Item key={13} label="Month" value={-1} color="#828282" />
-          {pickerMonths.map((i, index) => (<Picker.Item key={i} label={i} value={index + 1} />))}
+          {pickerMonths.map((i, index) => (<Picker.Item key={i} label={`${i}`} value={index + 1} />))}
         </Picker>
 
         <Picker

@@ -10,6 +10,7 @@ import Svg from 'react-native-svg';
 import Firestore from '@react-native-firebase/firestore';
 import SignInWave from '../SignIn/background.svg';
 import DatePicker from '../../components/DatePicker';
+import SignUpScreen from './SignUpScreen';
 
 const styles = StyleSheet.create({
   screen: {
@@ -312,6 +313,69 @@ export default function UserInformationScreen({ route, navigation }) {
     return error;
   }
 
+  async function createUser(uid) {
+    Firestore().collection('classrooms').where('id', '==', classCode)
+      .then((doc) => {
+        if (doc) {
+          console.log('classroom documents');
+          console.log(doc);
+          Firestore().collection('users').doc(uid).set({
+            role,
+            createdAt: Firestore.Timestamp.now(),
+            updatedAt: Firestore.Timestamp.now(),
+            email,
+            firstName,
+            lastName,
+            profilePic: 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cmFiYml0fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80',
+            hpID: studentID,
+            gradeLevel,
+            dob,
+            instruments: selectedInstr,
+          })
+            .then((userDoc) => {
+              if (role === 'Student') {
+                Firestore().collection('classrooms').doc(classCode)
+                  .update({
+                    studentIDs: Firestore.FieldValue.arrayUnion(userDoc.id),
+                  });
+              } else {
+                Firestore().collection('classrooms').doc(classCode)
+                  .update({
+                    teacherIDs: Firestore.FieldValue.arrayUnion(userDoc.id),
+                  });
+              }
+            })
+            .then(() => {
+              navigation.navigate('SignIn');
+            });
+        }
+      });
+  }
+
+  const signup = async () => {
+    Auth().createUserWithEmailAndPassword(email, password)
+      .then(async (user) => {
+        if (user) {
+          await createUser(user.uid);
+          console.log('user successfully created!!');
+          console.log(user);
+          user.sendEmailVerification();
+        }
+      })
+      .catch((e) => {
+        const errorCode = e.code;
+        console.warn('Error code!!');
+        console.warn(errorCode);
+        if (errorCode === 'auth/email-already-in-use') {
+          setEmailErr('*Email already in use');
+        } else if (errorCode === 'auth/invalid-email') {
+          setEmailErr('*Invalid email');
+        } else if (errorCode === 'auth/weak-password') {
+          setPasswordErr('*Weak Password');
+        }
+      });
+  };
+
   return (
     <View style={styles.screen}>
       <View style={styles.wavyBanner}>
@@ -508,17 +572,7 @@ export default function UserInformationScreen({ route, navigation }) {
               if (!verifyFirstName() && !verifyLastName() && !verifyStudentID()
               && !verifyGrade() && !verifyEmail() && !verifyPassword()
               && !verifyReenterPwd()) {
-                navigation.navigate('InstrumentSelection', {
-                  classCode,
-                  role,
-                  email,
-                  firstName,
-                  lastName,
-                  profilePic: '',
-                  studentID,
-                  gradeLevel,
-                  dob,
-                });
+                signup();
               }
             }}
           />

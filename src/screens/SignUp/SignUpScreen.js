@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet, View, Text,
 } from 'react-native';
@@ -62,6 +62,13 @@ const styles = StyleSheet.create({
 export default function SignUpScreen({ navigation }) {
   const [role, setRole] = useState('Student');
   const [askClassCode, setAskClassCode] = useState(false);
+  const [classCode, setClassCode] = useState('');
+
+  useEffect(() => {
+    if (classCode !== '') {
+      navigation.navigate('UserInformation', { classCode, role });
+    }
+  }, [classCode, navigation, role]);
 
   return (
     <View style={styles.screen}>
@@ -77,6 +84,7 @@ export default function SignUpScreen({ navigation }) {
           role={role}
           doDisplay={askClassCode}
           setDoDisplay={setAskClassCode}
+          setClassCode={setClassCode}
         />
       )}
       <Button

@@ -148,8 +148,8 @@ export default function ProfileScreen({ navigation }) {
         style={styles.banner}
       />
       <View style={styles.screenContainer}>
-        <View style={[styles.parentCenter, styles.top]}>
-          {/* <Text style={[styles.childCenter, styles.pageName]}>My Profile</Text> */}
+        {/* <View style={[styles.parentCenter, styles.top]}>
+          <Text style={[styles.childCenter, styles.pageName]}>My Profile</Text>
           <Image style={[styles.childCenter, styles.profilePicture]} source={{ uri: userState.profilePic === '' ? 'no-pic' : userState.profilePic }} />
           <View style={[styles.childCenter]}>
             <Text h4>{`${userState.firstName} ${userState.lastName}`}</Text>
@@ -158,7 +158,7 @@ export default function ProfileScreen({ navigation }) {
             <Text style={[styles.subtextContainer]}>Student</Text>
             <Text style={[styles.subtextContainer, styles.gradeLevelContainer]}>{`Grade ${userState.gradeLevel}`}</Text>
           </View>
-        </View>
+        </View> */}
       </View>
       <View style={styles.bottom}>
         <ListItem

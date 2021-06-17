@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
 });
 
 export default function EnterClassCode({
-  navigation, role, doDisplay, setDoDisplay,
+  doDisplay, setDoDisplay, setClassCode,
 }) {
   let classCode = '';
 
@@ -34,24 +34,20 @@ export default function EnterClassCode({
             .then((doc) => {
               if (doc.exists) {
                 setDoDisplay(false);
-                navigation.navigate('UserInformation', { classCode, role });
+                setClassCode(classCode);
               } else {
+                setShowLoading(false);
                 setClassCodeErr('*Invalid classroom code');
               }
             })
-            .then(() => setShowLoading(false))
             .catch((e) => {
-              console.warn(e.message);
-              setShowLoading(false);
+              console.warn(e);
             });
-
-          // Delete anonymous user after fetching instruments from Firestore
-          Auth().currentUser.delete();
         }
-      }).catch((e) => {
-        console.warn(e.message);
-        setShowLoading(false);
-      });
+      })
+        .catch((e) => {
+          console.warn(e);
+        });
     }
   }
   return (
@@ -117,7 +113,7 @@ EnterClassCode.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
   }).isRequired,
-  role: PropTypes.string.isRequired,
   doDisplay: PropTypes.bool.isRequired,
   setDoDisplay: PropTypes.func.isRequired,
+  setClassCode: PropTypes.func.isRequired,
 };
