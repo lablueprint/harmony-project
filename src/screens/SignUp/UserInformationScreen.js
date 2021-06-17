@@ -10,7 +10,6 @@ import Auth from '@react-native-firebase/auth';
 import Firestore from '@react-native-firebase/firestore';
 import SignInWave from '../SignIn/background.svg';
 import DatePicker from '../../components/DatePicker';
-import SignUpScreen from './SignUpScreen';
 
 const styles = StyleSheet.create({
   screen: {
@@ -314,8 +313,41 @@ export default function UserInformationScreen({ route, navigation }) {
     return error;
   }
 
-  async function signup() {
+  const onRegister = async () => {
     Auth().createUserWithEmailAndPassword(email, password)
+      .then((credential) => {
+        console.log(credential);
+        const { uid } = credential.user;
+        console.log(uid);
+        if (credential !== undefined && uid !== undefined) {
+          console.log('uid', uid);
+          const user = {
+            role,
+            createdAt: Firestore.Timestamp.now(),
+            updatedAt: Firestore.Timestamp.now(),
+            email,
+            firstName,
+            lastName,
+            profilePic: 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cmFiYml0fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80',
+            hpID: studentID,
+            gradeLevel,
+            dob,
+            instruments: selectedInstr,
+          };
+          Firestore().collection('users').doc(uid).set(user);
+          if (role === 'Student') {
+            Firestore().collection('classrooms').doc(classCode)
+              .update({
+                studentIDs: Firestore.FieldValue.arrayUnion(uid),
+              });
+          } else {
+            Firestore().collection('classrooms').doc(classCode)
+              .update({
+                teacherIDs: Firestore.FieldValue.arrayUnion(uid),
+              });
+          }
+        }
+      })
       .catch((e) => {
         const errorCode = e.code;
         console.warn(errorCode);
@@ -327,12 +359,12 @@ export default function UserInformationScreen({ route, navigation }) {
           setPasswordErr('*Weak Password');
         }
       });
-  }
+  };
 
-  async function createUser() {
+  async function createUser(uid) {
     Auth().signInAnonymously().then((user) => {
       if (user) {
-        Firestore().collection('users').add({
+        Firestore().collection('users').doc(uid).set({
           role,
           createdAt: Firestore.Timestamp.now(),
           updatedAt: Firestore.Timestamp.now(),
@@ -358,9 +390,6 @@ export default function UserInformationScreen({ route, navigation }) {
                 });
             }
             return userDoc.id;
-          })
-          .then(() => {
-            signup();
           });
 
         // Delete anonymous user after fetching instruments from Firestore
@@ -369,6 +398,27 @@ export default function UserInformationScreen({ route, navigation }) {
     }).catch((e) => {
       console.warn(e);
     });
+  }
+
+  async function signup() {
+    Auth().createUserWithEmailAndPassword(email, password)
+      .then((user) => {
+        const { uid } = user;
+        if (uid) {
+          createUser(uid);
+        }
+      })
+      .catch((e) => {
+        const errorCode = e.code;
+        console.warn(errorCode);
+        if (errorCode === 'auth/email-already-in-use') {
+          setEmailErr('*Email already in use');
+        } else if (errorCode === 'auth/invalid-email') {
+          setEmailErr('*Invalid email');
+        } else if (errorCode === 'auth/weak-password') {
+          setPasswordErr('*Weak Password');
+        }
+      });
   }
 
   return (
@@ -567,7 +617,7 @@ export default function UserInformationScreen({ route, navigation }) {
               if (!verifyFirstName() && !verifyLastName() && !verifyStudentID()
               && !verifyGrade() && !verifyEmail() && !verifyPassword()
               && !verifyReenterPwd()) {
-                createUser();
+                onRegister();
               }
             }}
           />
