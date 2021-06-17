@@ -4,18 +4,46 @@ import React, {
   useState, useEffect, useRef, useContext,
 } from 'react';
 import {
-  StyleSheet, View, Text, Image, Dimensions, Button,
+  StyleSheet, View, Text, Image, Dimensions,
 } from 'react-native';
+import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import Pdf from 'react-native-pdf';
 import Video from 'react-native-video';
 import ClassroomContext from '../../context/ClassroomContext';
+import { fileTypes } from '../../components';
 
 const styles = StyleSheet.create({
   container: {
     marginBottom: 10,
     backgroundColor: '#F6F6F6',
     height: '100%',
+  },
+  headerContainer: {
+    height: 50,
+    width: '100%',
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 2,
+    borderColor: '#BDBDBD',
+    paddingTop: 15,
+    paddingHorizontal: 20,
+    paddingBottom: 45, // scuffed????
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'column',
+    position: 'relative',
+  },
+  headerText: {
+    width: '70%',
+    textAlign: 'center',
+    fontFamily: 'Inter-Bold',
+    fontSize: 20,
+  },
+  backButton: {
+    position: 'absolute',
+    left: 20,
+    top: 15,
+    width: 20,
   },
 });
 
@@ -51,7 +79,7 @@ export default function FilePreviewScreen({ navigation, route }) {
     }
   }, [selectedClassroom]);
 
-  if (fileType !== 'Video' && fileType !== 'Photo' && fileType !== 'File') {
+  if (fileType !== fileTypes.video && fileType !== fileTypes.photo && fileType !== fileTypes.file) {
     console.log('Invalid file type.');
     console.log(`Filetype = ${fileType}`);
     return null;
@@ -59,10 +87,19 @@ export default function FilePreviewScreen({ navigation, route }) {
 
   return (
     <View style={styles.container}>
-      <Text>
-        {fileName}
-      </Text>
-      {fileType === 'Video' && (
+      <View style={styles.headerContainer}>
+        <View style={styles.backButton}>
+          <Icon
+            name="arrow-left"
+            type="feather"
+            onPress={() => navigation.goBack()}
+          />
+        </View>
+        <Text style={styles.headerText} numberOfLines={1}>
+          {fileName}
+        </Text>
+      </View>
+      {fileType === fileTypes.video && (
       <Video
         source={{ uri: fileURL }}
         style={{
@@ -76,13 +113,16 @@ export default function FilePreviewScreen({ navigation, route }) {
         onSeek={() => { setPause(!pause); }}
       />
       )}
-      {fileType === 'Photo' && (
-      <Image
-        style={{ width: '100%', height: '100%' }}
-        source={{ uri: fileURL }}
-      />
+      {fileType === fileTypes.photo && (
+      <View style={{ flex: 1 }}>
+        <Image
+          resizeMode="contain"
+          style={{ width: 'auto', height: '100%' }}
+          source={{ uri: fileURL }}
+        />
+      </View>
       )}
-      {fileType === 'File' && (
+      {fileType === fileTypes.file && (
       <Pdf
         style={{
           // intentionally use inline styles in the case of window resizing
@@ -96,7 +136,6 @@ export default function FilePreviewScreen({ navigation, route }) {
         }}
       />
       )}
-      <Button title="Back" onPress={() => navigation.goBack()} />
     </View>
   );
 }

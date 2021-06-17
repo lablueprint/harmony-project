@@ -57,7 +57,7 @@ const AppContainer = () => {
                   headerMode: 'screen',
                   header: () => getFocusedRouteNameFromRoute(route) !== 'Profile' && <ClassroomSelector />,
                   headerStyle: {
-                    height: 130, // Specify the height of your custom header
+                    height: 135, // Specify the height of your custom header
                   },
                 })}
               />
