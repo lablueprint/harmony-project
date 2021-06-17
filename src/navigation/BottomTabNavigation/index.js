@@ -2,9 +2,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
-import AssignmentListScreen from '../screens/AssignmentList/AssignmentListScreen';
-import ProfileScreen from '../screens/Profile';
-import MainStackNavigator from './StackNavigation';
+import BulletinStackNavigator from './BulletinStackNavigator';
+import ToDoStackNavigator from './ToDoStackNavigator';
+import NotificationStackNavigator from './NotificationStackNavigator';
+import LibraryStackNavigator from './LibraryStackNavigator';
+import ProfileStackNavigator from './ProfileStackNavigator';
 
 /* These are wrapper functions that are used to display bottom tab icons
 These needed to be abstracted in order to properly validate the props
@@ -21,35 +23,29 @@ const NotificationIcon = ({ color }) => (
   <Icon name="bell" type="feather" color={color} size={25} />
 );
 
+const LibraryIcon = ({ color }) => (
+  <Icon name="folder" type="feather" color={color} size={25} />
+);
+
 const ProfileIcon = ({ color }) => (
   <Icon name="user" type="feather" color={color} size={25} />
 );
 
-/* Function is just here to route to an empty screen since notification
-screen is currently not made and the navigator breaksdown without something
-present.
-*/
-function blankScreen() {
-  return (
-    null
-  );
-}
-
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => (
-  <Tab.Navigator>
+  <Tab.Navigator screenOptions={{ headerShown: false }}>
     <Tab.Screen
       name="Bulletin"
-      component={MainStackNavigator}
+      component={BulletinStackNavigator}
       options={{
         tabBarIcon: HomeIcon,
       }}
     />
 
     <Tab.Screen
-      name="To-do"
-      component={AssignmentListScreen}
+      name="Todo"
+      component={ToDoStackNavigator}
       options={{
         tabBarIcon: TodoIcon,
       }}
@@ -57,17 +53,26 @@ const BottomTabNavigator = () => (
 
     <Tab.Screen
       name="Notifications"
-      component={blankScreen}
+      component={NotificationStackNavigator}
       options={{
         tabBarIcon: NotificationIcon,
       }}
     />
 
     <Tab.Screen
+      name="Library"
+      component={LibraryStackNavigator}
+      options={{
+        tabBarIcon: LibraryIcon,
+      }}
+    />
+
+    <Tab.Screen
       name="Profile"
-      component={ProfileScreen}
+      component={ProfileStackNavigator}
       options={{
         tabBarIcon: ProfileIcon,
+        header: null,
       }}
     />
   </Tab.Navigator>
@@ -83,6 +88,10 @@ TodoIcon.propTypes = {
 };
 
 NotificationIcon.propTypes = {
+  color: PropTypes.string.isRequired,
+};
+
+LibraryIcon.propTypes = {
   color: PropTypes.string.isRequired,
 };
 

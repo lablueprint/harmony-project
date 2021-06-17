@@ -1,13 +1,21 @@
 import { ScrollView } from 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import {
-  Text, View, StyleSheet,
+  View, StyleSheet,
 } from 'react-native';
+import { Button } from 'react-native-elements';
 import { List } from 'react-native-paper';
 import Firestore from '@react-native-firebase/firestore';
 import PropTypes from 'prop-types';
+import Firebase from '@react-native-firebase/app';
 
 const styles = StyleSheet.create({
+  accordion: {
+    backgroundColor: 'white',
+    height: 65,
+    margin: 5,
+    marginBottom: 6,
+  },
   container: {
     flex: 1,
     paddingBottom: 8,
@@ -16,37 +24,55 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   name: {
-    paddingRight: 20,
-    paddingBottom: 8,
+    padding: 12,
+    fontFamily: 'Helvetica',
+    backgroundColor: 'white',
+    width: 335,
+    borderRadius: 15,
   },
   missing: {
-    paddingRight: 15,
-    paddingBottom: 8,
+    padding: 12,
+    fontFamily: 'Helvetica',
+    backgroundColor: 'white',
+    width: '90%',
     color: 'red',
   },
+  buttonText_3: {
+    color: '#8e4f97',
+    fontSize: 16,
+    fontWeight: '500',
+  },
   evaluate: {
-    paddingRight: 15,
-    paddingBottom: 8,
+    padding: 12,
+    fontFamily: 'Helvetica',
+    backgroundColor: 'white',
+    width: '90%',
     color: 'blue',
   },
   header: {
-    paddingLeft: 20,
-    paddingTop: 20,
+    padding: 12,
+    fontFamily: 'Helvetica',
+    backgroundColor: 'white',
+    width: '90%',
     color: 'blue',
   },
 
 });
 
-export default function SubmissionsList({ navigation }) {
+export default function SubmissionsList({ route, navigation }) {
   // const [errorMessage, setErrorMessage] = useState(null);
   const [assignmentID, setAssignmentID] = useState(null);
   const [classroomID, setClassroomID] = useState(null);
+  const { teacherID } = Firebase.auth().currentUser.uid;
   // const [initializing, setInitializing] = useState(true);
+  // TODO: refactor all this to just use the original submission object
   const [studentIDsList, setStudentIDsList] = useState([]);
   const [studentNames, setStudentNames] = useState([]);
   const [submissionIDs, setSubmissionIDs] = useState([]);
   const [submissionFeedback, setSubmissionFeedback] = useState([]);
+  const [submissionAttachments, setSubmissionAttachments] = useState([]);
   const [studentsList, setStudentList] = useState([]);
+  // using this as a hacky obj array in the meantime
   const [displayMissing, setDisplayMissing] = useState([]);
   const [displaySubmitted, setDisplaySubmitted] = useState([]);
   const [displayEvaluated, setDisplayEvaluated] = useState([]);
@@ -57,8 +83,8 @@ export default function SubmissionsList({ navigation }) {
   const [finished3, setFinished3] = useState(false);
   const [finished4, setFinished4] = useState(false);
 
-  const a = navigation.getParam('assignment', null);
-  const c = navigation.getParam('classroom', null);
+  const { a, c } = route.params;
+
   const [expanded, setExpanded] = useState(false);
   const [expanded1, setExpanded1] = useState(false);
   const [expanded2, setExpanded2] = useState(false);
@@ -151,7 +177,9 @@ export default function SubmissionsList({ navigation }) {
                 if (doc) {
                   const data = doc.data();
                   // eslint-disable-next-line no-shadow
-                  setSubmissionIDs((submissionIDs) => [...submissionIDs, doc.id]);
+                  setSubmissionAttachments((submissionAttachments) => [...submissionAttachments,
+                    data.attachment]);
+                  setSubmissionIDs((submissionIDs1) => [...submissionIDs1, doc.id]);
                   setSubmissionFeedback(
                     // eslint-disable-next-line no-shadow
                     (submissionFeedback) => [...submissionFeedback, data.hasReceivedFeedback],
@@ -176,7 +204,9 @@ export default function SubmissionsList({ navigation }) {
     console.log('six');
 
     const zipping = async () => {
-      const zipped = studentNames.map((x, i) => [x, submissionIDs[i], submissionFeedback[i]]);
+      // hacky, needs reworking
+      const zipped = studentNames.map((x, i) => [x, submissionIDs[i],
+        submissionFeedback[i], studentIDsList[i], submissionAttachments[i]]);
       console.log(zipped);
       setStudentList(zipped);
       return true;
@@ -195,15 +225,12 @@ export default function SubmissionsList({ navigation }) {
     console.log('seven');
     const missing = studentsList.filter((e) => e[1] === null);
     setDisplayMissing(missing.map((obj) => {
-      const submission = obj[1];
+      // const submission = obj[1];
       const name = obj[0];
       return (
         <View style={styles.container}>
 
-          <Text style={styles.name}>{name}</Text>
-          {submission === null
-            ? <Text style={styles.missing}>Not Submitted</Text>
-            : []}
+          <Button title={name} titleStyle={styles.buttonText_3} buttonStyle={styles.name} />
 
         </View>
       );
@@ -211,26 +238,29 @@ export default function SubmissionsList({ navigation }) {
 
     const submitted = studentsList.filter((e) => (e[1] !== null && !e[2]));
     setDisplaySubmitted(submitted.map((obj) => {
-      const submission = obj[1];
+      // ..this needs to be rewritten
+      const submissionID = obj[1];
       const name = obj[0];
-      const evaluated = obj[2];
+      // const evaluated = obj[2];
+      const studentID = obj[3];
+      const attachment = obj[4];
+      // const evaluated = obj[2];
       return (
         <View style={styles.container}>
 
-          <Text style={styles.name}>{name}</Text>
-
-          {(submission !== null && !evaluated)
-            ? (
-              <Text
-                style={styles.evaluate}
-                onPress={() => {
-                  navigation.navigate('CreateEvaluation', { submissionID: submission });
-                }}
-              >
-                Evaluate Assignment
-
-              </Text>
-            ) : []}
+          {/* {(submission !== null && !evaluated)
+            ? ( */}
+          <Button
+            title={`Leave Feedback For : ${name}`}
+            titleStyle={styles.buttonText_3}
+            buttonStyle={styles.name}
+            onPress={() => {
+              navigation.navigate('Evaluation', {
+                submissionID, teacherID, studentID, attachment,
+              });
+            }}
+          />
+          {/* // ) : []} */}
 
         </View>
       );
@@ -238,30 +268,25 @@ export default function SubmissionsList({ navigation }) {
 
     const evaluated = studentsList.filter((e) => (e[1] !== null && e[2]));
     setDisplayEvaluated(evaluated.map((obj) => {
-      const submission = obj[1];
       const name = obj[0];
-      const e = obj[2];
+
       return (
         <View style={styles.container}>
 
-          <Text style={styles.name}>{name}</Text>
+          <Button title={name} titleStyle={styles.buttonText_3} buttonStyle={styles.name} />
 
-          {(submission !== null && e)
-            ? (
-              // TODO: take teacher to a screen with the evaluation found via the given submissionID
-              <Text>Student has submitted assignment</Text>
-            ) : []}
         </View>
       );
     }));
-  }, [navigation, finished4]);
+  }, [navigation, finished4, studentsList, teacherID]);
 
   return (
     <View>
       <ScrollView>
         <List.Section>
           <List.Accordion
-            title="Students Missing Assignments"
+            style={styles.accordion}
+            title="Students Missing Submission"
             left={() => <List.Icon icon="alert-circle" />}
             expanded={expanded}
             onPress={handlePress}
@@ -269,6 +294,7 @@ export default function SubmissionsList({ navigation }) {
             {displayMissing}
           </List.Accordion>
           <List.Accordion
+            style={styles.accordion}
             title="Students To Evaluate"
             left={() => <List.Icon icon="clipboard-check-multiple-outline" />}
             expanded={expanded1}
@@ -277,6 +303,7 @@ export default function SubmissionsList({ navigation }) {
             {displaySubmitted}
           </List.Accordion>
           <List.Accordion
+            style={styles.accordion}
             title="Students Evaluated"
             left={() => <List.Icon icon="clipboard-check-multiple" />}
             expanded={expanded2}
@@ -295,5 +322,8 @@ SubmissionsList.propTypes = {
   navigation: PropTypes.shape({
     getParam: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
+  }).isRequired,
+  route: PropTypes.shape({
+    params: PropTypes.func.isRequired,
   }).isRequired,
 };

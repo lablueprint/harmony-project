@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 // eslint-disable-next-line import/no-unresolved
-import CheckBox from '@react-native-community/checkbox';
+import { CheckBox } from 'react-native-elements';
 import { Calendar } from 'react-native-calendars';
 import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
@@ -196,9 +196,9 @@ export default function CreateClassroomScreen({ navigation }) {
           <Text>Meet days:</Text>
           <View style={styles.checklist}>
             <CheckBox
-              value={dayToggle.mon}
-              onValueChange={(value) => {
-                setDays({ ...dayToggle, mon: value });
+              checked={dayToggle.mon}
+              onPress={() => {
+                setDays({ ...dayToggle, mon: !dayToggle.mon });
               }}
             />
             <TouchableHighlight
@@ -212,9 +212,9 @@ export default function CreateClassroomScreen({ navigation }) {
           </View>
           <View style={styles.checklist}>
             <CheckBox
-              value={dayToggle.tues}
-              onValueChange={(value) => {
-                setDays({ ...dayToggle, tues: value });
+              checked={dayToggle.tues}
+              onPress={() => {
+                setDays({ ...dayToggle, tues: !dayToggle.tues });
               }}
             />
             <TouchableHighlight
@@ -228,9 +228,9 @@ export default function CreateClassroomScreen({ navigation }) {
           </View>
           <View style={styles.checklist}>
             <CheckBox
-              value={dayToggle.wed}
-              onValueChange={(value) => {
-                setDays({ ...dayToggle, wed: value });
+              checked={dayToggle.wed}
+              onPress={() => {
+                setDays({ ...dayToggle, wed: !dayToggle.wed });
               }}
             />
             <TouchableHighlight
@@ -244,9 +244,9 @@ export default function CreateClassroomScreen({ navigation }) {
           </View>
           <View style={styles.checklist}>
             <CheckBox
-              value={dayToggle.thurs}
-              onValueChange={(value) => {
-                setDays({ ...dayToggle, thurs: value });
+              checked={dayToggle.thurs}
+              onPress={() => {
+                setDays({ ...dayToggle, thurs: !dayToggle.thurs });
               }}
             />
             <TouchableHighlight
@@ -260,9 +260,9 @@ export default function CreateClassroomScreen({ navigation }) {
           </View>
           <View style={styles.checklist}>
             <CheckBox
-              value={dayToggle.fri}
-              onValueChange={(value) => {
-                setDays({ ...dayToggle, fri: value });
+              checked={dayToggle.fri}
+              onPress={() => {
+                setDays({ ...dayToggle, fri: !dayToggle.fri });
               }}
             />
             <TouchableHighlight

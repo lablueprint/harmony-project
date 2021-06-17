@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Button, Text, ActivityIndicator, StyleSheet,
 } from 'react-native';
@@ -6,6 +6,7 @@ import { TextInput } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
+import { notifyAuthor } from '../../screens/Notifications/NotificationsScreen';
 
 const styles = StyleSheet.create({
   container: {
@@ -17,34 +18,50 @@ const styles = StyleSheet.create({
 });
 
 export default function NewCommentScreen({ navigation }) {
+  const { uid } = Firebase.auth().currentUser;
   const [body, setBody] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const postId = navigation.getParam('id', 'No id Found');
-  const mainScreenLoadStatus = navigation.getParam('currentLoad');
-  const reloadMainScreen = navigation.getParam('setLoad');
+  const postId = navigation.params?.postid ?? '';
+  const mainScreenLoadStatus = navigation.params?.currentLoad;
+  const reloadMainScreen = navigation.params?.setLoad;
+  const [commenterName, setCommenterName] = useState('');
+
+  useEffect(() => {
+    Firestore().collection('users').doc(uid).get()
+      .then((doc) => {
+        const data = doc.data();
+        if (data) {
+          setCommenterName(data.name);
+        }
+      });
+  });
 
   const handleSubmit = () => {
     setLoading(true);
-    reloadMainScreen(!mainScreenLoadStatus);
+    // reloadMainScreen(!mainScreenLoadStatus);
+
     const commentRecord = {
       postId,
       body,
       createdAt: Firestore.Timestamp.now(),
       updatedAt: Firestore.Timestamp.now(),
-      author: Firebase.auth().currentUser.uid,
+      author: uid,
       title: 'Comment',
       likedBy: {},
     };
+
     Firestore().collection('comments')
       .add(commentRecord)
       .then(() => {
         setLoading(false);
-        navigation.navigate('Post');
+        navigation.goBack();
       })
       .catch((error) => {
         setErrorMessage(error.message);
       });
+
+    notifyAuthor(postId, `${commenterName} has commented on your post `, 'BULLETIN');
   };
 
   return (
@@ -68,8 +85,10 @@ export default function NewCommentScreen({ navigation }) {
 
 NewCommentScreen.propTypes = {
   navigation: PropTypes.shape({
-    getParam: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
+  }).isRequired,
+  route: PropTypes.shape({
+    params: PropTypes.func.isRequired,
   }).isRequired,
 };
 

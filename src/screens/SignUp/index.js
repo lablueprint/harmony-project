@@ -1,3 +1,5 @@
 import SignUpScreen from './SignUpScreen';
+import UserInformationScreen from './UserInformationScreen';
+import InstrumentSelectionScreen from './InstrumentSelectionScreen';
 
-export default SignUpScreen;
+export { SignUpScreen, UserInformationScreen, InstrumentSelectionScreen };
