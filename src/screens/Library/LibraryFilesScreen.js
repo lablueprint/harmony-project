@@ -1,24 +1,62 @@
+/* eslint-disable no-console */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
-  StyleSheet, SafeAreaView, ScrollView, View, Alert, TouchableHighlight, Text,
+  StyleSheet, ScrollView, View, Alert, TouchableHighlight, Text,
 } from 'react-native';
-import { SearchBar } from 'react-native-elements';
+import { SearchBar, Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
+import toPreview from './LibraryFunctions';
+import ClassroomContext from '../../context/ClassroomContext';
 
 const styles = StyleSheet.create({
   container: {
     marginBottom: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#F6F6F6',
+    height: '100%',
   },
-  subContainer: {
-    marginBottom: 10,
-    padding: 10,
-  },
-  card: {
+  headerContainer: {
     height: 50,
     width: '100%',
     backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderColor: '#BDBDBD',
+    paddingLeft: 20,
+    paddingTop: 20,
+    paddingBottom: 40, // scuffed????
+  },
+  headerText: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 24,
+  },
+  subCard: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  card: {
+    height: 20,
+    width: '100%',
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderColor: '#BDBDBD',
+    paddingVertical: 30,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 20,
+  },
+  cardIcon: {
+    position: 'absolute',
+    left: 20,
+  },
+  cardText: {
+    fontFamily: 'Inter',
+    fontSize: 16,
+    paddingLeft: 55,
+  },
+  cardContainer: {
+    height: '100%',
   },
   searchContainer: {
     display: 'flex',
@@ -28,6 +66,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F6F6F6',
     width: '100%',
     height: 72,
+    borderBottomWidth: 1,
+    borderColor: '#BDBDBD',
   },
   searchBar: {
     backgroundColor: 'rgba(0, 0, 0, 0)',
@@ -51,123 +91,147 @@ const styles = StyleSheet.create({
 });
 
 export default function LibraryFilesScreen({ navigation, route }) {
-  const { fileType, classFiles } = route.params; // fileType = 'Videos', 'Photos', or 'Files'
+  const {
+    fileType, classFiles, classroom,
+  } = route.params; // fileType = 'Video', 'Photo', or 'File'
   const [searchText, setSearch] = useState('');
-  const [searchFiles, setSearchFiles] = useState({});
-  const [items, setItems] = useState([]);
+  const [searchFiles, setSearchFiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const items = {
+    code: classFiles.code,
+    name: classFiles.name,
+    files: classFiles[`${fileType.toLowerCase()}s`],
+  };
 
-  useEffect(() => {
-    if (fileType === 'Videos') {
-      classFiles.forEach((c) => {
-        setItems((f) => [...f, { code: c.code, name: c.name, files: c.videos }]);
-      });
-    } else if (fileType === 'Photos') {
-      classFiles.forEach((c) => {
-        setItems((f) => [...f, { code: c.code, name: c.name, files: c.photos }]);
-      });
-    } else if (fileType === 'Files') {
-      classFiles.forEach((c) => {
-        setItems((f) => [...f, { code: c.code, name: c.name, files: c.files }]);
-      });
-    }
-  }, []);
+  const {
+    classroom: selectedClassroom,
+  } = useContext(ClassroomContext);
 
   // search function
   useEffect(() => {
+    setLoading(true);
     if (searchText) {
-      items.forEach((c) => {
-        // eslint-disable-next-line max-len
-        const files = c.files.filter((f) => f.name.toLowerCase().includes(searchText.toLowerCase()));
-        if (files.length) {
-          setSearchFiles({
-            ...searchFiles,
-            [c.code]: { name: c.name, files },
-          });
-        } else {
-          setSearchFiles((prev) => {
-            const tempFiles = { ...prev };
-            delete tempFiles[c.code];
-            return tempFiles;
-          });
-        }
-      });
+      // eslint-disable-next-line max-len
+      const files = items.files.filter((f) => f.name.toLowerCase().includes(searchText.toLowerCase()));
+      if (files.length) {
+        setSearchFiles(files);
+      } else {
+        setSearchFiles([]);
+      }
+      setLoading(false);
     } else {
-      setSearchFiles({});
+      setSearchFiles([]);
     }
   }, [searchText]);
+
+  useEffect(() => {
+    if (selectedClassroom !== classroom) {
+      navigation.navigate('Library');
+    }
+  }, [selectedClassroom]);
 
   if (!fileType) {
     Alert.alert('Error: No file type specified to display!');
     return navigation.goBack();
   }
 
-  const text = fileType;
-
   return (
-    <SafeAreaView>
-      <ScrollView class={styles.container}>
-        <Text>
-          {text}
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>
+          {`${items.name}'s ${fileType}s`}
         </Text>
-        <View style={styles.searchContainer}>
-          <SearchBar
-            lightTheme
-            inputContainerStyle={styles.searchBarInputContainer}
-            inputStyle={styles.searchBarInput}
-            containerStyle={styles.searchBar}
-            searchIcon={{ size: 27 }}
-            placeholder={`Search ${text}`}
-            onChangeText={setSearch}
-            value={searchText}
-          />
-        </View>
-        <Text>{`${Object.keys(searchFiles).length}`}</Text>
-        {searchText ? (
-          <View>
-            {searchFiles && Object.keys(searchFiles).length ? (
-              Object.entries(searchFiles).map(([code, obj]) => (
-                <View class={styles.card} key={code}>
-                  <Text>{obj.name}</Text>
-                  {obj.files.map((f) => (
-                    <TouchableHighlight class={styles.subContainer} key={f.name}>
-                      <Text>{f.name}</Text>
-                    </TouchableHighlight>
-                  ))}
-                </View>
-              ))
-            ) : (
-              <Text>
-                No matching files found.
-              </Text>
-            )}
-          </View>
-        ) : (
-          <View>
-            {items.map((i) => (
-              <View key={i.code}>
-                {i.files.length > 0 && (
-                  <View class={styles.card}>
-                    <Text>{i.name}</Text>
-                    {i.files.map((f) => (
-                      <TouchableHighlight class={styles.subContainer} key={f.name}>
-                        <Text>{f.name}</Text>
-                      </TouchableHighlight>
-                    ))}
+      </View>
+      <View style={styles.searchContainer}>
+        <SearchBar
+          lightTheme
+          inputContainerStyle={styles.searchBarInputContainer}
+          inputStyle={styles.searchBarInput}
+          containerStyle={styles.searchBar}
+          searchIcon={{ size: 27 }}
+          placeholder={`Search ${fileType}s`}
+          onChangeText={setSearch}
+          value={searchText}
+        />
+      </View>
+      {searchText && !loading ? (
+        <>
+          {searchFiles.length > 0 ? (
+            <ScrollView style={styles.cardContainer}>
+              {searchFiles.map((f) => (
+                <TouchableHighlight
+                  underlayColor="#EEEEEE"
+                  onPress={() => {
+                    // f.getDownloadURL().then((url) => {
+                    //   viewFile(url, f.name);
+                    // });
+                    toPreview(navigation, fileType, f, selectedClassroom);
+                  }}
+                  style={styles.card}
+                  key={f.name}
+                >
+                  <View style={styles.subCard}>
+                    <Icon
+                      containerStyle={styles.cardIcon}
+                      name="image"
+                      type="feather"
+                      color="black"
+                      size={25}
+                    />
+                    <Text style={styles.cardText}>
+                      {f.name}
+                    </Text>
                   </View>
-                )}
+                </TouchableHighlight>
+              ))}
+            </ScrollView>
+          ) : (
+            <Text>
+              No matching files found.
+            </Text>
+          )}
+        </>
+      ) : (
+        <ScrollView style={styles.cardContainer}>
+          {items.files.length > 0 ? items.files.map((f) => (
+            <TouchableHighlight
+              underlayColor="#EEEEEE"
+              onPress={() => {
+                // f.getDownloadURL().then((url) => {
+                //   viewFile(url, f.name);
+                // });
+                toPreview(navigation, fileType, f, selectedClassroom);
+              }}
+              style={styles.card}
+              key={f.name}
+            >
+              <View style={styles.subCard}>
+                <Icon
+                  containerStyle={styles.cardIcon}
+                  name="image"
+                  type="feather"
+                  color="black"
+                  size={25}
+                />
+                <Text style={styles.cardText}>
+                  {f.name}
+                </Text>
               </View>
-            ))}
-          </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+            </TouchableHighlight>
+          )) : (
+            <Text style={{ paddingHorizontal: 20, paddingTop: 20 }}>
+              {`No ${fileType.toLowerCase()} yet! When your teacher uploads ${fileType.toLowerCase()}, they will show up here.`}
+            </Text>
+          )}
+        </ScrollView>
+      )}
+    </View>
   );
 }
 
 LibraryFilesScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-
     goBack: PropTypes.func.isRequired,
   }).isRequired,
 

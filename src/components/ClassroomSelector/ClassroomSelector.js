@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-console */
 import React, { useState, useEffect, useContext } from 'react';
 import {
@@ -11,7 +12,7 @@ import ClassroomContext from '../../context/ClassroomContext';
 
 const styles = StyleSheet.create({
   headerContainer: {
-    height: 130,
+    height: 135,
     margin: 0,
   },
   classroomHeaderText: {
@@ -60,19 +61,36 @@ const ClassroomSelector = () => {
 
   useEffect(() => {
     async function fetchClassrooms(results = []) {
-      const user = Firebase.auth().currentUser.uid;
-      await Firestore().collection('classrooms')
-        .where('studentIDs', 'array-contains', user)
+      setClassrooms([]);
+      const { uid } = Firebase.auth().currentUser;
+      Firestore().collection('classrooms')
+        .where('teacherIDs', 'array-contains', uid)
         .get()
         .then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
             results.push(doc);
           });
         })
+        .then(() => {
+          Firestore().collection('classrooms')
+            .where('studentIDs', 'array-contains', uid)
+            .get()
+            .then((querySnapshot) => {
+              querySnapshot.forEach((doc) => {
+                results.push(doc);
+              });
+            })
+            .then(() => {
+              setClassrooms(results);
+              setSelectedClassroom(results[0].id);
+            })
+            .catch((error) => {
+              console.log('User not enrolled in any classrooms as Student: ', error);
+            });
+        })
         .catch((error) => {
-          console.log('User not enrolled in any classrooms: ', error);
+          console.log('User not enrolled in any classrooms as Teacher: ', error);
         });
-      setClassrooms(results);
     }
     fetchClassrooms();
   }, []);
@@ -83,7 +101,7 @@ const ClassroomSelector = () => {
 
   const classroomButtons = (
     classrooms.map((c) => (
-      <View style={styles.classroomIconGroup} key={c}>
+      <View style={styles.classroomIconGroup} key={c.id}>
         <Avatar
           size={60}
           rounded

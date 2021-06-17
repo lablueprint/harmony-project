@@ -21,6 +21,7 @@ import { LibraryScreen, LibraryFilesScreen } from '../screens/Library';
 import { SignUpScreen, UserInformationScreen, InstrumentSelectionScreen } from '../screens/SignUp';
 import NotificationsScreen from '../screens/Notifications';
 import FeedbackScreen from '../screens/Feedback';
+
 const Stack = createStackNavigator();
 
 const MainStackNavigator = () => (
