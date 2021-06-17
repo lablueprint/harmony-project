@@ -27,6 +27,12 @@ const classDays = {
   default: 'MONDAY',
 };
 
+const fileTypes = {
+  video: 'Video',
+  photo: 'Photo',
+  file: 'File',
+};
+
 //////////////////////////////////////////////////////
 
 //////// INITIAL STATE OF FIRESTORE SCHEMAS /////////
@@ -75,7 +81,7 @@ const INITIAL_CHAT_STATE = {
 //////////////////////////////////////////////////////
 
 export {
-  roles, classTypes, classDays,
+  roles, classTypes, classDays, fileTypes,
 };
 export {
   INITIAL_USER_STATE, INITIAL_CLASSROOM_STATE, INITIAL_MESSAGE_STATE, INITIAL_CHAT_STATE,

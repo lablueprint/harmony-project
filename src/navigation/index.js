@@ -1,10 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 // import Firebase from '@react-native-firebase/app';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Auth from '@react-native-firebase/auth';
-import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import AuthNavigation from './AuthNavigation';
 import BottomTabNavigator from './BottomTabNavigation';
 import ClassroomContext from '../context/ClassroomContext';
@@ -30,6 +29,10 @@ const AppContainer = () => {
     return subscriber; // unsubscribe on unmount
   }, []);
 
+  // useEffect(() => {
+  //   console.log('hi');
+  // }, [header]);
+
   if (initializing) return null;
 
   // /* Check if user is logged in. If yes then isAuth is != null
@@ -54,7 +57,7 @@ const AppContainer = () => {
                   headerMode: 'screen',
                   header: () => getFocusedRouteNameFromRoute(route) !== 'Profile' && <ClassroomSelector />,
                   headerStyle: {
-                    height: 130, // Specify the height of your custom header
+                    height: 135, // Specify the height of your custom header
                   },
                 })}
               />
