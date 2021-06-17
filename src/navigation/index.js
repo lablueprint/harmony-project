@@ -63,7 +63,7 @@ const AppContainer = () => {
               <Root.Screen
                 name="AuthStack"
                 component={AuthNavigation}
-                options={{ title: '' }}
+                options={{ headerShown: false }}
               />
             )}
         </Root.Navigator>
