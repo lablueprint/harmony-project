@@ -9,6 +9,7 @@ import Firebase from '@react-native-firebase/app';
 import { Avatar } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient';
 import ClassroomContext from '../../context/ClassroomContext';
+import EnterClassCode from '../EnterClassCode';
 
 const styles = StyleSheet.create({
   headerContainer: {
@@ -131,6 +132,29 @@ const ClassroomSelector = () => {
     ))
   );
 
+  const addClassroomButton = (
+    <View style={styles.classroomIconGroup}>
+      <Avatar
+        size={60}
+        rounded
+        overlayContainerStyle={styles.classroomIconContainer}
+        icon={{ // fallback icon if profilePicture is invalid
+          name: 'add-outline',
+          type: 'ionicon',
+        }}
+        imageProps={{
+          resizeMode: 'cover',
+        }}
+        onPress={() => {
+          // TODO: add border/outline to classroom on select
+        }}
+      />
+      <Text style={styles.classroomIconText} numberOfLines={1}>
+        Add Class
+      </Text>
+    </View>
+  );
+
   return (
     <ClassroomContext.Provider value={{ selectedClassroom, setSelectedClassroom }}>
       <View style={styles.headerContainer}>
@@ -142,6 +166,7 @@ const ClassroomSelector = () => {
         >
           <Text style={styles.classroomHeaderText}>My Classrooms</Text>
           <ScrollView horizontal indicatorStyle="white" style={{ paddingLeft: 10 }}>
+            {addClassroomButton}
             {classroomButtons}
           </ScrollView>
         </LinearGradient>
