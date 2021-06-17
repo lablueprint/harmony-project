@@ -571,20 +571,7 @@ export default function UserInformationScreen({ route, navigation }) {
               if (!verifyFirstName() && !verifyLastName() && !verifyStudentID()
               && !verifyGrade() && !verifyEmail() && !verifyPassword()
               && !verifyReenterPwd()) {
-<<<<<<< HEAD
                 signup();
-=======
-                navigation.navigate('InstrumentSelection', {
-                  classCode,
-                  role,
-                  email,
-                  firstName,
-                  lastName,
-                  profilePic: '',
-                  studentID,
-                  gradeLevel,
-                });
->>>>>>> 7434dc94c2f62f0a56f89e699cd486de5b0380b6
               }
             }}
           />
