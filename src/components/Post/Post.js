@@ -9,6 +9,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
 import Comment from './Comment';
 import { INITIAL_USER_STATE } from '../../components';
+import { Icon } from 'react-native-elements';
 
 const styles = StyleSheet.create({
   container: {
@@ -35,7 +36,19 @@ const styles = StyleSheet.create({
   },
   bodyText: {
     fontSize: 14,
+    padding: 15,
   },
+  iconContainer: {
+    justifyContent: "space-between",
+    alignContent: 'center',
+    flexDirection: 'row',
+  },
+  icon: {
+    justifyContent: 'center',
+    padding: 8,
+    marginTop: 10,
+    flexDirection: 'row',
+  }
 });
 
 // loadAmount refers to how many comments are loaded when clicking "Load Comments"
@@ -43,12 +56,12 @@ const styles = StyleSheet.create({
 const loadAmount = 1;
 
 function CommentLoader({
-  postID, 
-  loadingNewComment, 
-  numCommentsLoaded, 
-  setloadedLastComment, 
+  postID,
+  loadingNewComment,
+  numCommentsLoaded,
+  setloadedLastComment,
   loadedLastComment,
-  setNoComments, 
+  setNoComments,
   noComments,
 }) {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -235,10 +248,9 @@ function DisplayLikes({ postID, collection }) {
 
   return (
     <Text>
-      {'\n'}
       {numLikes}
       {' '}
-      people liked this post.
+      Likes
     </Text>
   );
 }
@@ -310,10 +322,10 @@ function LoadCommentButton({
 }
 
 function PinPost({
-  postID, 
-  initialValue, 
-  collection, 
-  rerender, 
+  postID,
+  initialValue,
+  collection,
+  rerender,
   setRerender,
 }) {
   return (
@@ -338,16 +350,17 @@ function PinPost({
 export default function Post({
   author,
   title,
-  createdAt, 
-  date, 
-  body, 
-  attachments, 
-  id, 
-  loadingNewComment, 
-  collection, 
+  createdAt,
+  date,
+  body,
+  attachments,
+  id,
+  loadingNewComment,
+  collection,
   pin,
   rerender,
   setRerender,
+  navigation,
 }) {
   const [loading, setLoading] = useState(false);
   const [hasLiked, setHasLiked] = useState(false);
@@ -358,9 +371,12 @@ export default function Post({
   const [hasDeleted, setHasDeleted] = useState(false);
   const userID = Firebase.auth().currentUser.uid;
   const [authorState, setAuthorState] = useState(INITIAL_USER_STATE);
-  
+
+
   const [showMore, setShowMore] = useState(true);
   const [buttons, setButtons] = useState(true);
+  // eslint-disable-next-line no-unused-vars
+  const [isPin, setPin] = useState(pin);
 
   const [lines, setLines] = useState(6);
 
@@ -386,23 +402,19 @@ export default function Post({
       });
   }, [collection, id, userID]);
 
-
-// Fetch author name of post
+  // Fetch author name of post
   useEffect(() => {
-      Firestore().collection('users').doc(author).get()
-        .then((document) => {
-          if (document.exists) {
-            return document.data();
-          }
-          return null;
-        })
-        .then((data) => {
-          setAuthorState(data);
+    Firestore().collection('users').doc(author).get()
+      .then((document) => {
+        if (document.exists) {
+          return document.data();
         }
-        );
+        return null;
+      })
+      .then((data) => {
+        setAuthorState(data);
+      });
   }, [collection, id, userID]);
-
-
 
   // Runs whenever loading changes (someone hits the 'Like' or 'Unlike' button).
   useEffect(() => {
@@ -435,19 +447,25 @@ export default function Post({
   return (
     hasDeleted ? null : (
       <View style={styles.container}>
-        {author !== '' && 
+        {author !== ''
+          && (
           <Text>
-          {`${authorState.firstName} ${authorState.lastName}`}
+            {`${authorState.firstName} ${authorState.lastName}`}
           </Text>
-        }
+          )}
         <Text style={styles.timeText}>
-          {date} @ {createdAt}
+          {date}
+          {' '}
+          @
+          {' '}
+          {createdAt}
         </Text>
-        {title !== '' && 
+        {title !== ''
+          && (
           <Text style={styles.topicText}>
             {title}
           </Text>
-        }
+          )}
 
         <View style={styles.contentContainer}>
           <Text numberOfLines={lines} onTextLayout={onTextLayout}>
@@ -478,28 +496,55 @@ export default function Post({
             />
           ) : null}
         </View>
-        <DisplayLikes postID={id} collection={collection} />
+        <View style={styles.iconContainer}>
         {hasLiked ? (
-          <View style={{ flexDirection: 'row' }}>
-            <Button
+          <View style={styles.icon}>
+            <Icon
+              containerStyle = {color = 'red'}
+              name = 'heart'
+              type = 'antdesign'
+              color = 'red'
+              style={styles.icon}
               title="Unlike"
               onPress={() => {
                 setLoading(!loading);
                 unlikeButton(id, collection);
               }}
             />
+            <DisplayLikes postID={id} collection={collection} />
           </View>
         ) : (
-          <View style={{ flexDirection: 'row' }}>
-            <Button
+          <View style={styles.icon}>
+            <Icon
+              name = 'heart'
+              type = 'feather'
+              style={styles.icon}
               title="Like"
               onPress={() => {
                 setLoading(!loading);
                 likeButton(id, collection);
               }}
             />
+            <DisplayLikes postID={id} collection={collection} />
+
           </View>
+          
         )}
+        <View style={styles.icon}>
+        <Icon
+              name = 'message-circle'
+              type = 'feather'
+              style={styles.icon}
+              onPress={() => {
+                  navigation.navigate('NewComment', { uid, postid: id, setLoad: loadingNewComment });
+                }}
+              />
+              <Text>Comment</Text>
+        </View>
+        
+          </View>
+       
+        
         {isAuthor && (
           <PinPost
             postID={id}
@@ -557,7 +602,7 @@ export default function Post({
             }}
           />
         ) : null}
-        <CommentLoader
+        {/* <CommentLoader
           postID={id}
           loadingNewComment={loadingNewComment}
           numCommentsLoaded={numCommentsLoaded}
@@ -574,7 +619,7 @@ export default function Post({
                 setNumCommentsLoaded(numCommentsLoaded + loadAmount);
               }}
             />
-          )}
+          )} */}
         {/* <LoadCommentButton
         loadedLastComment={loadedLastComment}
         noComments={noComments}
@@ -587,6 +632,7 @@ export default function Post({
 }
 
 Post.propTypes = {
+  author: PropTypes.string,
   title: PropTypes.string,
   createdAt: PropTypes.string,
   date: PropTypes.string, // date object ?
@@ -601,11 +647,11 @@ Post.propTypes = {
 };
 
 Post.defaultProps = {
+  author: '',
   title: '',
   createdAt: '',
   date: '',
   id: '',
-  attachment: '',
   loadingNewComment: false,
   attachments: [],
 };

@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function StudentsNamesScreen({ navigation }) {
-  const studentIDs = navigation.getParam('students', null);
+export default function StudentsNamesScreen({ route, navigation }) {
+  const { studentIDs } = route.params;
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
@@ -91,5 +91,8 @@ StudentsNamesScreen.propTypes = {
   navigation: PropTypes.shape({
     getParam: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
+  }).isRequired,
+  route: PropTypes.shape({
+    params: PropTypes.func.isRequired,
   }).isRequired,
 };

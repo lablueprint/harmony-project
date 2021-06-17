@@ -106,6 +106,7 @@ export default function ProfileScreen({ navigation }) {
             setUserState(data);
             if (!data.instruments) return;
             const temp = data.instruments.map((instrument, index) => (
+              // eslint-disable-next-line react/no-array-index-key
               <Text key={index} style={[styles.subtextContainer, styles.instrumentTextContainer]}>
                 {' '}
                 {instrument}

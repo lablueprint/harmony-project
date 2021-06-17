@@ -4,10 +4,8 @@ import {
 } from 'react-native';
 import { Button, Input, CheckBox } from 'react-native-elements';
 import { Picker } from '@react-native-picker/picker';
-import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import Svg from 'react-native-svg';
-import Firestore from '@react-native-firebase/firestore';
 import SignInWave from '../SignIn/background.svg';
 import DatePicker from '../../components/DatePicker';
 import SignUpScreen from './SignUpScreen';
@@ -273,6 +271,7 @@ export default function UserInformationScreen({ route, navigation }) {
     if (email.length === 0) {
       setEmailErr('*Invalid Email');
       error = true;
+    // eslint-disable-next-line max-len
     } /* else if (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(email.toLowerCase())) {
       setEmailErr('*Invalid Email');
       error = true;
@@ -572,7 +571,20 @@ export default function UserInformationScreen({ route, navigation }) {
               if (!verifyFirstName() && !verifyLastName() && !verifyStudentID()
               && !verifyGrade() && !verifyEmail() && !verifyPassword()
               && !verifyReenterPwd()) {
+<<<<<<< HEAD
                 signup();
+=======
+                navigation.navigate('InstrumentSelection', {
+                  classCode,
+                  role,
+                  email,
+                  firstName,
+                  lastName,
+                  profilePic: '',
+                  studentID,
+                  gradeLevel,
+                });
+>>>>>>> 7434dc94c2f62f0a56f89e699cd486de5b0380b6
               }
             }}
           />
@@ -590,7 +602,7 @@ export default function UserInformationScreen({ route, navigation }) {
   );
 }
 
-UserInformationScreen.navigationOptions = ({ navigation }) => ({
+UserInformationScreen.navigationOptions = () => ({
   title: 'Sign In',
   headerShown: false,
 });
