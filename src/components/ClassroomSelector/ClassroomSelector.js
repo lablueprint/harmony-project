@@ -1,8 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-console */
-import React, { useState, useEffect, useContext } from 'react';
+import React, {
+  useState, useEffect, useContext, useRef,
+} from 'react';
 import {
-  View, ScrollView, StyleSheet, Text,
+  View, StyleSheet, Text, Animated,
 } from 'react-native';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
@@ -13,7 +15,7 @@ import EnterClassCode from '../EnterClassCode';
 
 const styles = StyleSheet.create({
   headerContainer: {
-    height: 140,
+    height: 150,
     margin: 0,
   },
   classroomHeaderText: {
@@ -34,28 +36,28 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   classroomIconContainer: {
-    backgroundColor: '#9ACA3C',
+    backgroundColor: '#BDBDBD',
     // borderColor: 'rgba(245,245,245,0.7)',
     // borderWidth: 3,
   },
   selectedClassroomIcon: {
     borderRadius: 40,
-    borderWidth: 5,
+    borderWidth: 6,
     borderColor: 'rgba(227, 164, 164, 0.5)',
     borderStyle: 'solid',
   },
   classroomIconText: {
+    marginTop: 5,
     color: 'white',
     textShadowColor: 'darkslategrey',
-    textShadowRadius: 2,
-    textShadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    width: 52,
+    width: 60,
     fontSize: 11,
-    fontWeight: 'bold',
     textTransform: 'capitalize',
+    textAlign: 'center',
+  },
+  selectedClassroomIconText: {
+    fontWeight: 'bold',
+    fontSize: 13,
   },
 });
 
@@ -64,54 +66,111 @@ const ClassroomSelector = () => {
     classroom: selectedClassroom,
     setClassroom: setSelectedClassroom,
   } = useContext(ClassroomContext);
+
+  const { uid } = Firebase.auth().currentUser;
   const [classrooms, setClassrooms] = useState([]);
+  const [askClassCode, setAskClassCode] = useState(false);
+  const [classCode, setClassCode] = useState('');
+
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
+  const transXAnim = useRef(new Animated.Value(0)).current;
+
+  /**
+  * Fetches a user's classrooms and updates the classrooms state variable
+  */
+  async function fetchClassrooms(results = []) {
+    setClassrooms([]);
+    Firestore().collection('classrooms')
+      .where('teacherIDs', 'array-contains', uid)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          results.push(doc);
+        });
+      })
+      .then(() => {
+        Firestore().collection('classrooms')
+          .where('studentIDs', 'array-contains', uid)
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              results.push(doc);
+            });
+          })
+          .then(() => {
+            setClassrooms(results);
+            setSelectedClassroom(results[0].id);
+          })
+          .catch((error) => {
+            console.log('User not enrolled in any classrooms as Student: ', error);
+          });
+      })
+      .catch((error) => {
+        console.log('User not enrolled in any classrooms as Teacher: ', error);
+      });
+  }
+
+  /**
+   * Add user's uid to the classroom depending on their role
+   * (Student, studentIDs) (Teacher, teacherIDs)
+   */
+  async function addToClassroom() {
+    Firestore().collection('users').doc(uid).get()
+      .then((doc) => {
+        if (doc.exists) {
+          return doc.data().role;
+        }
+        return '';
+      })
+      .then((role) => {
+        if (role === 'Student') {
+          Firestore().collection('classrooms').doc(classCode)
+            .update({
+              studentIDs: Firestore.FieldValue.arrayUnion(uid),
+            })
+            .catch((e) => {
+              console.warn(e);
+            });
+        } else if (role === 'Teacher') {
+          Firestore().collection('classrooms').doc(classCode)
+            .update({
+              teacherIDs: Firestore.FieldValue.arrayUnion(uid),
+            })
+            .catch((e) => {
+              console.warn(e);
+            });
+        }
+      });
+  }
 
   useEffect(() => {
-    async function fetchClassrooms(results = []) {
-      setClassrooms([]);
-      const { uid } = Firebase.auth().currentUser;
-      Firestore().collection('classrooms')
-        .where('teacherIDs', 'array-contains', uid)
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            results.push(doc);
-          });
-        })
-        .then(() => {
-          Firestore().collection('classrooms')
-            .where('studentIDs', 'array-contains', uid)
-            .get()
-            .then((querySnapshot) => {
-              querySnapshot.forEach((doc) => {
-                results.push(doc);
-              });
-            })
-            .then(() => {
-              setClassrooms(results);
-              setSelectedClassroom(results[0].id);
-            })
-            .catch((error) => {
-              console.log('User not enrolled in any classrooms as Student: ', error);
-            });
-        })
-        .catch((error) => {
-          console.log('User not enrolled in any classrooms as Teacher: ', error);
-        });
-    }
     fetchClassrooms();
   }, []);
 
   useEffect(() => {
-    console.log('Classroom changed to', selectedClassroom);
-  }, [selectedClassroom]);
+    if (classCode !== '') {
+      addToClassroom();
+      fetchClassrooms();
+    }
+  }, [classCode]);
+
+  useEffect(() => {
+    Animated.timing(
+      fadeAnim,
+      {
+        toValue: 1,
+        duration: 2500,
+        useNativeDriver: true,
+      },
+    ).start();
+  }, [fadeAnim]);
 
   const classroomButtons = (
     classrooms.map((c) => (
       <View style={styles.classroomIconGroup} key={c.id}>
         <View style={(selectedClassroom === c.id) && styles.selectedClassroomIcon}>
           <Avatar
-            size={60}
+            size={58}
             rounded
             overlayContainerStyle={styles.classroomIconContainer}
             source={
@@ -132,8 +191,12 @@ const ClassroomSelector = () => {
             }}
           />
         </View>
-
-        <Text style={styles.classroomIconText} numberOfLines={1}>
+        <Text
+          style={[styles.classroomIconText,
+            (selectedClassroom === c.id) && styles.selectedClassroomIconText,
+          ]}
+          numberOfLines={1}
+        >
           {c.data().name}
         </Text>
       </View>
@@ -143,7 +206,7 @@ const ClassroomSelector = () => {
   const addClassroomButton = (
     <View style={styles.classroomIconGroup}>
       <Avatar
-        size={60}
+        size={58}
         rounded
         overlayContainerStyle={styles.classroomIconContainer}
         icon={{
@@ -154,10 +217,13 @@ const ClassroomSelector = () => {
           resizeMode: 'cover',
         }}
         onPress={() => {
-          // TODO: EnterClassCode should be displayed on the screen
+          setAskClassCode(true);
         }}
       />
-      <Text style={styles.classroomIconText} numberOfLines={1}>
+      <Text
+        style={styles.classroomIconText}
+        numberOfLines={1}
+      >
         Add Class
       </Text>
     </View>
@@ -173,11 +239,20 @@ const ClassroomSelector = () => {
           style={{ height: '100%' }}
         >
           <Text style={styles.classroomHeaderText}>My Classrooms</Text>
-          <ScrollView horizontal indicatorStyle="white" style={{ paddingLeft: 10 }}>
+          <Animated.ScrollView
+            horizontal
+            indicatorStyle="white"
+            style={{ paddingLeft: 10, opacity: fadeAnim }}
+          >
             {addClassroomButton}
             {classroomButtons}
-          </ScrollView>
+          </Animated.ScrollView>
         </LinearGradient>
+        <EnterClassCode
+          doDisplay={askClassCode}
+          setDoDisplay={setAskClassCode}
+          setClassCode={setClassCode}
+        />
       </View>
     </ClassroomContext.Provider>
   );
