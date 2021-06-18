@@ -13,7 +13,7 @@ import EnterClassCode from '../EnterClassCode';
 
 const styles = StyleSheet.create({
   headerContainer: {
-    height: 135,
+    height: 140,
     margin: 0,
   },
   classroomHeaderText: {
@@ -37,6 +37,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#9ACA3C',
     // borderColor: 'rgba(245,245,245,0.7)',
     // borderWidth: 3,
+  },
+  selectedClassroomIcon: {
+    borderRadius: 40,
+    borderWidth: 5,
+    borderColor: 'rgba(227, 164, 164, 0.5)',
+    borderStyle: 'solid',
   },
   classroomIconText: {
     color: 'white',
@@ -103,28 +109,30 @@ const ClassroomSelector = () => {
   const classroomButtons = (
     classrooms.map((c) => (
       <View style={styles.classroomIconGroup} key={c.id}>
-        <Avatar
-          size={60}
-          rounded
-          overlayContainerStyle={styles.classroomIconContainer}
-          source={
+        <View style={(selectedClassroom === c.id) && styles.selectedClassroomIcon}>
+          <Avatar
+            size={60}
+            rounded
+            overlayContainerStyle={styles.classroomIconContainer}
+            source={
             // workaround to fix icon fallback not appearing correctly: see https://github.com/react-native-elements/react-native-elements/issues/2143
             c.data().profilePicture
               ? { uri: c.data().profilePicture }
               : { uri: 'no-image' }
-          }
-          icon={{ // fallback icon if profilePicture is invalid
-            name: 'musical-note',
-            type: 'ionicon',
-          }}
-          imageProps={{
-            resizeMode: 'cover',
-          }}
-          onPress={() => {
-            setSelectedClassroom(c.id);
-            // TODO: add border/outline to classroom on select
-          }}
-        />
+            }
+            icon={{ // fallback icon if profilePicture is invalid
+              name: 'musical-note',
+              type: 'ionicon',
+            }}
+            imageProps={{
+              resizeMode: 'cover',
+            }}
+            onPress={() => {
+              setSelectedClassroom(c.id);
+            }}
+          />
+        </View>
+
         <Text style={styles.classroomIconText} numberOfLines={1}>
           {c.data().name}
         </Text>
@@ -138,7 +146,7 @@ const ClassroomSelector = () => {
         size={60}
         rounded
         overlayContainerStyle={styles.classroomIconContainer}
-        icon={{ // fallback icon if profilePicture is invalid
+        icon={{
           name: 'add-outline',
           type: 'ionicon',
         }}
@@ -146,7 +154,7 @@ const ClassroomSelector = () => {
           resizeMode: 'cover',
         }}
         onPress={() => {
-          // TODO: add border/outline to classroom on select
+          // TODO: EnterClassCode should be displayed on the screen
         }}
       />
       <Text style={styles.classroomIconText} numberOfLines={1}>
