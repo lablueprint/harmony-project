@@ -87,6 +87,7 @@ export default function ProfileScreen({ navigation }) {
 
   const { uid } = Firebase.auth().currentUser;
   const ref = Firestore().collection('users');
+  const role = '';
   const [userState, setUserState] = useState(INITIAL_USER_STATE);
   const [instrumentList, setInstrumentList] = useState([]);
   // const [newState, setNewState] = useState(INITIAL_USER_STATE);
@@ -104,16 +105,19 @@ export default function ProfileScreen({ navigation }) {
           })
           .then((data) => {
             setUserState(data);
-            if (!data.instruments) return;
-            const temp = data.instruments.map((instrument, index) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <Text key={index} style={[styles.subtextContainer, styles.instrumentTextContainer]}>
-                {' '}
-                {instrument}
-                {' '}
-              </Text>
-            ));
-            setInstrumentList(temp);
+            if (data.instruments) {
+              const temp = data.instruments.map((instrument, index) => (
+                // eslint-disable-next-line react/no-array-index-key
+                <Text key={index} style={[styles.subtextContainer, styles.instrumentTextContainer]}>
+                  {' '}
+                  {instrument}
+                  {' '}
+                </Text>
+              ));
+              setInstrumentList(temp);
+            } else {
+              return;
+            }
 
             // setNewState(data);
             if (loading) setLoading(false);
@@ -156,8 +160,13 @@ export default function ProfileScreen({ navigation }) {
             <Text h4>{`${userState.firstName} ${userState.lastName}`}</Text>
           </View>
           <View style={[styles.childCenter, styles.horizontalListContainer]}>
-            <Text style={[styles.subtextContainer]}>Student</Text>
-            <Text style={[styles.subtextContainer, styles.gradeLevelContainer]}>{`Grade ${userState.gradeLevel}`}</Text>
+            <Text style={[styles.subtextContainer]}>{userState.role}</Text>
+            {(role === 'Student')
+              && (
+                <Text style={[styles.subtextContainer, styles.gradeLevelContainer]}>
+                  {`Grade ${userState.gradeLevel}`}
+                </Text>
+              )}
           </View>
         </View>
       </View>
