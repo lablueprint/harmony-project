@@ -7,9 +7,9 @@ import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
 import { ScrollView } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
-import Comment from './Comment';
-import { INITIAL_USER_STATE } from '../../components';
 import { Icon } from 'react-native-elements';
+import Comment from './Comment';
+import { INITIAL_USER_STATE } from '..';
 
 const styles = StyleSheet.create({
   container: {
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   iconContainer: {
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
     alignContent: 'center',
     flexDirection: 'row',
   },
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     padding: 8,
     marginTop: 10,
     flexDirection: 'row',
-  }
+  },
 });
 
 // loadAmount refers to how many comments are loaded when clicking "Load Comments"
@@ -372,7 +372,6 @@ export default function Post({
   const userID = Firebase.auth().currentUser.uid;
   const [authorState, setAuthorState] = useState(INITIAL_USER_STATE);
 
-
   const [showMore, setShowMore] = useState(true);
   const [buttons, setButtons] = useState(true);
   // eslint-disable-next-line no-unused-vars
@@ -497,54 +496,53 @@ export default function Post({
           ) : null}
         </View>
         <View style={styles.iconContainer}>
-        {hasLiked ? (
-          <View style={styles.icon}>
-            <Icon
-              containerStyle = {color = 'red'}
-              name = 'heart'
-              type = 'antdesign'
-              color = 'red'
-              style={styles.icon}
-              title="Unlike"
-              onPress={() => {
-                setLoading(!loading);
-                unlikeButton(id, collection);
-              }}
-            />
-            <DisplayLikes postID={id} collection={collection} />
-          </View>
-        ) : (
-          <View style={styles.icon}>
-            <Icon
-              name = 'heart'
-              type = 'feather'
-              style={styles.icon}
-              title="Like"
-              onPress={() => {
-                setLoading(!loading);
-                likeButton(id, collection);
-              }}
-            />
-            <DisplayLikes postID={id} collection={collection} />
-
-          </View>
-          
-        )}
-        <View style={styles.icon}>
-        <Icon
-              name = 'message-circle'
-              type = 'feather'
-              style={styles.icon}
-              onPress={() => {
-                  navigation.navigate('NewComment', { uid, postid: id, setLoad: loadingNewComment });
+          {hasLiked ? (
+            <View style={styles.icon}>
+              <Icon
+                containerStyle={color = 'red'}
+                name="heart"
+                type="antdesign"
+                color="red"
+                style={styles.icon}
+                title="Unlike"
+                onPress={() => {
+                  setLoading(!loading);
+                  unlikeButton(id, collection);
                 }}
               />
-              <Text>Comment</Text>
-        </View>
-        
+              <DisplayLikes postID={id} collection={collection} />
+            </View>
+          ) : (
+            <View style={styles.icon}>
+              <Icon
+                name="heart"
+                type="feather"
+                style={styles.icon}
+                title="Like"
+                onPress={() => {
+                  setLoading(!loading);
+                  likeButton(id, collection);
+                }}
+              />
+              <DisplayLikes postID={id} collection={collection} />
+
+            </View>
+
+          )}
+          <View style={styles.icon}>
+            <Icon
+              name="message-circle"
+              type="feather"
+              style={styles.icon}
+              onPress={() => {
+                navigation.navigate('NewComment', { uid, postid: id, setLoad: loadingNewComment });
+              }}
+            />
+            <Text>Comment</Text>
           </View>
-       
-        
+
+        </View>
+
         {isAuthor && (
           <PinPost
             postID={id}
