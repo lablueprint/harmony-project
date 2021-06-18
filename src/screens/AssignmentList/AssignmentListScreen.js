@@ -1,5 +1,5 @@
 import { ScrollView } from 'react-native-gesture-handler';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Text, View, StyleSheet,
   TouchableOpacity,
@@ -9,6 +9,7 @@ import { List, IconButton, FAB } from 'react-native-paper';
 import Firestore from '@react-native-firebase/firestore';
 import Firebase from '@react-native-firebase/app';
 import PropTypes from 'prop-types';
+import ClassroomContext from '../../context/ClassroomContext';
 
 const styles = StyleSheet.create({
   fab: {
@@ -146,11 +147,10 @@ const styles = StyleSheet.create({
  * @public
  * @memberOf Screens
  * @param {string} navigation
- * - The stack navigator that allows the app to transition between screens
+ * - The stack navigator that allows the aphp to transition between screens
  * @returns The AssignmentListScreen
  */
 export default function AssignmentListScreen({ navigation }) {
-  const [errorMessage, setErrorMessage] = useState(null);
   const { uid } = Firebase.auth().currentUser;
   const [assignmentsList, setAssignmentsList] = useState([]);
   const [rerender, setRerender] = useState(false);
@@ -163,10 +163,14 @@ export default function AssignmentListScreen({ navigation }) {
   const [completedAssignmentsList, setCompletedAssignmentsList] = useState([]);
   const [incompleteAssignmentsList, setIncompleteAssignmentsList] = useState([]);
   const [expanded, setExpanded] = useState(false);
+  // eslint-disable-next-line
+  const { classroom, setClassroom } = useContext(ClassroomContext);
+  const studentClassroomIDs = [classroom];
 
   const handlePress = () => setExpanded(!expanded);
   useEffect(() => {
     console.log('ONE');
+    console.log(classroom);
     async function getUserData() {
       Firestore().collection('users').doc(uid).get()
         .then((doc) => {
@@ -180,7 +184,7 @@ export default function AssignmentListScreen({ navigation }) {
         });
     }
     getUserData();
-  }, [navigation, rerender]);
+  }, [navigation, rerender, classroom]);
 
   useEffect(() => {
     if (!finished1) {
@@ -301,7 +305,7 @@ export default function AssignmentListScreen({ navigation }) {
       return [completedStudents, incompleteStudents];
     }
 
-    async function getSingleAssignment(assignment, studentClassroomIDs) {
+    async function getSingleAssignment(assignment, studentClassroomID) {
       const hasBeenEval = await isEvaluated(uid, assignment.id);
       const hasBeenSubmitted = await isSubmitted(uid, assignment.id);
       let studentsSeenTemp = [];
@@ -315,7 +319,7 @@ export default function AssignmentListScreen({ navigation }) {
       const totalStudents = studentsCompleted.length + studentsNotCompleted.length;
 
       // Only returns assignments with classroomIDs in classroomIDsList
-      if (studentClassroomIDs.includes(assignment.classroomID)) {
+      if (studentClassroomID.includes(assignment.classroomID)) {
         return (
           <>
             <View style={styles.container}>
@@ -469,78 +473,71 @@ export default function AssignmentListScreen({ navigation }) {
     }
 
     // Gets all the classrooms
-    Firestore().collection('classrooms').get()
-      .then((snapshot) => {
-        const studentClassroomIDs = []; // array of all classrooms a student is in
-        const classrooms = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        for (let i = 0; i < classrooms.length; i += 1) {
-          // Needs rewriting/var renaming for supporting teachers, but this seems to work for now
-          if (classrooms[i].studentIDs.includes(uid) || classrooms[i].teacherIDs.includes(uid)) {
-            studentClassroomIDs.push(classrooms[i].id);
+
+    // array of all classrooms a student is in
+    // const classrooms = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+    // for (let i = 0; i < classrooms.length; i += 1) {
+    //   // Needs rewriting/var renaming for supporting teachers, but this seems to work for now
+    //   if (classrooms[i].studentIDs.includes(uid) || classrooms[i].teacherIDs.includes(uid)) {
+    //     studentClassroomIDs.push(classrooms[i].id);
+    //   }
+    // }
+    // console.log(studentClassroomIDs);
+
+    // Gets all the assignments
+    if (isTeacher) {
+      Firestore().collection('assignments')
+        .orderBy('doPin', 'desc')
+        .orderBy('dueDate', 'asc')
+        .get()
+        .then((snapshot) => {
+          const assignments = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+          const getAssignments = async () => Promise.all(assignments.map(
+            async (assignment) => getSingleAssignment(assignment, studentClassroomIDs),
+          ));
+
+          async function setAssignments() {
+            const assigns = await getAssignments();
+            setAssignmentsList(assigns);
           }
-        }
-        console.log(studentClassroomIDs);
-        return studentClassroomIDs;
-      })
-      .then((studentClassroomIDs) => {
-        // Gets all the assignments
-        if (isTeacher) {
-          Firestore().collection('assignments')
-            .orderBy('doPin', 'desc')
-            .orderBy('dueDate', 'asc')
-            .get()
-            .then((snapshot) => {
-              const assignments = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-              const getAssignments = async () => Promise.all(assignments.map(
-                async (assignment) => getSingleAssignment(assignment, studentClassroomIDs),
-              ));
+          setAssignments();
+        });
+    } else {
+      Firestore().collection('assignments')
+        .orderBy('doPin', 'desc')
+        .orderBy('dueDate', 'asc')
+        .get()
+        .then(async (snapshot) => {
+          const assignments = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
 
-              async function setAssignments() {
-                const assigns = await getAssignments();
-                setAssignmentsList(assigns);
-              }
-              setAssignments();
-            });
-        } else {
-          Firestore().collection('assignments')
-            .orderBy('doPin', 'desc')
-            .orderBy('dueDate', 'asc')
-            .get()
-            .then(async (snapshot) => {
-              const assignments = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+          // orders assignments by completion
+          for (let i = 0; i < assignments.length; i += 1) {
+            if (assignments[i].studentsCompleted.includes(uid)) {
+              const temp = completedAssignments;
+              temp.push(assignments[i]);
+              setCompletedAssignments(temp);
+            } else {
+              const temp = incompleteAssignments;
+              temp.push(assignments[i]);
+              setIncompleteAssignments(temp);
+            }
+          }
 
-              // orders assignments by completion
-              for (let i = 0; i < assignments.length; i += 1) {
-                if (assignments[i].studentsCompleted.includes(uid)) {
-                  const temp = completedAssignments;
-                  temp.push(assignments[i]);
-                  setCompletedAssignments(temp);
-                } else {
-                  const temp = incompleteAssignments;
-                  temp.push(assignments[i]);
-                  setIncompleteAssignments(temp);
-                }
-              }
+          // TODO: MARK AS COMPLETE BUTTON
+          const getAssignments = async (allAssigns) => Promise.all(allAssigns.map(
+            async (assign) => getSingleAssignment(assign, studentClassroomIDs),
+          ));
 
-              // TODO: MARK AS COMPLETE BUTTON
-              const getAssignments = async (allAssigns) => Promise.all(allAssigns.map(
-                async (assign) => getSingleAssignment(assign, studentClassroomIDs),
-              ));
+          async function setLists() {
+            let assigns = await getAssignments(completedAssignments);
+            setCompletedAssignmentsList(assigns);
+            assigns = await getAssignments(incompleteAssignments);
+            setIncompleteAssignmentsList(assigns);
+          }
 
-              async function setLists() {
-                let assigns = await getAssignments(completedAssignments);
-                setCompletedAssignmentsList(assigns);
-                assigns = await getAssignments(incompleteAssignments);
-                setIncompleteAssignmentsList(assigns);
-              }
-
-              await setLists();
-            });
-        }
-      })
-      .catch((error) => {
-        setErrorMessage(error.message);
-      });
+          await setLists();
+        });
+    }
   }, [finished1, navigation, loadingNewPost, loadingNewComment,
     completedAssignments, incompleteAssignments, rerender]);
 
@@ -569,7 +566,6 @@ export default function AssignmentListScreen({ navigation }) {
             />
             )}
 
-        {errorMessage && <Text>{errorMessage}</Text>}
         {isTeacher && assignmentsList.length !== 0 && (
           <>
             { assignmentsList }
@@ -584,6 +580,9 @@ export default function AssignmentListScreen({ navigation }) {
         {!isTeacher
         && (
         <List.Section>
+          {!isTeacher
+        && completedAssignmentsList.length !== 0 && (
+        <List.Section>
           <List.Accordion
             title="Completed Assignments"
             expanded={expanded}
@@ -595,6 +594,8 @@ export default function AssignmentListScreen({ navigation }) {
             </>
             )}
           </List.Accordion>
+        </List.Section>
+          )}
         </List.Section>
         )}
 
