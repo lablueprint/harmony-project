@@ -35,8 +35,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    paddingLeft: 5
-  }
+    paddingLeft: 5,
+  },
 });
 
 /*
@@ -78,7 +78,7 @@ this will only run one time when the component is mounted
                 pin={announcement.doPin}
                 rerender={rerender}
                 setRerender={setRerender}
-                navigation = {navigation}
+                navigation={navigation}
               >
                 {announcement.body}
               </Post>
@@ -95,7 +95,7 @@ this will only run one time when the component is mounted
   return (
     <View style={styles.container}>
       <ScrollView>
-        
+
         {/* <Button
           title="Make a Post"
           onPress={() => {

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, ActivityIndicator, View, Text,
+  StyleSheet, ActivityIndicator, View, Text, ScrollView,
 } from 'react-native';
-import { Button, Input } from 'react-native-elements';
+import { Button, Input, Overlay } from 'react-native-elements';
 import Auth from '@react-native-firebase/auth';
 import PropTypes from 'prop-types';
 import Svg from 'react-native-svg';
@@ -54,7 +54,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   formContainer: {
-    height: 400,
     paddingTop: 40,
     padding: 20,
   },
@@ -115,39 +114,40 @@ export default function SignInScreen({ navigation }) {
 
   // login
   const login = async () => {
-    // setShowLoading(true);
+    setShowLoading(true);
     if (email === '' && password === '') {
       setEmailError('*Invalid Email');
       setPasswordError('*Invalid Password');
+      setShowLoading(false);
       return;
     } if (email === '') {
       setEmailError('*Invalid Email');
+      setShowLoading(false);
       return;
     } if (password === '') {
       setPasswordError('*Invalid Password');
+      setShowLoading(false);
       return;
     }
 
     Auth().signInWithEmailAndPassword(email, password)
-      .then(() => {
-        setShowLoading(false);
-      })
       .catch((e) => {
-        setShowLoading(false);
         const errorCode = e.code;
         if (errorCode === 'auth/invalid-email') {
           setEmailError('*Invalid Email');
         } else if (errorCode === 'auth/wrong-password') {
           setPasswordError('*Wrong password');
         }
+      })
+      .finally(() => {
+        setShowLoading(false);
       });
 
     setShowLoading(false);
-    // if valid signin, navigate to landing
   };
 
   return (
-    <View style={styles.screen}>
+    <ScrollView style={styles.screen}>
       <View style={styles.wavyBanner}>
         <Svg viewBox="0 0 375 450" width="100%" height="100%" preserveAspectRatio="none">
           <SignInWave />
@@ -158,6 +158,16 @@ export default function SignInScreen({ navigation }) {
         <Text style={[styles.whiteText, styles.h1]}>Harmony Project</Text>
       </View>
       <View style={styles.formContainer}>
+        <Overlay
+          isVisible={showLoading}
+          fullScreen
+          overlayBackgroundColor="transparent"
+          overlayStyle={{
+            flex: 1, flexDirection: 'column', justifyContent: 'center', alignContent: 'center',
+          }}
+        >
+          <ActivityIndicator size="large" color="#ffffff" />
+        </Overlay>
         <View style={styles.subContainer}>
           <Input
             onBlur={() => setEmailFocus(false)}
@@ -213,22 +223,10 @@ export default function SignInScreen({ navigation }) {
             }}
           />
         </View>
-        {showLoading
-          && (
-          <View style={styles.activity}>
-            <ActivityIndicator size="large" color="#828282" />
-          </View>
-          )}
       </View>
-    </View>
+    </ScrollView>
   );
 }
-
-// eslint-disable-next-line no-unused-vars
-SignInScreen.navigationOptions = ({ navigation }) => ({
-  title: 'Sign In',
-  headerShown: false,
-});
 
 SignInScreen.propTypes = {
   navigation: PropTypes.shape({

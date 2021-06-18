@@ -10,6 +10,7 @@ const styles = StyleSheet.create({
   labelStyles: {
     color: '#828282',
     fontWeight: 'bold',
+    marginLeft: 10,
   },
   unitStyles: {
     color: '#BDBDBD',
@@ -24,16 +25,12 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   monthInput: {
-    width: '33%',
+    width: '36%',
   },
   dayInput: {
-    width: '25%',
+    width: '30%',
   },
   yearInput: {
-    width: '33%',
-  },
-  textInput: {
-    fontSize: 30,
     width: '33%',
   },
 });
@@ -48,14 +45,20 @@ export default function DatePicker({
   const [month, setMonth] = useState(currMonth);
   const [year, setYear] = useState(currYear);
 
-  const [monthsDays, setDays] = useState([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]);
+  const [monthsDays, setDays] = useState([0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]);
   const pickerDays = [];
   for (let i = 1; i <= 31; ++i) {
     pickerDays.push(i);
   }
-  const pickerMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const pickerMonths = [];
+  for (let i = 1; i <= 12; i++) {
+    pickerMonths.push(i);
+  }
+
   const pickerYears = [];
-  for (let i = 1920; i <= 2021; ++i) {
+  const temp = new Date();
+  const currentYear = temp.getFullYear();
+  for (let i = currentYear; i >= 1920; i--) {
     pickerYears.push(i);
   }
 
@@ -106,10 +109,9 @@ export default function DatePicker({
           onValueChange={(itemValue) => {
             setDate(itemValue, day, year);
           }}
-          itemStyle={{ fontSize: 30 }}
         >
           <Picker.Item key={13} label="Month" value={-1} color="#828282" />
-          {pickerMonths.map((i, index) => (<Picker.Item key={i} label={i} value={index + 1} />))}
+          {pickerMonths.map((i, index) => (<Picker.Item key={i} label={`${i}`} value={index + 1} />))}
         </Picker>
 
         <Picker
