@@ -34,7 +34,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-image-gallery": "^1.0.9",
-    "react-native": "0.63.4",
+    "react-native": "0.64.1",
     "react-native-calendars": "^1.1209.0",
     "react-native-cli": "^2.0.1",
     "react-native-collapsible": "^1.5.3",
